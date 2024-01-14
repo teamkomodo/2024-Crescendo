@@ -59,7 +59,7 @@ public class DrivetrainSubsystem implements Subsystem {
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-    private boolean slowMode = true;
+    private boolean slowMode = true; // Defaults to true -- robot should automatically be slow
     private double rotationOffsetRadians = 0.0;
 
     public DrivetrainSubsystem(Field2d field) {

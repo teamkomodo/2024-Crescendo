@@ -11,6 +11,7 @@ import static frc.robot.Constants.*;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
     
@@ -27,6 +28,15 @@ public class RobotContainer {
     }
     
     private void configureBindings() {
+
+        // Triggers
+        Trigger rTrigger = driverController.rightTrigger();
+
+        //Slow/Fast Mode
+        rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
+        rTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+
+        // Drivetrain controls
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
                 () -> (driverController.getLeftY()), // +Y on left joystick is +X for robot
