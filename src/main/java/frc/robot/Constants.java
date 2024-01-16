@@ -72,11 +72,15 @@ public final class Constants {
     public static final double JOINT_AMP_POSITION = 0;
     public static final double JOINT_SPEAKER_POSITION = 0;
     public static final double JOINT_TRAP_POSITION = 0;
+    public static final double JOINT_INTAKE_POSITION = 0;
+    public static final double JOINT_SOURCE_POSITION = 0;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
     JOINT_STOW_POSITION,
     JOINT_AMP_POSITION,
     JOINT_SPEAKER_POSITION,
-    JOINT_TRAP_POSITION
+    JOINT_TRAP_POSITION,
+    JOINT_INTAKE_POSITION,
+    JOINT_SOURCE_POSITION
     };
 }
