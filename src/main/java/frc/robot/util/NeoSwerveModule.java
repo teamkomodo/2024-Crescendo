@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -9,7 +10,6 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -55,7 +55,9 @@ public class NeoSwerveModule implements SwerveModule{
 
         driveRelativeEncoder = driveMotor.getEncoder();
 
-        steerAbsoluteEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(Math.toDegrees(steerOffset)));
+        steerAbsoluteEncoder.getConfigurator().apply(new MagnetSensorConfigs()
+            .withMagnetOffset(steerOffset / (2 * Math.PI))
+            .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)); // CANCoder outputs between (-0.5, 0.5)
 
         steerRelativeEncoder = steerMotor.getEncoder();
         steerController = steerMotor.getPIDController();
@@ -65,16 +67,17 @@ public class NeoSwerveModule implements SwerveModule{
     }
 
     private void buildShuffleboard(ShuffleboardContainer container) {
-        container.addNumber("Desired Velocity", () -> desiredState.speedMetersPerSecond);
-        container.addNumber("Desired Rotation", () -> desiredState.angle.getDegrees());
-        container.addNumber("Rotation Error", () -> Math.toDegrees(steerRelativeEncoder.getPosition()) - desiredState.angle.getDegrees());
-        container.addNumber("Velocity Error", () -> driveRelativeEncoder.getVelocity() - desiredState.speedMetersPerSecond);
+        container.addNumber("Desired Velocity", () -> desiredState.speedMetersPerSecond).withPosition(1, 1);
+        container.addNumber("Desired Rotation", () -> desiredState.angle.getDegrees()).withPosition(1, 2);
+        container.addNumber("Rotation Error", () -> Math.toDegrees(steerRelativeEncoder.getPosition()) - desiredState.angle.getDegrees()).withPosition(1, 3);
+        container.addNumber("Velocity Error", () -> driveRelativeEncoder.getVelocity() - desiredState.speedMetersPerSecond).withPosition(1, 4);
 
-        container.addNumber("Raw Absolute Rotation", () -> steerAbsoluteEncoder.getAbsolutePosition().getValueAsDouble());
+        container.addNumber("Raw Absolute Rotation", () -> getAbsoluteModuleRotation().getDegrees()).withPosition(1, 5);
         // container.addNumber("Adjusted Absolute Rotation", () -> getAbsoluteModuleRotation().getDegrees());
-        container.addNumber("Raw Relative Rotation", () -> Math.toDegrees(steerRelativeEncoder.getPosition()));
+        container.addNumber("Raw Relative Rotation", () -> Math.toDegrees(steerRelativeEncoder.getPosition())).withPosition(1, 6);
         // container.addNumber("Adjusted Relative Rotation", () -> getModuleRotation().getDegrees());
-        container.addNumber("Velocity", () -> driveRelativeEncoder.getVelocity());
+        container.addNumber("Velocity", () -> driveRelativeEncoder.getVelocity()).withPosition(1, 7);
+        container.addNumber("Motor Duty Cycle", () -> driveMotor.getAppliedOutput()).withPosition(1, 8);
     }
 
     private void configureMotors() {
@@ -140,7 +143,7 @@ public class NeoSwerveModule implements SwerveModule{
     }
 
     public Rotation2d getAbsoluteModuleRotation() {
-        return new Rotation2d(MathUtil.angleModulus(Math.toRadians(steerAbsoluteEncoder.getAbsolutePosition().getValueAsDouble())));
+        return new Rotation2d(steerAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI);
         // return new Rotation2d(MathUtil.angleModulus(Math.toRadians(steerAbsoluteEncoder.getAbsolutePosition()) + steerOffset));
     }
     
