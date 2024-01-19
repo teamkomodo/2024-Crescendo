@@ -13,11 +13,13 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
     
@@ -41,12 +43,25 @@ public class RobotContainer {
     }
     
     private void configureBindings() {
+
+        Trigger rightTrigger = driverController.rightTrigger();
+
+        rightTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
+        rightTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+
+        Trigger startButton = driverController.start();
+        startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
+
+        double deadband = 0.1;
+
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
-                () -> (driverController.getLeftY()), // +Y on left joystick is +X for robot
-                () -> (driverController.getLeftX()), // +X on left joystick is +Y for robot
-                () -> (-driverController.getRightX())) // -X on right joystick is +Z for robot
+                () -> ( MathUtil.applyDeadband(-driverController.getLeftY(), deadband) ), // -Y on left joystick is +X for robot
+                () -> ( MathUtil.applyDeadband(-driverController.getLeftX(), deadband) ), // -X on left joystick is +Y for robot
+                () -> ( MathUtil.applyDeadband(-driverController.getRightX(), deadband) )) // -X on right joystick is +Z for robot
         );
+
+
     }
     
     public Command getAutonomousCommand() {

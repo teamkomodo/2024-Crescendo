@@ -107,28 +107,28 @@ public class DrivetrainSubsystem implements Subsystem {
                 FRONT_LEFT_STEER_MOTOR_ID,
                 FRONT_LEFT_STEER_ENCODER_ID,
                 FRONT_LEFT_STEER_OFFSET,
-                tab.getLayout("Front Left", BuiltInLayouts.kList).withSize(3, 7).withPosition(0, 0));
+                tab.getLayout("Front Left", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(0, 0));
         
         frontRight = new NeoSwerveModule(
                 FRONT_RIGHT_DRIVE_MOTOR_ID,
                 FRONT_RIGHT_STEER_MOTOR_ID,
                 FRONT_RIGHT_STEER_ENCODER_ID,
                 FRONT_RIGHT_STEER_OFFSET,
-                tab.getLayout("Front Right", BuiltInLayouts.kList).withSize(3, 7).withPosition(3, 0));
+                tab.getLayout("Front Right", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(3, 0));
 
         backLeft = new NeoSwerveModule(
                 BACK_LEFT_DRIVE_MOTOR_ID,
                 BACK_LEFT_STEER_MOTOR_ID,
                 BACK_LEFT_STEER_ENCODER_ID,
                 BACK_LEFT_STEER_OFFSET,
-                tab.getLayout("Back Left", BuiltInLayouts.kList).withSize(3, 7).withPosition(6, 0));
+                tab.getLayout("Back Left", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(6, 0));
         
         backRight = new NeoSwerveModule(
                 BACK_RIGHT_DRIVE_MOTOR_ID,
                 BACK_RIGHT_STEER_MOTOR_ID,
                 BACK_RIGHT_STEER_ENCODER_ID,
                 BACK_RIGHT_STEER_OFFSET,
-                tab.getLayout("Back Right", BuiltInLayouts.kList).withSize(3, 7).withPosition(9, 0));
+                tab.getLayout("Back Right", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(9, 0));
 
         tab.add("Test Drivetrain", testDrivetrain()).withPosition(8, 0);
 
@@ -314,6 +314,10 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public Command disableSlowModeCommand() {
         return Commands.runOnce(() -> { slowMode = false; });
+    }
+
+    public Command zeroGyroCommand() {
+        return Commands.runOnce(this::zeroGyro, this);
     }
 
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
