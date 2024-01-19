@@ -8,7 +8,14 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 
 import static frc.robot.Constants.*;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -22,8 +29,15 @@ public class RobotContainer {
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
+    private final SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
+        //NamedCommands.registerCommand("ExampleCommand", null);
+
         configureBindings();
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser",autoChooser);
     }
     
     private void configureBindings() {
@@ -36,6 +50,12 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
-        return null;
+        
+        PathPlannerPath path = PathPlannerPath.fromPathFile("Test");
+
+
+        return AutoBuilder.followPath(path);
+
+        //return autoChooser.getSelected();
     }
 }

@@ -13,7 +13,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -26,9 +28,16 @@ import frc.robot.util.SwerveModule;
 
 import static frc.robot.Constants.*;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 public class DrivetrainSubsystem implements Subsystem {
 
@@ -59,11 +68,37 @@ public class DrivetrainSubsystem implements Subsystem {
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
+    private ChassisSpeeds currentChassisSpeeds = new ChassisSpeeds();
+
     private boolean slowMode = true;
     private double rotationOffsetRadians = 0.0;
 
     public DrivetrainSubsystem(Field2d field) {
         this.field = field;
+
+        AutoBuilder.configureHolonomic(
+            this::getPose,
+            this::resetPose,
+            this::getChassisSpeeds,
+            this::fieldRelativeDrive,
+            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                        new PIDConstants(5.0, 0.0, 0.0), // Driving PID constants
+                        new PIDConstants(5.0, 0.0, 0.0), // Steering PID constants
+                        MAX_LINEAR_VELOCITY, // Max module speed, in m/s
+                        Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
+                        new ReplanningConfig() // Default path replanning config. See the API for the options here
+                ),
+                () -> {
+                    Optional<Alliance> alliance = DriverStation.getAlliance();
+                    if(alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this
+            );
+
+
 
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -118,17 +153,20 @@ public class DrivetrainSubsystem implements Subsystem {
         field.setRobotPose(getPose());
     }
 
+    public void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
+        drive(chassisSpeeds, false);
+    }
+
     public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, angularVelocity);
+        drive(new ChassisSpeeds(xSpeed, ySpeed, angularVelocity), fieldRelative);        
+    }
+
+    public void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative) {
 
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(fieldRelative? ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getAdjustedRotation()) : chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_LINEAR_VELOCITY);
 
         setModuleStates(moduleStates);
-    }
-
-    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-        drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative);
     }
 
     public void stopMotion() {
@@ -170,6 +208,11 @@ public class DrivetrainSubsystem implements Subsystem {
     public Rotation2d getAdjustedRotation() {
         return navX.getRotation2d().plus(Rotation2d.fromRadians(rotationOffsetRadians));
     }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return currentChassisSpeeds;
+    }
+
 
     // Setters
 
@@ -284,4 +327,29 @@ public class DrivetrainSubsystem implements Subsystem {
         }, this);
     }
     
+    public Command followPathCommand(String pathName){
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+
+        return new FollowPathHolonomic(
+            path, 
+            this::getPose,
+            this::getChassisSpeeds,
+            this::fieldRelativeDrive,
+            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                        new PIDConstants(5.0, 0.0, 0.0), // Driving PID constants
+                        new PIDConstants(5.0, 0.0, 0.0), // Steering PID constants
+                        MAX_LINEAR_VELOCITY, // Max module speed, in m/s
+                        Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
+                        new ReplanningConfig() // Default path replanning config. See the API for the options here
+                ),
+                () -> {
+                    Optional<Alliance> alliance = DriverStation.getAlliance();
+                    if(alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+            this
+        );    
+    }
 }
