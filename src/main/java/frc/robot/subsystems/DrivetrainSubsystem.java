@@ -59,7 +59,7 @@ public class DrivetrainSubsystem implements Subsystem {
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
-    private boolean slowMode = true;
+    private boolean slowMode = false;
     private double rotationOffsetRadians = 0.0;
 
     public DrivetrainSubsystem(Field2d field) {

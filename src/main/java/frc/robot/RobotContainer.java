@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
@@ -32,8 +33,8 @@ public class RobotContainer {
 
         Trigger rightTrigger = driverController.rightTrigger();
 
-        rightTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
-        rightTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
         Trigger startButton = driverController.start();
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
@@ -42,9 +43,9 @@ public class RobotContainer {
 
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
-                () -> ( MathUtil.applyDeadband(-driverController.getLeftY(), deadband) ), // -Y on left joystick is +X for robot
-                () -> ( MathUtil.applyDeadband(-driverController.getLeftX(), deadband) ), // -X on left joystick is +Y for robot
-                () -> ( MathUtil.applyDeadband(-driverController.getRightX(), deadband) )) // -X on right joystick is +Z for robot
+                () -> ( Util.joystickCurve(MathUtil.applyDeadband(-driverController.getLeftY(), deadband)) ), // -Y on left joystick is +X for robot
+                () -> ( Util.joystickCurve(MathUtil.applyDeadband(-driverController.getLeftX(), deadband)) ), // -X on left joystick is +Y for robot
+                () -> ( Util.joystickCurve(MathUtil.applyDeadband(-driverController.getRightX(), deadband)) )) // -X on right joystick is +Z for robot
         );
 
 
