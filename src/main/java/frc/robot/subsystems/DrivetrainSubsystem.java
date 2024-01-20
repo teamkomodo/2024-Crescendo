@@ -82,7 +82,7 @@ public class DrivetrainSubsystem implements Subsystem {
             this::getChassisSpeeds,
             this::fieldRelativeDrive,
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(0.0, 0.0, 0.0), // Driving PID constants
+                        new PIDConstants(1.0, 0.0, 0.0), // Driving PID constants
                         new PIDConstants(0.0, 0.0, 0.0), // Steering PID constants
                         MAX_LINEAR_VELOCITY, // Max module speed, in m/s
                         Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
@@ -175,7 +175,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public void zeroGyro() {
         rotationOffsetRadians = -navX.getRotation2d().getRadians();
-        //resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
+        resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
     // Getters
@@ -340,7 +340,7 @@ public class DrivetrainSubsystem implements Subsystem {
             this::getChassisSpeeds,
             this::fieldRelativeDrive,
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(0.0, 0.0, 0.0), // Driving PID constants
+                        new PIDConstants(1.0, 0.0, 0.0), // Driving PID constants
                         new PIDConstants(0.0, 0.0, 0.0), // Steering PID constants
                         MAX_LINEAR_VELOCITY, // Max module speed, in m/s
                         Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
