@@ -43,9 +43,9 @@ public class RobotContainer {
 
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
-                () -> ( Util.joystickCurve(MathUtil.applyDeadband(-driverController.getLeftY(), deadband)) ), // -Y on left joystick is +X for robot
-                () -> ( Util.joystickCurve(MathUtil.applyDeadband(-driverController.getLeftX(), deadband)) ), // -X on left joystick is +Y for robot
-                () -> ( Util.joystickCurve(MathUtil.applyDeadband(-driverController.getRightX(), deadband)) )) // -X on right joystick is +Z for robot
+                () -> ( Util.translationCurve(MathUtil.applyDeadband(-driverController.getLeftY(), deadband)) ), // -Y on left joystick is +X for robot
+                () -> ( Util.translationCurve(MathUtil.applyDeadband(-driverController.getLeftX(), deadband)) ), // -X on left joystick is +Y for robot
+                () -> ( Util.steerCurve(MathUtil.applyDeadband(-driverController.getRightX(), deadband)) )) // -X on right joystick is +Z for robot
         );
 
 
