@@ -5,12 +5,13 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
-
+import frc.robot.subsystems.TurboTakeSubsystem;
 import static frc.robot.Constants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -20,7 +21,7 @@ public class RobotContainer {
 
     // Subsystems
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
-
+    private final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
@@ -47,7 +48,17 @@ public class RobotContainer {
                 () -> ( MathUtil.applyDeadband(-driverController.getRightX(), deadband) )) // -X on right joystick is +Z for robot
         );
 
+        //Turbotake Binds
+        Trigger rightBumper = driverController.rightBumper();
+        Trigger leftBumper = driverController.leftBumper();
 
+        //when true set motors at
+        rightBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);}));
+        leftBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);}));
+
+        //when false disable right or left
+        rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(0);}));
+        leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);}));
     }
     
     public Command getAutonomousCommand() {
