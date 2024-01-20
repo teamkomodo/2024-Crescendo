@@ -82,8 +82,8 @@ public class DrivetrainSubsystem implements Subsystem {
             this::getChassisSpeeds,
             this::fieldRelativeDrive,
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(5.0, 0.0, 0.0), // Driving PID constants
-                        new PIDConstants(5.0, 0.0, 0.0), // Steering PID constants
+                        new PIDConstants(0.0, 0.0, 0.0), // Driving PID constants
+                        new PIDConstants(0.0, 0.0, 0.0), // Steering PID constants
                         MAX_LINEAR_VELOCITY, // Max module speed, in m/s
                         Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -340,8 +340,8 @@ public class DrivetrainSubsystem implements Subsystem {
             this::getChassisSpeeds,
             this::fieldRelativeDrive,
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(5.0, 0.0, 0.0), // Driving PID constants
-                        new PIDConstants(5.0, 0.0, 0.0), // Steering PID constants
+                        new PIDConstants(0.0, 0.0, 0.0), // Driving PID constants
+                        new PIDConstants(0.0, 0.0, 0.0), // Steering PID constants
                         MAX_LINEAR_VELOCITY, // Max module speed, in m/s
                         Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here

@@ -40,6 +40,7 @@ public class RobotContainer {
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser",autoChooser);
+        SmartDashboard.putData(field2d);
     }
     
     private void configureBindings() {
