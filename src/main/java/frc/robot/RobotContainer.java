@@ -21,7 +21,7 @@ public class RobotContainer {
 
     // Subsystems
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
-    private final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
+    public final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
@@ -58,7 +58,7 @@ public class RobotContainer {
 
         //when false disable right or left
         rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(0);}));
-        leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);}));
+        leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(0);}));
     }
     
     public Command getAutonomousCommand() {
