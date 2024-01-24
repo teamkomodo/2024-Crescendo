@@ -61,8 +61,7 @@ public final class Constants {
 
 // Joint
     public static final int JOINT_MOTOR_ID = 0;
-    public static final int JOINT_ZERO_SWITCH_CHANNEL_FRONT = 0;
-    public static final int JOINT_ZERO_SWITCH_CHANNEL_BACK = 0;
+    public static final int JOINT_ZERO_SWITCH_CHANNEL = 0;
     public static final double JOINT_SLOW_MODE_MULTIPLIER = 0;
 
     public static final double JOINT_MIN_POSITION = 0; // Code stop

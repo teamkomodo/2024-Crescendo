@@ -24,8 +24,7 @@ public class JointSubsystem extends SubsystemBase {
   private final CANSparkMax motor;
   private final SparkPIDController pidController;
   private final RelativeEncoder encoder;
-  private final DigitalInput reverseSwitchFront;
-  private final DigitalInput reverseSwitchBack;
+  private final DigitalInput reverseSwitch;
   
   private final ShuffleboardTab shuffleboardTab;
 
@@ -51,8 +50,7 @@ public class JointSubsystem extends SubsystemBase {
         motor.setInverted(false);
         motor.setSmartCurrentLimit(50);
 
-        reverseSwitchFront = new DigitalInput(JOINT_ZERO_SWITCH_CHANNEL_FRONT);
-        reverseSwitchBack = new DigitalInput(JOINT_ZERO_SWITCH_CHANNEL_BACK);
+        reverseSwitch = new DigitalInput(JOINT_ZERO_SWITCH_CHANNEL);
         
         encoder = motor.getEncoder();
         encoder.setPosition(0);
@@ -76,7 +74,7 @@ public class JointSubsystem extends SubsystemBase {
   } 
 
   public void checkLimitSwitch() {
-    if(reverseSwitchFront.get() || reverseSwitchBack.get()) {
+    if(reverseSwitch.get()) {
         if(atLimitSwitch) {
             // reset encoder on falling edge incase the robot started up and the switch was pressed
             encoder.setPosition(0);
