@@ -167,10 +167,6 @@ public class JointSubsystem extends SubsystemBase {
     return this.runOnce(() -> setPosition(JOINT_INTAKE_POSITION));
   }
 
-  public Command sourcePositionCommand( ) {
-    return this.runOnce(() -> setPosition(JOINT_SOURCE_POSITION));
-  }
-
   public Command zeroCommand() {
     return Commands.sequence(
         Commands.runOnce(() -> setMotorPercent(-0.3), this),

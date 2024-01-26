@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import frc.robot.commands.positions.AmpPositionCommand;
+import frc.robot.commands.positions.IntakePositionCommand;
+import frc.robot.commands.positions.SpeakerPositionCommand;
+import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.commands.positions.TrapPositionCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.JointSubsystem;
 
 import static frc.robot.Constants.*;
 
@@ -19,6 +25,7 @@ public class RobotContainer {
 
     // Subsystems
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
+    private final JointSubsystem jointSubsystem = new JointSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -31,6 +38,17 @@ public class RobotContainer {
 
         // Triggers
         Trigger rTrigger = driverController.rightTrigger();
+        Trigger leftJoystickDown = driverController.leftStick();
+        Trigger aButton = driverController.a();
+        Trigger bButton = driverController.b();
+        Trigger xButton = driverController.x();
+        Trigger yButton = driverController.y();
+
+        leftJoystickDown.onTrue(new StowPositionCommand(jointSubsystem));
+        aButton.onTrue(new TrapPositionCommand(jointSubsystem));
+        bButton.onTrue(new IntakePositionCommand(jointSubsystem));
+        xButton.onTrue(new AmpPositionCommand(jointSubsystem));
+        yButton.onTrue(new SpeakerPositionCommand(jointSubsystem));
 
         //Slow/Fast Mode
         rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
