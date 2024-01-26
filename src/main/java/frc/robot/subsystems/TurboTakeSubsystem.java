@@ -7,13 +7,14 @@ package frc.robot.subsystems;
 
 //Libraries
 import edu.wpi.first.wpilibj.DigitalInput;
-//This library isn't used but I might use it later
-//import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 //Motor Libraries
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 //IDs from Constants
@@ -29,9 +30,18 @@ public class TurboTakeSubsystem extends SubsystemBase{
      private CANSparkMax indexerMotor;
      private CANSparkMax shooterMotor2;
 
+     //Encoders
+     private RelativeEncoder shooter1Encoder;
+     private RelativeEncoder shooter2Encoder;
+     private RelativeEncoder indexerEncoder;
+    
      //defines beam break sensor
      private DigitalInput beamBreakSensor;
 
+
+
+     //shuffleboard
+     public ShuffleboardTab shuffleboardTab;
      //defines PID and its values
      //p i d values are not factual because turbotake isn't built yet
      private SparkPIDController pidController;
@@ -50,11 +60,22 @@ public class TurboTakeSubsystem extends SubsystemBase{
         //Initialize the beam break sensor
         beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_PORT);
         
+        //Initializes encoders
+        shooter1Encoder = shooterMotor1.getEncoder();
+        shooter2Encoder = shooterMotor2.getEncoder();
+        indexerEncoder = indexerMotor.getEncoder();
+
+        //sets encoder positions to 0
+        shooter1Encoder.setPosition(0);
+        shooter2Encoder.setPosition(0);
+        indexerEncoder.setPosition(0);
+
         //restores controller parameters to factory defaults for motors
         indexerMotor.restoreFactoryDefaults();
         shooterMotor2.restoreFactoryDefaults();
         shooterMotor1.restoreFactoryDefaults();
-
+        
+        
         pidController = indexerMotor.getPIDController();
         pidController.setP(p);
         pidController.setI(i);
@@ -83,5 +104,19 @@ public class TurboTakeSubsystem extends SubsystemBase{
          pidController.setReference(dutyCycle, ControlType.kDutyCycle);
      }
 
+     public void setMotorVelocity(double velocity){
+      pidController.setReference(velocity, ControlType.kVelocity);
+     }
 
+     //sets encoders to position of 0
+     public void holdMotorPosition(){
+       pidController.setReference(shooter1Encoder.getPosition(), ControlType.kPosition);
+       pidController.setReference(shooter2Encoder.getPosition(), ControlType.kPosition);
+       pidController.setReference(indexerEncoder.getPosition(), ControlType.kPosition);
+     }
+
+     //Collects and displays turbotake data
+     public ShuffleboardTab getTab(){
+         return shuffleboardTab;
+     }
 }
