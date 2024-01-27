@@ -27,6 +27,13 @@ public class RobotContainer {
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
     private final JointSubsystem jointSubsystem = new JointSubsystem();
 
+    // Position commands
+    private final Command stowPositionCommand = new StowPositionCommand(jointSubsystem);
+    private final Command trapPositionCommand = new TrapPositionCommand(jointSubsystem);
+    private final Command intakePositionCommand = new IntakePositionCommand(jointSubsystem);
+    private final Command ampPositionCommand = new AmpPositionCommand(jointSubsystem);
+    private final Command speakerPositionCommand = new SpeakerPositionCommand(jointSubsystem);
+
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
@@ -44,13 +51,14 @@ public class RobotContainer {
         Trigger xButton = driverController.x();
         Trigger yButton = driverController.y();
 
-        leftJoystickDown.onTrue(new StowPositionCommand(jointSubsystem));
-        aButton.onTrue(new TrapPositionCommand(jointSubsystem));
-        bButton.onTrue(new IntakePositionCommand(jointSubsystem));
-        xButton.onTrue(new AmpPositionCommand(jointSubsystem));
-        yButton.onTrue(new SpeakerPositionCommand(jointSubsystem));
+        // Elevator/joint position commands
+        leftJoystickDown.onTrue(stowPositionCommand);
+        aButton.onTrue(trapPositionCommand);
+        bButton.onTrue(intakePositionCommand);
+        xButton.onTrue(ampPositionCommand);
+        yButton.onTrue(speakerPositionCommand);
 
-        //Slow/Fast Mode
+        // Slow/Fast Mode
         rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
         rTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
 

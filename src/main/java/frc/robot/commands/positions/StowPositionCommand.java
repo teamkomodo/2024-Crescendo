@@ -3,32 +3,30 @@ package frc.robot.commands.positions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.JointSubsystem;
 
 public class StowPositionCommand extends Command{
 
     private final JointSubsystem jointSubsystem;
-    private final ElevatorSubsystem elevatorSubsystem;
 
-    public StowPositionCommand(JointSubsystem jointSubsystem, ElevatorSubsystem elevatorSubsystem) {
+    public StowPositionCommand(JointSubsystem jointSubsystem) {
         
         this.jointSubsystem = jointSubsystem;
-        this.elevatorSubsystem = elevatorSubsystem;
 
-        addRequirements(jointSubsystem, elevatorSubsystem);
+        addRequirements(jointSubsystem);
     }
 
     protected Command getCommand() {
-        if(!(jointSubsystem.isZeroed() && elevatorSubsystem.isZeroed())) {
+        if(!(jointSubsystem.isZeroed())) {
             return Commands.parallel(
-                jointSubsystem.zeroCommand(),
-                elevatorSubsystem.zeroCommand()
+                jointSubsystem.jointZeroCommand(),
+                jointSubsystem.elevatorZeroCommand()
             );
         }
         return new SequentialCommandGroup(
-            jointSubsystem.stowPositionCommand(),
-            elevatorSubsystem.stowPositionCommand()
+            jointSubsystem.elevatorZeroCommand(),
+            jointSubsystem.jointStowPositionCommand(),
+            jointSubsystem.elevatorStowPositionCommand()
         );
     }
 }

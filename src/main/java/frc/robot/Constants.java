@@ -59,7 +59,7 @@ public final class Constants {
     public static final double MAX_ANGULAR_VELOCITY = 4.0 * Math.PI;
     public static final double MAX_ANGULAR_ACCEL = 4.0 * Math.PI;
 
-// Joint
+// Joint/Elevator
     public static final int JOINT_MOTOR_ID = 0;
     public static final int JOINT_ZERO_SWITCH_CHANNEL = 0;
     public static final double JOINT_SLOW_MODE_MULTIPLIER = 0;
@@ -81,7 +81,14 @@ public final class Constants {
         JOINT_INTAKE_POSITION
     };
 
-// Elevator
+    public static double JOINT_POSITION_FROM_ROBOT_FRONT = 22.0;
+    public static double JOINT_POSITION_FROM_ROBOT_BACK = 4.0;
+    public static double JOINT_POSITION_FROM_ROBOT_LEFT = 11.0;
+    public static double JOINT_POSITION_FROM_ROBOT_RIGHT = 11.0;
+    public static double JOINT_POSITION_FROM_ROBOT_FLOOR = 5.0;
+
+    public static double ELEVATOR_MAX_EXTENSION = 35.0;
+
     public static final int ELEVATOR_MOTOR_ID = 0;
     public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0;
     public static final double ELEVATOR_SLOW_MODE_MULTIPLIER = 0.5;
