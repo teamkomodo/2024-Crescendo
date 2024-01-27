@@ -58,4 +58,9 @@ public final class Constants {
 
     public static final double MAX_ANGULAR_VELOCITY = 4.0 * Math.PI;
     public static final double MAX_ANGULAR_ACCEL = 4.0 * Math.PI;
+
+
+    //FRC Field
+    public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
+    public static final double FIELD_LENGTH = 1654;
 }
