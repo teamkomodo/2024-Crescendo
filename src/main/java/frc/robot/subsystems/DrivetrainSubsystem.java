@@ -4,12 +4,14 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+//import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+//import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -49,7 +51,8 @@ public class DrivetrainSubsystem implements Subsystem {
     private final SwerveModule backRight;
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftPosition, frontRightPosition, backLeftPosition, backRightPosition);
-    private final SwerveDriveOdometry odometry;
+    private final SwerveDrivePoseEstimator poseEstimator;
+   // private final SwerveDriveOdometry odometry;
     private final Field2d field;
 
     private final HolonomicDriveController driveController = new HolonomicDriveController(
@@ -99,22 +102,25 @@ public class DrivetrainSubsystem implements Subsystem {
 
         tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
-        odometry = new SwerveDriveOdometry(
-                kinematics,
+        poseEstimator = new SwerveDrivePoseEstimator(
+            kinematics,
                 navX.getRotation2d(),
                 new SwerveModulePosition[] {
                         frontLeft.getPosition(),
                         frontRight.getPosition(),
                         backLeft.getPosition(),
                         backRight.getPosition()
-                });
+                }, 
+                new Pose2d());
         resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
     }
+
 
     @Override
     public void periodic() {
         // does not need to use adjusted rotation, odometry handles it.
-        odometry.update(navX.getRotation2d(), getSwervePositions());
+        //updates pose with rotation and swerve positions
+        poseEstimator.update(navX.getRotation2d(), getSwervePositions());
         field.setRobotPose(getPose());
     }
 
@@ -152,7 +158,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        return poseEstimator.getEstimatedPosition();
     }
 
     public SwerveDriveKinematics getKinematics() {
@@ -181,8 +187,8 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void resetPose(Pose2d pose) {
-        //does not need to be adjusted rotation, odometry handles this
-        odometry.resetPosition(navX.getRotation2d(), getSwervePositions(), pose);
+        //resets pose
+        poseEstimator.resetPosition(navX.getRotation2d(), getSwervePositions(), pose);
     }
 
     public void setGyro(Rotation2d rotation) {
