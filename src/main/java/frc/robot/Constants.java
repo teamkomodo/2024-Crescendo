@@ -74,10 +74,34 @@ public final class Constants {
     public static final double JOINT_INTAKE_POSITION = 0;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
-    JOINT_STOW_POSITION,
-    JOINT_AMP_POSITION,
-    JOINT_SPEAKER_POSITION,
-    JOINT_TRAP_POSITION,
-    JOINT_INTAKE_POSITION
+        JOINT_STOW_POSITION,
+        JOINT_AMP_POSITION,
+        JOINT_SPEAKER_POSITION,
+        JOINT_TRAP_POSITION,
+        JOINT_INTAKE_POSITION
+    };
+
+// Elevator
+    public static final int ELEVATOR_MOTOR_ID = 0;
+    public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0;
+    public static final double ELEVATOR_SLOW_MODE_MULTIPLIER = 0.5;
+
+    // Position in rotations of the motor shaft before gearbox
+    public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 0; // Code stop
+
+    public static final double ELEVATOR_STOW_POSITION = 0;
+    public static final double ELEVATOR_AMP_POSITION = 0;
+    public static final double ELEVATOR_SPEAKER_POSITION = 0;
+    public static final double ELEVATOR_TRAP_POSITION = 0;
+    public static final double ELEVATOR_INTAKE_POSITION = 0;
+    public static final double ELEVATOR_BUFFER_DISTANCE = 0;
+
+    public static final double[] ELEVATOR_POSITIONS_ORDERED = { // Order in array corresponds to selector position
+        ELEVATOR_STOW_POSITION,
+        ELEVATOR_AMP_POSITION,
+        ELEVATOR_SPEAKER_POSITION,
+        ELEVATOR_TRAP_POSITION,
+        ELEVATOR_INTAKE_POSITION
     };
 }

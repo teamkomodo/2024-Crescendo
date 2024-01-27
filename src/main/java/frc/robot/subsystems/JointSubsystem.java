@@ -189,6 +189,7 @@ public void periodic() {
     //checkLimitSwitch();
 }
 
+//Necessary Functions
 public void setPID(double p, double i, double d) {
     this.p = p;
     this.i = i;
