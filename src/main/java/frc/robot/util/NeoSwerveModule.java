@@ -30,7 +30,6 @@ public class NeoSwerveModule implements SwerveModule{
     private final DoublePublisher rotationErrorPublisher;
     private final DoublePublisher dutyCyclePublisher;
 
-    
     private final double driveP = 1.0;
     private final double driveI = 0;
     private final double driveD = 0;
@@ -165,4 +164,4 @@ public class NeoSwerveModule implements SwerveModule{
         
     }
 
-} 
+}
