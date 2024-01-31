@@ -8,7 +8,7 @@ import frc.robot.subsystems.TurboTakeSubsystem;
 public class IntakePieceCommand extends Command{
     public TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
     private boolean hasPiece;
-    private long startTime;
+    public long startTime;
 
     public IntakePieceCommand(TurboTakeSubsystem turbotakesubsystem){
         this.turbotakesubsystem = turbotakesubsystem;
