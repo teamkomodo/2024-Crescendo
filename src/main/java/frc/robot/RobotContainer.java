@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurboTakeSubsystem;
 import static frc.robot.Constants.*;
 
@@ -21,7 +22,8 @@ public class RobotContainer {
 
     // Subsystems
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
-    public final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
+    private final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
+    private final LEDSubsystem ledSubsystem = new LEDSubsystem();
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
