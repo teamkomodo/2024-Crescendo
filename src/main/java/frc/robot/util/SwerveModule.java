@@ -5,6 +5,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public interface SwerveModule {
+
+    /**
+     * Publishes module data to NetworkTables
+     */
+    public void updateTelemetry();
     
     /**
      * Returns the current state of the module.
@@ -21,6 +26,15 @@ public interface SwerveModule {
      * The position includes the position and angle of the wheel.
      * 
      * @return The current position of the module.
+     */
+    public SwerveModuleState getDesiredState();
+
+     /**
+     * Returns the desired (set) state of the module
+     * <p>
+     * The state includes the desired velocity and angle of the wheel.
+     * 
+     * @return The desired state of the module
      */
     public SwerveModulePosition getPosition();
 

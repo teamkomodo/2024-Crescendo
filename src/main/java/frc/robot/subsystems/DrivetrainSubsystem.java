@@ -4,17 +4,24 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.Timer;
+//import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -38,6 +45,37 @@ public class DrivetrainSubsystem implements Subsystem {
      * Forward is x+, Left is y+, counterclockwise is theta+
      */
 
+    //limelight definitions
+    private static boolean useVision = true;
+
+    
+    private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
+    private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
+    private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
+
+    // Telemetry
+
+    public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
+    
+    private final StructArrayPublisher<SwerveModuleState> measuredSwerveStatesPublisher = drivetrainNT.getStructArrayTopic(
+        "MeasuredSwerveStates",
+        SwerveModuleState.struct
+        ).publish();
+
+    private final StructArrayPublisher<SwerveModuleState> desiredSwerveStatesPublisher = drivetrainNT.getStructArrayTopic(
+        "DesiredSwerveStates",
+        SwerveModuleState.struct
+        ).publish();
+    
+        private final StructPublisher<Pose2d> robotPosePublisher = drivetrainNT.getStructTopic("RobotPose", Pose2d.struct).publish();
+
+        private final StructPublisher<Rotation2d> robotRotationPublisher = drivetrainNT.getStructTopic(
+            "RobotRotation",
+            Rotation2d.struct
+        ).publish();
+
+
+    
     private final Translation2d frontLeftPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, DRIVETRAIN_LENGTH / 2D); // All translations are relative to center of rotation
     private final Translation2d frontRightPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, -DRIVETRAIN_LENGTH / 2D);
     private final Translation2d backLeftPosition = new Translation2d(-DRIVETRAIN_WIDTH / 2D, DRIVETRAIN_LENGTH / 2D);
@@ -49,7 +87,8 @@ public class DrivetrainSubsystem implements Subsystem {
     private final SwerveModule backRight;
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftPosition, frontRightPosition, backLeftPosition, backRightPosition);
-    private final SwerveDriveOdometry odometry;
+    private final SwerveDrivePoseEstimator poseEstimator;
+   // private final SwerveDriveOdometry odometry;
     private final Field2d field;
 
     private final HolonomicDriveController driveController = new HolonomicDriveController(
@@ -72,50 +111,101 @@ public class DrivetrainSubsystem implements Subsystem {
                 FRONT_LEFT_STEER_MOTOR_ID,
                 FRONT_LEFT_STEER_ENCODER_ID,
                 FRONT_LEFT_STEER_OFFSET,
-                tab.getLayout("Front Left", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(0, 0));
+                drivetrainNT.getSubTable("frontleft"));
         
         frontRight = new NeoSwerveModule(
                 FRONT_RIGHT_DRIVE_MOTOR_ID,
                 FRONT_RIGHT_STEER_MOTOR_ID,
                 FRONT_RIGHT_STEER_ENCODER_ID,
                 FRONT_RIGHT_STEER_OFFSET,
-                tab.getLayout("Front Right", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(3, 0));
+                drivetrainNT.getSubTable("frontright"));
 
         backLeft = new NeoSwerveModule(
                 BACK_LEFT_DRIVE_MOTOR_ID,
                 BACK_LEFT_STEER_MOTOR_ID,
                 BACK_LEFT_STEER_ENCODER_ID,
                 BACK_LEFT_STEER_OFFSET,
-                tab.getLayout("Back Left", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(6, 0));
+                drivetrainNT.getSubTable("backleft"));
         
         backRight = new NeoSwerveModule(
                 BACK_RIGHT_DRIVE_MOTOR_ID,
                 BACK_RIGHT_STEER_MOTOR_ID,
                 BACK_RIGHT_STEER_ENCODER_ID,
                 BACK_RIGHT_STEER_OFFSET,
-                tab.getLayout("Back Right", BuiltInLayouts.kGrid).withSize(3, 7).withPosition(9, 0));
+                drivetrainNT.getSubTable("backright"));
 
         tab.add("Test Drivetrain", testDrivetrain()).withPosition(8, 0);
 
         tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
-        odometry = new SwerveDriveOdometry(
-                kinematics,
+        poseEstimator = new SwerveDrivePoseEstimator(
+            kinematics,
                 navX.getRotation2d(),
                 new SwerveModulePosition[] {
                         frontLeft.getPosition(),
                         frontRight.getPosition(),
                         backLeft.getPosition(),
                         backRight.getPosition()
-                });
+                }, 
+                new Pose2d());
         resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
     }
+
 
     @Override
     public void periodic() {
         // does not need to use adjusted rotation, odometry handles it.
-        odometry.update(navX.getRotation2d(), getSwervePositions());
+        //updates pose with rotation and swerve positions
+        poseEstimator.update(navX.getRotation2d(), getSwervePositions());
         field.setRobotPose(getPose());
+
+
+        if(useVision)
+            visionPosePeriodic();
+
+        updateTelemetry();
+    }
+
+    
+    private void updateTelemetry(){
+        //Swerve
+        desiredSwerveStatesPublisher.set(new SwerveModuleState[] {
+            frontLeft.getDesiredState(),
+            frontRight.getDesiredState(),
+            backLeft.getDesiredState(),
+            backRight.getDesiredState()
+        });
+
+        measuredSwerveStatesPublisher.set(new SwerveModuleState[] {
+            frontLeft.getState(),
+            frontRight.getState(),
+            backLeft.getState(),
+            backRight.getState()
+        });
+
+        robotRotationPublisher.set(getAdjustedRotation());
+
+        frontLeft.updateTelemetry();
+        frontRight.updateTelemetry();
+        backLeft.updateTelemetry();
+        backRight.updateTelemetry();
+
+        robotPosePublisher.set(getPose());
+    }
+    //tracks position with vision
+    private void visionPosePeriodic(){
+
+        if(validTargetSubscriber.get() != 1)
+            return;
+        
+        double[] botPose = botPoseBlueSubscriber.get();
+        if(botPose.length < 7)
+            return;
+        
+        Pose2d visionPose =  new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
+        double measurementTime= Timer.getFPGATimestamp() - botPose[6] / 1000;
+
+        poseEstimator.addVisionMeasurement(visionPose, measurementTime);
     }
 
     public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
@@ -137,6 +227,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public void zeroGyro() {
         rotationOffsetRadians = -navX.getRotation2d().getRadians();
+        rotationOffsetRadians = -navX.getRotation2d().getRadians();
+        //resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
+        rotationOffsetRadians = -navX.getRotation2d().getRadians();   
         //resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
@@ -152,7 +245,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        return poseEstimator.getEstimatedPosition();
     }
 
     public SwerveDriveKinematics getKinematics() {
@@ -181,8 +274,8 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void resetPose(Pose2d pose) {
-        //does not need to be adjusted rotation, odometry handles this
-        odometry.resetPosition(navX.getRotation2d(), getSwervePositions(), pose);
+        //resets pose
+        poseEstimator.resetPosition(navX.getRotation2d(), getSwervePositions(), pose);
     }
 
     public void setGyro(Rotation2d rotation) {
