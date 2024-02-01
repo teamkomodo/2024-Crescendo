@@ -10,6 +10,20 @@ public interface SwerveModule {
      * Publishes module data to NetworkTables
      */
     public void updateTelemetry();
+
+    /**
+     * Runs the drive motor at a specified voltage with module rotated forward
+     * 
+     * @param voltage Voltage to run drive motor
+     */
+    public void runForward(double voltage);
+
+    /**
+     * Runs the steer motor at a specified voltage with the drive motor stopped
+     * 
+     * @param voltage Voltage to run steer motor
+     */
+    public void runRotation(double voltage);
     
     /**
      * Returns the current state of the module.

@@ -10,17 +10,15 @@ import frc.robot.util.Util;
 import static frc.robot.Constants.*;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class RobotContainer {
-    
-    private Field2d field2d = new Field2d();
 
     // Subsystems
-    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
+    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -45,9 +43,13 @@ public class RobotContainer {
             drivetrainSubsystem.joystickDriveCommand(
                 () -> ( Util.translationCurve(MathUtil.applyDeadband(-driverController.getLeftY(), deadband)) ), // -Y on left joystick is +X for robot
                 () -> ( Util.translationCurve(MathUtil.applyDeadband(-driverController.getLeftX(), deadband)) ), // -X on left joystick is +Y for robot
-                () -> ( Util.steerCurve(MathUtil.applyDeadband(-driverController.getRightX(), deadband)) )) // -X on right joystick is +Z for robot
+                () -> ( Util.steerCurve(MathUtil.applyDeadband(-driverController.getRightX(), deadband)) )       // -X on right joystick is +Z for robot
+            )
         );
 
+        // Drivetrain SysId Command (change command for each test)
+        Trigger aButton = driverController.a();
+        aButton.whileTrue(drivetrainSubsystem.driveSysIdQuasistaticCommand(SysIdRoutine.Direction.kReverse));
 
     }
     

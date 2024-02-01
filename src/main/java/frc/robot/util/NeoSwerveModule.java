@@ -10,7 +10,6 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,10 +20,7 @@ import edu.wpi.first.networktables.NetworkTable;
 
 import static frc.robot.Constants.*;
 
-
-
 public class NeoSwerveModule implements SwerveModule{
-
 
     // Telemetry
     private final DoublePublisher velocityErrorPublisher;
@@ -75,8 +71,6 @@ public class NeoSwerveModule implements SwerveModule{
 
         configureMotors();
      
-
-
         // Telemetry
         velocityErrorPublisher = moduleNT.getDoubleTopic("velocityerror").publish();
         rotationErrorPublisher = moduleNT.getDoubleTopic("rotationerror").publish();
@@ -163,6 +157,18 @@ public class NeoSwerveModule implements SwerveModule{
     private double getDriveVelocity(){
         return driveRelativeEncoder.getVelocity();
         
+    }
+
+    @Override
+    public void runForward(double voltage) {
+        driveMotor.setVoltage(voltage);
+        steerController.setReference(0, ControlType.kPosition);
+    }
+
+    @Override
+    public void runRotation(double voltage) {
+        driveMotor.set(0);
+        steerMotor.setVoltage(voltage);
     }
 
 }

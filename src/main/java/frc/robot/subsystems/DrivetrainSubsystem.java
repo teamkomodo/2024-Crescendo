@@ -19,15 +19,15 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
-//import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.NeoSwerveModule;
 import frc.robot.util.SwerveModule;
 
@@ -45,16 +45,14 @@ public class DrivetrainSubsystem implements Subsystem {
      * Forward is x+, Left is y+, counterclockwise is theta+
      */
 
-    //limelight definitions
+    // Limelight
     private static boolean useVision = true;
 
-    
     private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
     // Telemetry
-
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
     
     private final StructArrayPublisher<SwerveModuleState> measuredSwerveStatesPublisher = drivetrainNT.getStructArrayTopic(
@@ -74,8 +72,26 @@ public class DrivetrainSubsystem implements Subsystem {
             Rotation2d.struct
         ).publish();
 
+    // SysID
+    private final SysIdRoutine driveSysIdRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(),
+        new SysIdRoutine.Mechanism(
+            (voltage) -> runDriveVolts(voltage.in(Units.Volts)),
+            null,
+            this
+        )
+    );
 
-    
+    private final SysIdRoutine steerSysIdRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(),
+        new SysIdRoutine.Mechanism(
+            (voltage) -> runSteerVolts(voltage.in(Units.Volts)),
+            null,
+            this
+        )
+    );
+
+    // Swerve
     private final Translation2d frontLeftPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, DRIVETRAIN_LENGTH / 2D); // All translations are relative to center of rotation
     private final Translation2d frontRightPosition = new Translation2d(DRIVETRAIN_WIDTH / 2D, -DRIVETRAIN_LENGTH / 2D);
     private final Translation2d backLeftPosition = new Translation2d(-DRIVETRAIN_WIDTH / 2D, DRIVETRAIN_LENGTH / 2D);
@@ -88,9 +104,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftPosition, frontRightPosition, backLeftPosition, backRightPosition);
     private final SwerveDrivePoseEstimator poseEstimator;
-   // private final SwerveDriveOdometry odometry;
-    private final Field2d field;
-
     private final HolonomicDriveController driveController = new HolonomicDriveController(
         new PIDController(1, 0, 0),
         new PIDController(1, 0, 0),
@@ -101,8 +114,7 @@ public class DrivetrainSubsystem implements Subsystem {
     private boolean slowMode = false;
     private double rotationOffsetRadians = 0.0;
 
-    public DrivetrainSubsystem(Field2d field) {
-        this.field = field;
+    public DrivetrainSubsystem() {
 
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -157,8 +169,6 @@ public class DrivetrainSubsystem implements Subsystem {
         // does not need to use adjusted rotation, odometry handles it.
         //updates pose with rotation and swerve positions
         poseEstimator.update(navX.getRotation2d(), getSwervePositions());
-        field.setRobotPose(getPose());
-
 
         if(useVision)
             visionPosePeriodic();
@@ -192,9 +202,11 @@ public class DrivetrainSubsystem implements Subsystem {
 
         robotPosePublisher.set(getPose());
     }
-    //tracks position with vision
+
+    // tracks position with vision
     private void visionPosePeriodic(){
 
+        // Return if the limelight doesn't see a target
         if(validTargetSubscriber.get() != 1)
             return;
         
@@ -202,8 +214,9 @@ public class DrivetrainSubsystem implements Subsystem {
         if(botPose.length < 7)
             return;
         
+        // Convert double[] from NT to Pose2D
         Pose2d visionPose =  new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
-        double measurementTime= Timer.getFPGATimestamp() - botPose[6] / 1000;
+        double measurementTime= Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
 
         poseEstimator.addVisionMeasurement(visionPose, measurementTime);
     }
@@ -231,6 +244,20 @@ public class DrivetrainSubsystem implements Subsystem {
         //resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
         rotationOffsetRadians = -navX.getRotation2d().getRadians();   
         //resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
+    }
+
+    public void runDriveVolts(double voltage) {
+        frontLeft.runForward(voltage);
+        frontRight.runForward(voltage);
+        backLeft.runForward(voltage);
+        backRight.runForward(voltage);
+    }
+
+    public void runSteerVolts(double voltage) {
+        frontLeft.runRotation(voltage);
+        frontRight.runRotation(voltage);
+        backLeft.runRotation(voltage);
+        backRight.runRotation(voltage);
     }
 
     // Getters
@@ -274,7 +301,6 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void resetPose(Pose2d pose) {
-        //resets pose
         poseEstimator.resetPosition(navX.getRotation2d(), getSwervePositions(), pose);
     }
 
@@ -379,6 +405,23 @@ public class DrivetrainSubsystem implements Subsystem {
             drive(xVelocity, yVelocity, rotVelocity, FIELD_RELATIVE_DRIVE);
 
         }, this);
+    }
+
+    // SysID Routine Commands
+    public Command driveSysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
+        return driveSysIdRoutine.quasistatic(direction);
+    }
+
+    public Command steerSysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
+        return steerSysIdRoutine.quasistatic(direction);
+    }
+
+    public Command driveSysIdDynamicCommand(SysIdRoutine.Direction direction) {
+        return driveSysIdRoutine.dynamic(direction);
+    }
+
+    public Command steerSysIdDynamicCommand(SysIdRoutine.Direction direction) {
+        return steerSysIdRoutine.dynamic(direction);
     }
     
 }
