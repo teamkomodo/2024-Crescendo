@@ -85,7 +85,7 @@ public final class Constants {
     public static double JOINT_POSITION_FROM_ROBOT_BACK = 4.0;
     public static double JOINT_POSITION_FROM_ROBOT_LEFT = 11.0;
     public static double JOINT_POSITION_FROM_ROBOT_RIGHT = 11.0;
-    public static double JOINT_POSITION_FROM_ROBOT_FLOOR = 5.0;
+    public static double JOINT_POSITION_FROM_FLOOR = 5.0;
 
     public static double ELEVATOR_MAX_EXTENSION = 35.0;
 

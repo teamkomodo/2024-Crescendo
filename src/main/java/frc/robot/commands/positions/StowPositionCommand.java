@@ -24,7 +24,6 @@ public class StowPositionCommand extends Command{
             );
         }
         return new SequentialCommandGroup(
-            jointSubsystem.elevatorZeroCommand(),
             jointSubsystem.jointStowPositionCommand(),
             jointSubsystem.elevatorStowPositionCommand()
         );

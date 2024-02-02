@@ -25,7 +25,7 @@ public class JointSubsystem extends SubsystemBase {
   // 9:1 reduction
   // 5.53 in circumference
 
-  private static final double ELEVATOR_INCHES_PER_REVOLUTION = 3.53D/9.0D;
+  private static final double ELEVATOR_INCHES_PER_REVOLUTION = 0; //3.53D/9.0D
 
   private final CANSparkMax elevatorMotor;
   private final DigitalInput elevatorZeroLimitSwitch;
@@ -63,12 +63,15 @@ public class JointSubsystem extends SubsystemBase {
   private final ShuffleboardTab shuffleboardTab;
 
   //limit
-  private boolean atLimitSwitch = false;
+  private boolean atJointLimitSwitch = false;
+  private boolean atElevatorLimitSwitch = false;
   private boolean atMaxLimit = false;
   private boolean atMinLimit = false;
 
   private boolean useLimits = false;
 
+  private boolean jointZeroed = true;
+  private boolean elevatorZeroed = true;
   private boolean zeroed = true;
 
   public JointSubsystem() {
@@ -87,7 +90,7 @@ public class JointSubsystem extends SubsystemBase {
     jointPidController.setI(jointI);
     jointPidController.setD(jointD);
     jointPidController.setIMaxAccum(jointMaxIAccum, 0);
-    jointPidController.setReference(0, ControlType.kDutyCycle);
+    jointPidController.setReference(0, ControlType.kPosition);
 
     elevatorZeroLimitSwitch = new DigitalInput(ELEVATOR_ZERO_SWITCH_CHANNEL);
 
@@ -124,7 +127,7 @@ public class JointSubsystem extends SubsystemBase {
     ShuffleboardLayout controlList = shuffleboardTab.getLayout("Control", BuiltInLayouts.kList).withSize(2, 4).withPosition(2, 0);
     controlList.addBoolean("Limit Switch", () -> !elevatorZeroLimitSwitch.get());
     controlList.addBoolean("Zeroed", () -> (zeroed));
-    controlList.addBoolean("At Zero", () -> (atLimitSwitch));
+    controlList.addBoolean("At Zero", () -> (atJointLimitSwitch));
     controlList.addBoolean("At Min", () -> (atMinLimit));
     controlList.addBoolean("At Max", () -> (atMaxLimit));
     controlList.addDouble("Commanded Position", () -> (elevatorCommandedPosition));
@@ -136,20 +139,27 @@ public class JointSubsystem extends SubsystemBase {
   } 
 
   public void checkLimitSwitch() {
-    if(jointReverseSwitch.get() || elevatorZeroLimitSwitch.get()) {
-        if(atLimitSwitch) {
-            // reset encoder on falling edge incase the robot started up and the switch was pressed
-            jointEncoder.setPosition(0);
-            elevatorEncoder.setPosition(0);
-        }
-        atLimitSwitch = false;
-        return;
+    if(jointReverseSwitch.get()) {
+        // reset encoder on falling edge incase the robot started up and the switch was pressed
+        jointEncoder.setPosition(0);
+        atJointLimitSwitch = false;
+        jointZeroed = true;
     }
 
-    zeroed = true;
-    if(!atLimitSwitch) {
+    if(elevatorZeroLimitSwitch.get()) {
+        // reset encoder on falling edge incase the robot started up and the switch was pressed
+        elevatorEncoder.setPosition(0);
+        atElevatorLimitSwitch = false;
+        elevatorZeroed = true;
+    }
+
+    if (jointZeroed && elevatorZeroed) {
+      zeroed = true;
+    }
+
+    if(!atJointLimitSwitch) {
         //stop motor and reset encoder on rising edge
-        atLimitSwitch = true;
+        atJointLimitSwitch = true;
         jointEncoder.setPosition(0);
         setPosition(0, true);
     }
@@ -175,21 +185,31 @@ public class JointSubsystem extends SubsystemBase {
     }
             
     if(!atMaxLimit) {
-        //stop motor on rising edge
         atMaxLimit = true;
         setPosition(JOINT_MAX_POSITION, true);
     }
   }
 
-  public void setMotorPercent(double percent) {
-    //at min and attempting to decrease and zeroed (allow movement past limit if not yet zeroed)
-    if(atMinLimit && percent < 0 && zeroed && useLimits)
-        return;
-    
-    //at max or not yet zeroed and attempting to increase
-    if((atMaxLimit || !zeroed) && percent > 0 && useLimits)
-        return;
-    jointPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
+  public void setMotorPercent(double percent, Boolean joint) {
+    if (joint) {
+      //at min and attempting to decrease and zeroed (allow movement past limit if not yet zeroed)
+      if(atMinLimit && percent < 0 && jointZeroed && useLimits)
+          return;
+      
+      //at max or not yet zeroed and attempting to increase
+      if((atMaxLimit || !jointZeroed) && percent > 0 && useLimits)
+          return;
+      jointPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
+    } else {
+      //at min and attempting to decrease and zeroed (allow movement past limit if not yet zeroed)
+      if(atMinLimit && percent < 0 && elevatorZeroed && useLimits)
+          return;
+      
+      //at max or not yet zeroed and attempting to increase
+      if((atMaxLimit || !elevatorZeroed) && percent > 0 && useLimits)
+          return;
+      elevatorPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
+    }
   }
 
   public void checkCloseToEnds() {
@@ -208,8 +228,8 @@ public class JointSubsystem extends SubsystemBase {
       double horizontalLeg = elevatorExtension * Math.cos(jointAngleRadians);
 
       //Calculation extension from frame perimeter
-      if (verticalLeg + JOINT_POSITION_FROM_ROBOT_FLOOR > 47) {
-          jointZeroCommand();
+      if (verticalLeg + JOINT_POSITION_FROM_FLOOR > 47) {
+          jointZeroCommand();// Change later
           elevatorZeroCommand();
       } else {
         if (Math.toDegrees(jointAngleRadians) > 90 && Math.toDegrees(jointAngleRadians) < 270) {
@@ -217,7 +237,7 @@ public class JointSubsystem extends SubsystemBase {
             jointZeroCommand();
             elevatorZeroCommand();
         } else {
-          if (horizontalLeg - JOINT_POSITION_FROM_ROBOT_FRONT > 11.0)
+          if (JOINT_POSITION_FROM_ROBOT_FRONT - horizontalLeg > 11.0)
             jointZeroCommand();
             elevatorZeroCommand();
         }
@@ -231,7 +251,7 @@ public class JointSubsystem extends SubsystemBase {
     
     //not zeroed and moving away from limit switch
     if (joint) {
-      if(!zeroed & position > jointEncoder.getPosition())
+      if(!jointZeroed & position > jointEncoder.getPosition())
           return;
 
       jointPidController.setReference(position, ControlType.kPosition);
@@ -241,7 +261,7 @@ public class JointSubsystem extends SubsystemBase {
         return;
 
       // Not zeroed and moving away from limit switch
-      if(!zeroed && position > elevatorEncoder.getPosition())
+      if(!elevatorZeroed && position > elevatorEncoder.getPosition())
           return;
 
       elevatorCommandedPosition = position;
@@ -296,15 +316,15 @@ public class JointSubsystem extends SubsystemBase {
 
   public Command jointZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setMotorPercent(-0.3), this),
-        Commands.waitUntil(() -> (atLimitSwitch))
+        Commands.runOnce(() -> setMotorPercent(-0.3, true), this),
+        Commands.waitUntil(() -> (atJointLimitSwitch))
     );
   }
 
     public Command elevatorZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setMotorPercent(-0.3), this),
-        Commands.waitUntil(() -> (atLimitSwitch))
+        Commands.runOnce(() -> setMotorPercent(-0.3, false), this),
+        Commands.waitUntil(() -> (atElevatorLimitSwitch))
     );
   }
 
@@ -323,10 +343,8 @@ public class JointSubsystem extends SubsystemBase {
       checkMaxLimit();
       checkCloseToEnds();
       checkExtensionPerimeter();
-      //checkLimitSwitch();
   }
 
-  //Necessary Functions
   public void setJointPID(double p, double i, double d) {
       this.jointP = p;
       this.jointI = i;
@@ -357,6 +375,14 @@ public class JointSubsystem extends SubsystemBase {
 
   public boolean isZeroed() {
       return zeroed;
+  }
+
+  public boolean isJointZeroed() {
+      return jointZeroed;
+  }
+
+  public boolean isElevatorZeroed() {
+      return elevatorZeroed;
   }
 
   public ShuffleboardTab getTab() {
