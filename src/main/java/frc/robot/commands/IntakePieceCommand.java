@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.TurboTakeSubsystem;
 
+//import frc.robot.Constants;
  
 public class IntakePieceCommand extends Command{
     public TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
@@ -22,12 +23,7 @@ public class IntakePieceCommand extends Command{
         startTime = RobotController.getFPGATime();
     }
 
-    // @Override
-    // public void end(boolean interrupted){
-    //     if(!hasPiece){
-    //         turbotakesubsystem.setMotorDutyCycle(0);
-    //     }
-    // }
+    
 
     @Override
     public void execute(){
@@ -36,4 +32,13 @@ public class IntakePieceCommand extends Command{
             
         }
     }
+
+
+    // public void runIntake(INDEXER_SPEED){
+    //     turbotakesubsystem.SetIndexerSpeed(startTime);
+    // }
+
+    // public void runShooter(){
+
+    // }
 }
