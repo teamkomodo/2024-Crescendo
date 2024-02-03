@@ -61,7 +61,8 @@ public final class Constants {
 
 // Joint/Elevator
     public static final int JOINT_MOTOR_ID = 0;
-    public static final int JOINT_ZERO_SWITCH_CHANNEL = 0;
+    public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 0;
+    public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
     public static final double JOINT_SLOW_MODE_MULTIPLIER = 0;
 
     public static final double JOINT_MIN_POSITION = 0; // Code stop
@@ -81,11 +82,16 @@ public final class Constants {
         JOINT_INTAKE_POSITION
     };
 
-    public static double JOINT_POSITION_FROM_ROBOT_FRONT = 22.0;
+    public static double JOINT_POSITION_FROM_ROBOT_FRONT = 22.0; // Change later
     public static double JOINT_POSITION_FROM_ROBOT_BACK = 4.0;
     public static double JOINT_POSITION_FROM_ROBOT_LEFT = 11.0;
     public static double JOINT_POSITION_FROM_ROBOT_RIGHT = 11.0;
     public static double JOINT_POSITION_FROM_FLOOR = 5.0;
+
+    public static double JOINT_VERTICAL_ANGLE = Math.PI/2; // Radians
+
+    public static double VERTICAL_EXTENSION_LIMIT = 1.2192; // Meters
+    public static double HORIZONTAL_EXTENSION_LIMIT = 0.3048;
 
     public static double ELEVATOR_MAX_EXTENSION = 35.0;
 
