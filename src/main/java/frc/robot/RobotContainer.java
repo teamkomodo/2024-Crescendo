@@ -59,6 +59,9 @@ public class RobotContainer {
         //when false disable right or left
         rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(0);}));
         leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(0);}));
+
+
+
     }
     
     public Command getAutonomousCommand() {

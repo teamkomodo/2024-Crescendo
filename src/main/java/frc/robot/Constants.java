@@ -19,11 +19,11 @@ public final class Constants {
 
 // Turbotake
     //Motors
-    public static final int SHOOTER_MOTOR_ID1 = 0;
-    public static final int SHOOTER_MOTOR_ID2 = 1;
-    public static final int INDEXER_MOTOR_ID = 2;
+    public static final int SHOOTER_MOTOR_ID1 = 10;
+    public static final int SHOOTER_MOTOR_ID2 = 11;
+    public static final int INDEXER_MOTOR_ID = 32;
     //Beam Break Sensor
-    public static final int BEAM_BREAK_SENSOR_PORT = 3;
+    public static final int BEAM_BREAK_SENSOR_PORT = 1;
     //Constants
     public static final double INDEXER_SPEED = 0.1;
     public static final double SHOOTER_SPEED = 0.1;
