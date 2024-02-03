@@ -149,7 +149,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
       SmartDashboard.putNumber("Indexer Min Output", indexerMinOutput);
 
 
-      //
+      //Smart dashboard displays PID coefficients for shooters
       SmartDashboard.putNumber("Shooter P Gain", indexerP);
       SmartDashboard.putNumber("Shooter I Gain", indexerI);
       SmartDashboard.putNumber("Shooter D Gain", indexerD);
@@ -158,72 +158,70 @@ public class TurboTakeSubsystem extends SubsystemBase{
       SmartDashboard.putNumber("Shooter Max Output", indexerMaxOutput);
       SmartDashboard.putNumber("Shooter Min Output", indexerMinOutput);
      
-      while(true){
-
-        //Indexer real PID coefficients
-        double indexerRealP = SmartDashboard.getNumber("Indexer P Gain", 0);
-        double indexerRealI = SmartDashboard.getNumber("Indexer I Gain", 0);
-        double indexerRealD = SmartDashboard.getNumber("Indexer D Gain", 0);
-        double indexerRealIAcumulator = SmartDashboard.getNumber("Indexer I Acummulation", 0);
-        double indexerRealFF = SmartDashboard.getNumber("Indexer Feed Forward", 0);
-        double indexerRealMax = SmartDashboard.getNumber("Indexer Max output", 0);
-        double indexerRealMin = SmartDashboard.getNumber("Indexer Min output", 0);
-     
-     
-        //shooter real PID coefficients
-        double shooterRealP = SmartDashboard.getNumber("Shooter P Gain", 0);
-        double shooterRealI = SmartDashboard.getNumber("Shooter I Gain", 0);
-        double shooterRealD = SmartDashboard.getNumber("Shooter D Gain", 0);
-        double shooterRealIAcumulator = SmartDashboard.getNumber("Shooter I Acummulation", 0);
-        double shooterRealFF = SmartDashboard.getNumber("Shooter Feed Forward", 0);
-        double shooterRealMax = SmartDashboard.getNumber("Shooter Max output", 0);
-        double shooterRealMin = SmartDashboard.getNumber("Shooter Min output", 0);
-
-
-
-        if((indexerRealP != indexerP)) { indexerPidController.setP(indexerRealP); indexerP = indexerRealP;}
-        if((indexerRealI != indexerI)) { indexerPidController.setI(indexerRealI); indexerI = indexerRealI;}
-        if((indexerRealD != indexerD)) { indexerPidController.setD(indexerRealD); indexerD = indexerRealD;}
-        if((indexerRealIAcumulator != indexerIAccumulator)) { indexerPidController.setIAccum(indexerRealIAcumulator); indexerIAccumulator = indexerRealIAcumulator;}
-        if((indexerRealFF != indexerFF)) { indexerPidController.setFF(indexerRealFF); indexerFF = indexerRealFF;}
-        
-        if((indexerRealMax != indexerMaxOutput) || (indexerRealMin != indexerMinOutput)){
-          indexerPidController.setOutputRange(indexerRealMin, indexerRealMin);
-          indexerMinOutput = indexerRealMin;
-          indexerMaxOutput = indexerRealMax;
-        }
-
-
-        if((shooterRealP != shooterP)) { shooter1PidController.setP(shooterRealP); shooterP = shooterRealP;}
-        if((shooterRealI != shooterI)) { shooter1PidController.setI(shooterRealI); shooterI = shooterRealI;}
-        if((shooterRealD != shooterD)) { shooter1PidController.setD(shooterRealD); shooterD = shooterRealD;}
-        if((shooterRealIAcumulator != indexerIAccumulator)) { shooter1PidController.setIAccum(shooterRealIAcumulator); shooterIAccumulator = shooterRealIAcumulator;}
-        if((shooterRealFF != shooterFF)) { shooter1PidController.setFF(shooterRealFF); shooterFF = shooterRealFF;}
-        
-        if((shooterRealMax != shooterMaxOutput) || (shooterRealMin != shooterMinOutput)){
-          shooter1PidController.setOutputRange(shooterRealMin, shooterRealMin);
-          shooterMinOutput = shooterRealMin;
-          shooterMaxOutput = shooterRealMax;
-        }
-
-
-        if((shooterRealP != shooterP)) { shooter2PidController.setP(shooterRealP); shooterP = shooterRealP;}
-        if((shooterRealI != shooterI)) { shooter2PidController.setI(shooterRealI); shooterI = shooterRealI;}
-        if((shooterRealD != shooterD)) { shooter2PidController.setD(shooterRealD); shooterD = shooterRealD;}
-        if((shooterRealIAcumulator != indexerIAccumulator)) { shooter2PidController.setIAccum(shooterRealIAcumulator); shooterIAccumulator = shooterRealIAcumulator;}
-        if((shooterRealFF != shooterFF)) { shooter2PidController.setFF(shooterRealFF); shooterFF = shooterRealFF;}
-        
-        if((shooterRealMax != shooterMaxOutput) || (shooterRealMin != shooterMinOutput)){
-          shooter2PidController.setOutputRange(shooterRealMin, shooterRealMin);
-          shooterMinOutput = shooterRealMin;
-          shooterMaxOutput = shooterRealMax;
-        }
-      }
-    
-     
     }
 
+     public void updateShuffleboard(){
+
+      //Indexer real PID coefficients
+      double indexerRealP = SmartDashboard.getNumber("Indexer P Gain", 0);
+      double indexerRealI = SmartDashboard.getNumber("Indexer I Gain", 0);
+      double indexerRealD = SmartDashboard.getNumber("Indexer D Gain", 0);
+      double indexerRealIAcumulator = SmartDashboard.getNumber("Indexer I Acummulation", 0);
+      double indexerRealFF = SmartDashboard.getNumber("Indexer Feed Forward", 0);
+      double indexerRealMax = SmartDashboard.getNumber("Indexer Max output", 0);
+      double indexerRealMin = SmartDashboard.getNumber("Indexer Min output", 0);
    
+   
+      //shooter real PID coefficients
+      double shooterRealP = SmartDashboard.getNumber("Shooter P Gain", 0);
+      double shooterRealI = SmartDashboard.getNumber("Shooter I Gain", 0);
+      double shooterRealD = SmartDashboard.getNumber("Shooter D Gain", 0);
+      double shooterRealIAcumulator = SmartDashboard.getNumber("Shooter I Acummulation", 0);
+      double shooterRealFF = SmartDashboard.getNumber("Shooter Feed Forward", 0);
+      double shooterRealMax = SmartDashboard.getNumber("Shooter Max output", 0);
+      double shooterRealMin = SmartDashboard.getNumber("Shooter Min output", 0);
+
+
+      //If the values of real are different that the ones we set then we make the ones we set equal to the real values
+      if((indexerRealP != indexerP)) { indexerPidController.setP(indexerRealP); indexerP = indexerRealP;}
+      if((indexerRealI != indexerI)) { indexerPidController.setI(indexerRealI); indexerI = indexerRealI;}
+      if((indexerRealD != indexerD)) { indexerPidController.setD(indexerRealD); indexerD = indexerRealD;}
+      if((indexerRealIAcumulator != indexerIAccumulator)) { indexerPidController.setIAccum(indexerRealIAcumulator); indexerIAccumulator = indexerRealIAcumulator;}
+      if((indexerRealFF != indexerFF)) { indexerPidController.setFF(indexerRealFF); indexerFF = indexerRealFF;}
+      
+      if((indexerRealMax != indexerMaxOutput) || (indexerRealMin != indexerMinOutput)){
+        indexerPidController.setOutputRange(indexerRealMin, indexerRealMin);
+        indexerMinOutput = indexerRealMin;
+        indexerMaxOutput = indexerRealMax;
+      }
+
+
+      //
+      if((shooterRealP != shooterP)) { shooter1PidController.setP(shooterRealP); shooterP = shooterRealP;}
+      if((shooterRealI != shooterI)) { shooter1PidController.setI(shooterRealI); shooterI = shooterRealI;}
+      if((shooterRealD != shooterD)) { shooter1PidController.setD(shooterRealD); shooterD = shooterRealD;}
+      if((shooterRealIAcumulator != indexerIAccumulator)) { shooter1PidController.setIAccum(shooterRealIAcumulator); shooterIAccumulator = shooterRealIAcumulator;}
+      if((shooterRealFF != shooterFF)) { shooter1PidController.setFF(shooterRealFF); shooterFF = shooterRealFF;}
+      
+      if((shooterRealMax != shooterMaxOutput) || (shooterRealMin != shooterMinOutput)){
+        shooter1PidController.setOutputRange(shooterRealMin, shooterRealMin);
+        shooterMinOutput = shooterRealMin;
+        shooterMaxOutput = shooterRealMax;
+      }
+
+
+      if((shooterRealP != shooterP)) { shooter2PidController.setP(shooterRealP); shooterP = shooterRealP;}
+      if((shooterRealI != shooterI)) { shooter2PidController.setI(shooterRealI); shooterI = shooterRealI;}
+      if((shooterRealD != shooterD)) { shooter2PidController.setD(shooterRealD); shooterD = shooterRealD;}
+      if((shooterRealIAcumulator != indexerIAccumulator)) { shooter2PidController.setIAccum(shooterRealIAcumulator); shooterIAccumulator = shooterRealIAcumulator;}
+      if((shooterRealFF != shooterFF)) { shooter2PidController.setFF(shooterRealFF); shooterFF = shooterRealFF;}
+      
+      if((shooterRealMax != shooterMaxOutput) || (shooterRealMin != shooterMinOutput)){
+        shooter2PidController.setOutputRange(shooterRealMin, shooterRealMin);
+        shooterMinOutput = shooterRealMin;
+        shooterMaxOutput = shooterRealMax;
+      }
+     }
      
      //returns false if something breaks the beam
      public boolean pieceDetected(){

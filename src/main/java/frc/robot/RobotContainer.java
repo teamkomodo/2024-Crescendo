@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.subsystems.TurboTakeSubsystem;
 import static frc.robot.Constants.*;
-
+import edu.wpi.first.wpilibj.TimedRobot;
 
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class RobotContainer {
+public class RobotContainer extends TimedRobot {
     
     
 
@@ -47,6 +47,11 @@ public class RobotContainer {
 
 
 
+    }
+
+    @Override
+    public void teleopPeriodic(){
+        turbotakesubsystem.updateShuffleboard();
     }
     
     public Command getAutonomousCommand() {
