@@ -7,7 +7,7 @@ import frc.robot.subsystems.TurboTakeSubsystem;
  
 public class IntakePieceCommand extends Command{
     public TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
-    private boolean hasPiece;
+    public boolean hasPiece;
     public long startTime;
 
     public IntakePieceCommand(TurboTakeSubsystem turbotakesubsystem){
@@ -22,17 +22,18 @@ public class IntakePieceCommand extends Command{
         startTime = RobotController.getFPGATime();
     }
 
-    @Override
-    public void end(boolean interrupted){
-        if(!hasPiece){
-            turbotakesubsystem.setMotorDutyCycle(0);
-        }
-    }
+    // @Override
+    // public void end(boolean interrupted){
+    //     if(!hasPiece){
+    //         turbotakesubsystem.setMotorDutyCycle(0);
+    //     }
+    // }
 
     @Override
     public void execute(){
         if(turbotakesubsystem.pieceDetected()){
             System.out.println("We have a Piece");
+            
         }
     }
 }
