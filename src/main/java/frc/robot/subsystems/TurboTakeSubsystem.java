@@ -47,7 +47,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
     //shuffleboard
     public ShuffleboardTab shuffleboardTab;
 
-    
+
     //defines PID and its values
     
     
@@ -199,7 +199,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
         }
         
         
-        //
+        
         if((shooterRealP != shooterP)) { shooter1PidController.setP(shooterRealP); shooterP = shooterRealP;}
         if((shooterRealI != shooterI)) { shooter1PidController.setI(shooterRealI); shooterI = shooterRealI;}
         if((shooterRealD != shooterD)) { shooter1PidController.setD(shooterRealD); shooterD = shooterRealD;}
