@@ -73,6 +73,8 @@ public class JointSubsystem extends SubsystemBase {
   
   private final ShuffleboardTab shuffleboardTab;
 
+  private boolean jointPositiveVelocity = true;
+
   private boolean atJointLimitSwitch = false;
   private boolean jointZeroed = true;
 
@@ -169,18 +171,27 @@ public class JointSubsystem extends SubsystemBase {
       atJointBottomLimitSwitchAtLastCheck = atJointBottomLimitSwitch;
       atJointBottomLimitSwitch = true;
 
-    if(atJointMiddleLimitSwitch && !atJointMiddleLimitSwitchAtLastCheck) {
-      // reset encoder on falling edge incase the robot started up and the switch was pressed
-      jointEncoder.setPosition(0);
-      jointZeroed = true;
-      jointBottomLimitSwitchOn = false;
-    }
+    if (!jointPositiveVelocity) {
+      if(atJointMiddleLimitSwitch && !atJointMiddleLimitSwitchAtLastCheck) {
+        // reset encoder on falling edge incase the robot started up and the switch was pressed
+        jointEncoder.setPosition(0);
+        jointZeroed = true;
+        jointBottomLimitSwitchOn = false;
+      }
 
-    if(atJointBottomLimitSwitch && !atJointBottomLimitSwitchAtLastCheck && jointBottomLimitSwitchOn) {
-      // reset encoder on falling edge incase the robot started up and the switch was pressed
-      jointEncoder.setPosition(0);
-      jointZeroed = true;
-      jointMiddleZeroCommand();
+      if(atJointBottomLimitSwitch && !atJointBottomLimitSwitchAtLastCheck && jointBottomLimitSwitchOn) {
+        // reset encoder on falling edge incase the robot started up and the switch was pressed
+        jointEncoder.setPosition(0);
+        jointZeroed = true;
+        jointMiddleZeroCommand();
+      }
+    } else {
+      if(!atJointMiddleLimitSwitch && atJointMiddleLimitSwitchAtLastCheck) {
+        // reset encoder on falling edge incase the robot started up and the switch was pressed
+        jointEncoder.setPosition(0);
+        jointZeroed = true;
+        jointBottomLimitSwitchOn = false;
+      }
     }
 
     if(!elevatorZeroLimitSwitch.get()) {
@@ -276,6 +287,7 @@ public class JointSubsystem extends SubsystemBase {
   }
 
   public void checkExtensionPerimeter() {
+      jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
       //Trig calculation that find extension (extension*sin(angle) & extension*cos(angle))
       jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
       jointHorizontalPosition = Math.abs(elevatorExtension * Math.cos(jointAngleRadians));
@@ -295,6 +307,13 @@ public class JointSubsystem extends SubsystemBase {
             elevatorZeroCommand();
         }
       }
+  }
+
+  public void updateJointVelocity() {
+    if (jointEncoder.getVelocity() > 0)
+      jointPositiveVelocity = true;
+    else
+      jointPositiveVelocity = false;
   }
 
   public void setPosition(double position, Boolean joint) {
@@ -398,6 +417,7 @@ public class JointSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+      updateJointVelocity();
       checkLimitSwitch();
       checkMinLimit();
       checkMaxLimit();

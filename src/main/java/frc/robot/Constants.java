@@ -88,6 +88,7 @@ public final class Constants {
     public static double JOINT_POSITION_FROM_ROBOT_RIGHT = 11.0;
     public static double JOINT_POSITION_FROM_FLOOR = 5.0;
 
+    public static double JOINT_RADIAN_PER_REVOLUTION = 0; // Change later
     public static double JOINT_VERTICAL_ANGLE = Math.PI/2; // Radians
 
     public static double VERTICAL_EXTENSION_LIMIT = 1.2192; // Meters
