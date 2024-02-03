@@ -38,12 +38,12 @@ public class RobotContainer extends TimedRobot {
         Trigger leftBumper = driverController.leftBumper();
 
         //when true set motors at
-        rightBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);}));
-        leftBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);}));
+        rightBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(INDEXER_SPEED);}));
+        leftBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(SHOOTER_SPEED);}));
 
         //when false disable right or left
-        rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(0);}));
-        leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(0);}));
+        rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(0);}));
+        leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(0);}));
 
 
 

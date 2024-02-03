@@ -1,5 +1,8 @@
 package frc.robot.commands;
 
+// import static frc.robot.Constants.INDEXER_SPEED;
+// import static frc.robot.Constants.SHOOTER_SPEED;
+
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.TurboTakeSubsystem;
@@ -34,11 +37,22 @@ public class IntakePieceCommand extends Command{
     }
 
 
-    // public void runIntake(INDEXER_SPEED){
-    //     turbotakesubsystem.SetIndexerSpeed(startTime);
-    // }
+    //States
+    public void IdleState(){//Stowed position with LEDS at idle state
 
-    // public void runShooter(){
+    }
 
-    // }
+    public void intakeState(){//Intake position with intake motor running, go back to idle
+
+    }
+
+   
+
+    public void spinUpState(){//stowed position with shooter motors running
+
+    }
+
+    public void shootState(){//amp/speaker position with shooter running until indexer runs moving the note
+
+    }
 }
