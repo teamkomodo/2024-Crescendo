@@ -50,12 +50,15 @@ public final class Constants {
     public static final double DRIVE_REDUCTION = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0); // reduction * motor rpm = wheel rpm
     public static final double STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
 
-    public static final double NEO_BRUSHLESS_FREE_RPM = 5676.0;
-    public static final double NEO_KV = 12.0/NEO_BRUSHLESS_FREE_RPM; // V/RPM
+    public static final double MAX_ATTAINABLE_VELOCITY = 3.8;
 
-    public static final double MAX_LINEAR_VELOCITY = 3.6;
-    public static final double MAX_LINEAR_ACCEL = 6.0;
+    public static final double LINEAR_VELOCITY_CONSTRAINT = MAX_ATTAINABLE_VELOCITY;
+    public static final double LINEAR_ACCEL_CONSTRAINT = 12.0;
 
-    public static final double MAX_ANGULAR_VELOCITY = 4.0 * Math.PI;
-    public static final double MAX_ANGULAR_ACCEL = 4.0 * Math.PI;
+    public static final double ANGULAR_VELOCITY_CONSTRAINT = (LINEAR_VELOCITY_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
+    public static final double ANGULAR_ACCEL_CONSTRAINT = (LINEAR_ACCEL_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
+
+    // FRC Field
+    public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
+    public static final double FIELD_LENGTH = 1654;
 }

@@ -5,6 +5,25 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public interface SwerveModule {
+
+    /**
+     * Publishes module data to NetworkTables
+     */
+    public void updateTelemetry();
+
+    /**
+     * Runs the drive motor at a specified voltage with module rotated forward
+     * 
+     * @param voltage Voltage to run drive motor
+     */
+    public void runForward(double voltage);
+
+    /**
+     * Runs the steer motor at a specified voltage with the drive motor stopped
+     * 
+     * @param voltage Voltage to run steer motor
+     */
+    public void runRotation(double voltage);
     
     /**
      * Returns the current state of the module.
@@ -21,6 +40,15 @@ public interface SwerveModule {
      * The position includes the position and angle of the wheel.
      * 
      * @return The current position of the module.
+     */
+    public SwerveModuleState getDesiredState();
+
+     /**
+     * Returns the desired (set) state of the module
+     * <p>
+     * The state includes the desired velocity and angle of the wheel.
+     * 
+     * @return The desired state of the module
      */
     public SwerveModulePosition getPosition();
 

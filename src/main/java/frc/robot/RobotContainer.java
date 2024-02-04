@@ -9,24 +9,19 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import static frc.robot.Constants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
-    
-    private Field2d field2d = new Field2d();
 
     // Subsystems
-    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
+    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -40,28 +35,40 @@ public class RobotContainer {
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser",autoChooser);
-        SmartDashboard.putData(field2d);
     }
     
     private void configureBindings() {
 
         Trigger rightTrigger = driverController.rightTrigger();
 
-        rightTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
-        rightTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
         Trigger startButton = driverController.start();
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        double deadband = 0.1;
-
+        // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
-                () -> ( MathUtil.applyDeadband(-driverController.getLeftY(), deadband) ), // -Y on left joystick is +X for robot
-                () -> ( MathUtil.applyDeadband(-driverController.getLeftX(), deadband) ), // -X on left joystick is +Y for robot
-                () -> ( MathUtil.applyDeadband(-driverController.getRightX(), deadband) )) // -X on right joystick is +Z for robot
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+            )
         );
 
+        Trigger bButton = driverController.b();
+        bButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.5, 0, 0, true, true), drivetrainSubsystem));
+        Trigger xButton = driverController.x();
+        xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
+
+
+        Trigger aButton = driverController.a();
+        aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
+        Trigger yButton = driverController.y();
+        yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
+
+        // Trigger yButton = driverController.y();
+        // yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.runDriveVolts(12), drivetrainSubsystem));
 
     }
     
