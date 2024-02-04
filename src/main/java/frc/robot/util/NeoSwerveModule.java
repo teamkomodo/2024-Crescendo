@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,16 +25,9 @@ public class NeoSwerveModule implements SwerveModule{
 
     // Telemetry
     private final DoublePublisher velocityErrorPublisher;
+    private final DoublePublisher normalizedVelocityError;
     private final DoublePublisher rotationErrorPublisher;
     private final DoublePublisher dutyCyclePublisher;
-
-    private final double driveP = 1.0;
-    private final double driveI = 0;
-    private final double driveD = 0;
-
-    private final double steerP = 1.0;
-    private final double steerI = 0;
-    private final double steerD = 0;
 
     private final CANSparkMax driveMotor;
     private final CANSparkMax steerMotor;
@@ -44,21 +38,24 @@ public class NeoSwerveModule implements SwerveModule{
     private final RelativeEncoder driveRelativeEncoder;
     private final RelativeEncoder steerRelativeEncoder;
 
-    private final PIDController driveController = new PIDController(driveP, driveI, driveD);
+    private final PIDController driveController;
 
     private final SparkPIDController steerController;
         
-    private final SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0, 3.33); // NEO_KV * (60.0/1.0) * (1.0/DRIVE_REDUCTION) * (1/(WHEEL_DIAMETER * Math.PI))); // V/RPM = VM/motor rev => VM/motor rev * (seconds/minutes) * (motor revs/wheel revs) * (wheel revs/m) = V/m/s
+    private final SimpleMotorFeedforward driveFeedforward; // Gains from SysId Analysis
 
 
     private double relativeSteerAdjustment = 0;
     // private double relativeSteerAdjustmentFactor = 0.1;
 
-    public NeoSwerveModule(int driveMotorId, int steerMotorId, int steerAbsoluteEncoderId, double steerOffset, NetworkTable moduleNT) {
+    public NeoSwerveModule(int driveMotorId, int steerMotorId, int steerAbsoluteEncoderId, double steerOffset, PIDGains steerPIDGains, PIDGains drivePIDGains, FFGains driveFFGains, NetworkTable moduleNT) {
         this.driveMotor = new CANSparkMax(driveMotorId, MotorType.kBrushless);
         this.steerMotor = new CANSparkMax(steerMotorId, MotorType.kBrushless);
         this.steerAbsoluteEncoder = new CANcoder(steerAbsoluteEncoderId);
         this.desiredState = new SwerveModuleState(0.0, Rotation2d.fromRadians(0));
+
+        driveController = new PIDController(drivePIDGains.kP, drivePIDGains.kI, drivePIDGains.kD);
+        driveFeedforward = new SimpleMotorFeedforward(driveFFGains.kS, driveFFGains.kV, driveFFGains.kA);
 
         driveRelativeEncoder = driveMotor.getEncoder();
 
@@ -69,15 +66,16 @@ public class NeoSwerveModule implements SwerveModule{
         steerRelativeEncoder = steerMotor.getEncoder();
         steerController = steerMotor.getPIDController();
 
-        configureMotors();
+        configureMotors(steerPIDGains);
      
         // Telemetry
         velocityErrorPublisher = moduleNT.getDoubleTopic("velocityerror").publish();
+        normalizedVelocityError = moduleNT.getDoubleTopic("normvelocityerror").publish();
         rotationErrorPublisher = moduleNT.getDoubleTopic("rotationerror").publish();
         dutyCyclePublisher = moduleNT.getDoubleTopic("dutycycle").publish();
     }
 
-    private void configureMotors() {
+    private void configureMotors(PIDGains steerGains) {
         driveMotor.setInverted(true);
         driveMotor.setIdleMode(IdleMode.kBrake);
 
@@ -92,9 +90,9 @@ public class NeoSwerveModule implements SwerveModule{
         steerRelativeEncoder.setVelocityConversionFactor(2 * Math.PI * STEER_REDUCTION / 60); // motor RPM -> module rad/s
         steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
 
-        steerController.setP(steerP);
-        steerController.setI(steerI);
-        steerController.setD(steerD);
+        steerController.setP(steerGains.kP);
+        steerController.setI(steerGains.kI);
+        steerController.setD(steerGains.kD);
 
         steerController.setPositionPIDWrappingEnabled(true);
         steerController.setPositionPIDWrappingMaxInput(Math.PI);
@@ -103,7 +101,8 @@ public class NeoSwerveModule implements SwerveModule{
 
     public void updateTelemetry(){
         velocityErrorPublisher.set(desiredState.speedMetersPerSecond - getDriveVelocity());
-        rotationErrorPublisher.set(desiredState.angle.getRadians() - getModuleRotation().getRadians());
+        normalizedVelocityError.set((desiredState.speedMetersPerSecond - getDriveVelocity()) * Math.signum(desiredState.speedMetersPerSecond));
+        rotationErrorPublisher.set(MathUtil.angleModulus(desiredState.angle.getRadians() - getModuleRotation().getRadians()));
         dutyCyclePublisher.set(driveMotor.get());
 
     }

@@ -3,7 +3,7 @@ package frc.robot.util;
 public class Util {
 
     public static double translationCurve(double input) {
-        return Math.pow(Math.abs(input), 1.5) * Math.signum(input) * 0.75;
+        return Math.pow(Math.abs(input), 1.5) * Math.signum(input);
         // double magnitude = Math.abs(input);
         // if(magnitude < 0.5) {
         //     return Math.signum(input) * (Math.pow(magnitude, 3) + .25 * input);
@@ -13,7 +13,7 @@ public class Util {
     }
 
     public static double steerCurve(double input) {
-        return translationCurve(input);
+        return Math.pow(input, 3);
     }
 
 }

@@ -20,6 +20,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -28,8 +29,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.FFGains;
 import frc.robot.util.NeoSwerveModule;
+import frc.robot.util.PIDGains;
 import frc.robot.util.SwerveModule;
+import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
@@ -56,19 +60,19 @@ public class DrivetrainSubsystem implements Subsystem {
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
     
     private final StructArrayPublisher<SwerveModuleState> measuredSwerveStatesPublisher = drivetrainNT.getStructArrayTopic(
-        "MeasuredSwerveStates",
+        "measuredSwerveStates",
         SwerveModuleState.struct
         ).publish();
 
     private final StructArrayPublisher<SwerveModuleState> desiredSwerveStatesPublisher = drivetrainNT.getStructArrayTopic(
-        "DesiredSwerveStates",
+        "desiredSwerveStates",
         SwerveModuleState.struct
         ).publish();
     
-        private final StructPublisher<Pose2d> robotPosePublisher = drivetrainNT.getStructTopic("RobotPose", Pose2d.struct).publish();
+        private final StructPublisher<Pose2d> robotPosePublisher = drivetrainNT.getStructTopic("robotPose", Pose2d.struct).publish();
 
         private final StructPublisher<Rotation2d> robotRotationPublisher = drivetrainNT.getStructTopic(
-            "RobotRotation",
+            "robotRotation",
             Rotation2d.struct
         ).publish();
 
@@ -107,12 +111,14 @@ public class DrivetrainSubsystem implements Subsystem {
     private final HolonomicDriveController driveController = new HolonomicDriveController(
         new PIDController(1, 0, 0),
         new PIDController(1, 0, 0),
-        new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(MAX_ANGULAR_VELOCITY, MAX_ANGULAR_ACCEL)));
+        new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT)));
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
     private boolean slowMode = false;
     private double rotationOffsetRadians = 0.0;
+
+    private ChassisSpeeds lastCommandedChassisSpeeds = new ChassisSpeeds();
 
     public DrivetrainSubsystem() {
 
@@ -123,6 +129,9 @@ public class DrivetrainSubsystem implements Subsystem {
                 FRONT_LEFT_STEER_MOTOR_ID,
                 FRONT_LEFT_STEER_ENCODER_ID,
                 FRONT_LEFT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
+                new PIDGains(2*0, 0, 0),
+                new FFGains(0.15263, 3.158, 0.53993),
                 drivetrainNT.getSubTable("frontleft"));
         
         frontRight = new NeoSwerveModule(
@@ -130,6 +139,9 @@ public class DrivetrainSubsystem implements Subsystem {
                 FRONT_RIGHT_STEER_MOTOR_ID,
                 FRONT_RIGHT_STEER_ENCODER_ID,
                 FRONT_RIGHT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
+                new PIDGains(1*0, 0, 0),
+                new FFGains(0.17645, 3.1584, 0.30427),
                 drivetrainNT.getSubTable("frontright"));
 
         backLeft = new NeoSwerveModule(
@@ -137,6 +149,9 @@ public class DrivetrainSubsystem implements Subsystem {
                 BACK_LEFT_STEER_MOTOR_ID,
                 BACK_LEFT_STEER_ENCODER_ID,
                 BACK_LEFT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
+                new PIDGains(0.45027 * 0, 0, 0),
+                new FFGains(0.1464, 3.206, 0.44254),
                 drivetrainNT.getSubTable("backleft"));
         
         backRight = new NeoSwerveModule(
@@ -144,9 +159,10 @@ public class DrivetrainSubsystem implements Subsystem {
                 BACK_RIGHT_STEER_MOTOR_ID,
                 BACK_RIGHT_STEER_ENCODER_ID,
                 BACK_RIGHT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
+                new PIDGains(2 * 0, 0, 0),
+                new FFGains(0.1751, 3.1887, 0.31847),
                 drivetrainNT.getSubTable("backright"));
-
-        tab.add("Test Drivetrain", testDrivetrain()).withPosition(8, 0);
 
         tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
@@ -160,7 +176,8 @@ public class DrivetrainSubsystem implements Subsystem {
                         backRight.getPosition()
                 }, 
                 new Pose2d());
-        resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
+
+        resetPose(new Pose2d(new Translation2d(0, 4.0), Rotation2d.fromDegrees(0)));
     }
 
 
@@ -215,27 +232,61 @@ public class DrivetrainSubsystem implements Subsystem {
             return;
         
         // Convert double[] from NT to Pose2D
-        Pose2d visionPose =  new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
-        double measurementTime= Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
+        Pose2d visionPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
+        double measurementTime = Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
 
         poseEstimator.addVisionMeasurement(visionPose, measurementTime);
     }
 
-    public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative) {
+    public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, boolean limitAcceleration) {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, angularVelocity);
+        if(limitAcceleration)
+            desaturateChassisSpeedsAcceleration(chassisSpeeds);
 
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(fieldRelative? ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getAdjustedRotation()) : chassisSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_LINEAR_VELOCITY);
-
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, MAX_ATTAINABLE_VELOCITY);
         setModuleStates(moduleStates);
+
+        lastCommandedChassisSpeeds = chassisSpeeds;
     }
 
-    public void drive(ChassisSpeeds speeds, boolean fieldRelative) {
-        drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative);
+    public void drive(ChassisSpeeds speeds, boolean fieldRelative, boolean limitAcceleration) {
+        drive(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond, fieldRelative, limitAcceleration);
+    }
+
+    private long lastTime = 0;
+
+    private void desaturateChassisSpeedsAcceleration(ChassisSpeeds speeds) {
+        long currentTime = RobotController.getFPGATime();
+        double dtSeconds = (currentTime - lastTime) / 1e6;
+        lastTime = currentTime;
+
+        double accelX = (speeds.vxMetersPerSecond - lastCommandedChassisSpeeds.vxMetersPerSecond) / dtSeconds;
+        double accelY = (speeds.vyMetersPerSecond - lastCommandedChassisSpeeds.vyMetersPerSecond) / dtSeconds;
+        double linearAccelMag = Math.sqrt(accelX * accelX + accelY * accelY);
+
+        // No need to limit decceleration ie. return if acceleration is in the opposite direction as current travel
+        if(accelX * lastCommandedChassisSpeeds.vxMetersPerSecond < 0 && accelY * lastCommandedChassisSpeeds.vyMetersPerSecond < 0)
+            return;
+
+        if(linearAccelMag > LINEAR_ACCEL_CONSTRAINT) {
+            accelX *= Math.abs(LINEAR_ACCEL_CONSTRAINT / linearAccelMag);
+            accelY *= Math.abs(LINEAR_ACCEL_CONSTRAINT / linearAccelMag);
+
+            speeds.vxMetersPerSecond = lastCommandedChassisSpeeds.vxMetersPerSecond + (accelX * dtSeconds);
+            speeds.vyMetersPerSecond = lastCommandedChassisSpeeds.vyMetersPerSecond + (accelY * dtSeconds);
+        }
+
+        double angularAccel = (speeds.omegaRadiansPerSecond - lastCommandedChassisSpeeds.omegaRadiansPerSecond) / dtSeconds;
+
+        if(Math.abs(angularAccel) > ANGULAR_ACCEL_CONSTRAINT) {
+            angularAccel = Math.signum(angularAccel) * ANGULAR_ACCEL_CONSTRAINT;
+            speeds.omegaRadiansPerSecond = lastCommandedChassisSpeeds.omegaRadiansPerSecond + (angularAccel * dtSeconds);
+        }        
     }
 
     public void stopMotion() {
-        drive(0, 0, 0, false);
+        drive(0, 0, 0, false, false);
     }
 
     public void zeroGyro() {
@@ -310,80 +361,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
     // Commands
 
-    public Command testDrivetrain() {
-        return Commands.sequence(
-            Commands.run(() -> {
-                setModuleStates(new SwerveModuleState[] {
-                    new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
-                    new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
-                    new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)),
-                    new SwerveModuleState(0.0, Rotation2d.fromDegrees(0))
-                });
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                setModuleStates(new SwerveModuleState[] {
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(0)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(0)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(0)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(0))
-                });
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                setModuleStates(new SwerveModuleState[] {
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(90)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(90)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(90)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(90))
-                });
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                setModuleStates(new SwerveModuleState[] {
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(180)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(180)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(180)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(180))
-                });
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                setModuleStates(new SwerveModuleState[] {
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(-90)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(-90)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(-90)),
-                    new SwerveModuleState(1.0, Rotation2d.fromDegrees(-90))
-                });
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                setModuleStates(new SwerveModuleState[] {
-                    new SwerveModuleState(0, Rotation2d.fromDegrees(360)),
-                    new SwerveModuleState(0, Rotation2d.fromDegrees(360)),
-                    new SwerveModuleState(0, Rotation2d.fromDegrees(360)),
-                    new SwerveModuleState(0, Rotation2d.fromDegrees(360))
-                });
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                drive(0, 0.0, 0, false);
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                drive(1.0, 0.0, 0, false);
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                drive(-1.0, 0.0, 0, false);
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                drive(0.0, 1.0, 0, false);
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                drive(0.0, -1.0, 0, false);
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                drive(0.0, 0.0, 1.0, false);
-            }, this).withTimeout(1),
-            Commands.run(() -> {
-                drive(0.0, 0.0, -1.0, false);
-            }, this).withTimeout(1)
-        );
-    }
-
     public Command enableSlowModeCommand() {
         return Commands.runOnce(() -> { slowMode = true; });
     }
@@ -397,12 +374,14 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
+        double deadband = 0.06;
         return Commands.run(() -> {
 
-            double xVelocity = MathUtil.applyDeadband(xAxis.getAsDouble(), 0.01) * MAX_LINEAR_VELOCITY * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double yVelocity = MathUtil.applyDeadband(yAxis.getAsDouble(), 0.01) * MAX_LINEAR_VELOCITY * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double rotVelocity = MathUtil.applyDeadband(rotAxis.getAsDouble(), 0.01) * MAX_ANGULAR_VELOCITY * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
-            drive(xVelocity, yVelocity, rotVelocity, FIELD_RELATIVE_DRIVE);
+            double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+            double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+            double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis.getAsDouble(), deadband)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
+
+            drive(xVelocity, yVelocity, rotVelocity, FIELD_RELATIVE_DRIVE, true);
 
         }, this);
     }

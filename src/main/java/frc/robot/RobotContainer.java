@@ -5,15 +5,13 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class RobotContainer {
 
@@ -37,19 +35,28 @@ public class RobotContainer {
         Trigger startButton = driverController.start();
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        double deadband = 0.1;
-
+        // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
-                () -> ( Util.translationCurve(MathUtil.applyDeadband(-driverController.getLeftY(), deadband)) ), // -Y on left joystick is +X for robot
-                () -> ( Util.translationCurve(MathUtil.applyDeadband(-driverController.getLeftX(), deadband)) ), // -X on left joystick is +Y for robot
-                () -> ( Util.steerCurve(MathUtil.applyDeadband(-driverController.getRightX(), deadband)) )       // -X on right joystick is +Z for robot
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
             )
         );
 
-        // Drivetrain SysId Command (change command for each test)
+        Trigger bButton = driverController.b();
+        bButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.5, 0, 0, true, true), drivetrainSubsystem));
+        Trigger xButton = driverController.x();
+        xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
+
+
         Trigger aButton = driverController.a();
-        aButton.whileTrue(drivetrainSubsystem.driveSysIdQuasistaticCommand(SysIdRoutine.Direction.kReverse));
+        aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
+        Trigger yButton = driverController.y();
+        yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
+
+        // Trigger yButton = driverController.y();
+        // yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.runDriveVolts(12), drivetrainSubsystem));
 
     }
     
