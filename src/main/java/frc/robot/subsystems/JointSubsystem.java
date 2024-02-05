@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -153,6 +154,23 @@ public class JointSubsystem extends SubsystemBase {
     controlList.addBoolean("At Elevator Min", () -> (atElevatorMinLimit));
     controlList.addBoolean("At Elevator Max", () -> (atElevatorMaxLimit));
     controlList.addDouble("Commanded Position", () -> (elevatorCommandedPosition));
+
+    SmartDashboard.putNumber("Joint Motor Velocity", jointEncoder.getVelocity());
+    SmartDashboard.putNumber("Joint Motor Current", jointMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Joint Motor Position", jointEncoder.getPosition());
+
+    SmartDashboard.putNumber("Elevator Motor RPM", elevatorEncoder.getVelocity());
+    SmartDashboard.putNumber("Elevator Motor Current", elevatorMotor.getOutputCurrent());
+    SmartDashboard.putNumber("Elevator Motor Percent", elevatorMotor.get());
+    SmartDashboard.putNumber("Elevator Motor Position", elevatorEncoder.getPosition());
+    SmartDashboard.putNumber("Elevator Commanded Position", elevatorCommandedPosition);
+
+    SmartDashboard.putBoolean("At Elevator Zero", atElevatorLimitSwitch);
+    SmartDashboard.putBoolean("At Elevator Min", atElevatorMinLimit);
+    SmartDashboard.putBoolean("At Elevator Max", atElevatorMaxLimit);
+    SmartDashboard.putBoolean("At Joint Zero", atJointLimitSwitch);
+    SmartDashboard.putBoolean("At Joint Min", atJointMinLimit);
+    SmartDashboard.putBoolean("At Joint Max", atJointMaxLimit);
 
     }
 
