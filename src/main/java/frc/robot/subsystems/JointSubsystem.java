@@ -23,6 +23,10 @@ import static frc.robot.Constants.*;
 
 public class JointSubsystem extends SubsystemBase {
   
+  //alignment
+  private double robotDistanceFromSpeaker = 0;
+  private double robotAverageTurbotakeHeightFromSpeaker = 0;
+
   // 9:1 reduction
   // 5.53 in circumference
 
@@ -305,11 +309,6 @@ public class JointSubsystem extends SubsystemBase {
   }
 
   public void checkExtensionPerimeter() {
-      jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
-      //Trig calculation that find extension (extension*sin(angle) & extension*cos(angle))
-      jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
-      jointHorizontalPosition = Math.abs(elevatorExtension * Math.cos(jointAngleRadians));
-
       //Calculation extension from frame perimeter
       if (jointVerticalPosition + JOINT_POSITION_FROM_FLOOR > VERTICAL_EXTENSION_LIMIT) {
           jointZeroCommand(); // Chnage later
@@ -327,7 +326,13 @@ public class JointSubsystem extends SubsystemBase {
       }
   }
 
-  public void updateJointVelocity() {
+  public void updateArmVariables() {
+      jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
+      elevatorExtension = getElevatorPosition() * ELEVATOR_INCHES_PER_REVOLUTION;
+      //Trig calculation that find extension (extension*sin(angle) & extension*cos(angle))
+      jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
+      jointHorizontalPosition = Math.abs(elevatorExtension * Math.cos(jointAngleRadians));
+
     if (jointEncoder.getVelocity() > 0)
       jointPositiveVelocity = true;
     else
@@ -404,6 +409,19 @@ public class JointSubsystem extends SubsystemBase {
     return this.runOnce(() -> setPosition(ELEVATOR_INTAKE_POSITION, false));
   }
 
+  public Command speakerPositionCommand() {
+    double a = robotDistanceFromSpeaker;
+    double b = robotAverageTurbotakeHeightFromSpeaker;
+    double c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+    double turbotakeAngle = Math.acos((Math.pow(c, 2) + Math.pow(a, 2) + Math.pow(b, 2)) / (2 * c * a));
+    double jointAngle = Math.toRadians(70) - turbotakeAngle;
+    double jointPosition = jointAngle / JOINT_RADIAN_PER_REVOLUTION;
+    return this.runOnce(() -> {
+      setPosition(0, false);
+      setPosition(jointPosition, true);
+    });
+  }
+
   public Command jointZeroCommand() {
     return Commands.sequence(
         Commands.runOnce(() -> setMotorPercent(-0.3, true), this),
@@ -435,7 +453,7 @@ public class JointSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-      updateJointVelocity();
+      updateArmVariables();
       checkLimitSwitch();
       checkMinLimit();
       checkMaxLimit();
