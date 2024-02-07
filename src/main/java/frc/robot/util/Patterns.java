@@ -6,7 +6,7 @@ public class Patterns {
     public static final double FIXED_PALETTE_PATTERN_RAINBOW_RAINBOW_PALETTE = -0.99;
         public static final double FIXED_PALETTE_PATTERN_RAINBOW_PARTY_PALETTE = -0.97;
         public static final double FIXED_PALETTE_PATTERN_RAINBOW_OCEAN_PALETTE = -0.95;
-        public static final double FIXED_PALETTE_PATTERN_RAINBOW_LAVE_PALETTE = -0.93;
+        public static final double FIXED_PALETTE_PATTERN_RAINBOW_LAVA_PALETTE = -0.93;
         public static final double FIXED_PALETTE_PATTERN_RAINBOW_FOREST_PALETTE = -0.91;
         public static final double FIXED_PALETTE_PATTERN_RAINBOW_WITH_GLITTER = -0.89;
         public static final double FIXED_PALETTE_PATTERN_CONFETTI = -0.87;

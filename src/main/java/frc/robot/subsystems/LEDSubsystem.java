@@ -19,44 +19,40 @@ public class LEDSubsystem extends SubsystemBase {
         return this.runOnce(() -> setPattern(pattern));
     }
 
-    public Command idlePatternCommand() {
-        return setPatternCommand(IDLE_PATTERN);
-    }
-    
     public Command setSolidColor(int colorId) {
         // Not including black
         return this.runOnce(() -> setPattern(0.57 + (0.02 * (colorId % 21))));
     }
 
+    public Command idlePatternCommand() {
+        return setPatternCommand(IDLE_PATTERN);
+    }
+
     public Command defaultColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
+        return setPatternCommand(Patterns.COLOR_1_AND_2_PATTERN_SPARKLE_COLOR_1_ON_COLOR_2);
     }
 
     public Command autonomousColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
+        return setPatternCommand(Patterns.FIXED_PALETTE_PATTERN_COLOR_WAVES_OCEAN_PALETTE);
     }
 
     public Command flywheelsRampingColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_RED);
+        return setPatternCommand(Patterns.COLOR_1_PATTERN_STROBE);
     }
 
     public Command flywheelsRampedColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
+        return setPatternCommand(Patterns.SOLID_COLORS_BLUE);
     }
 
     public Command intakeColor() {
+        return setPatternCommand(Patterns.SOLID_COLORS_RED);
+    }
+
+    public Command pieceLoadedColor() {
         return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
     }
 
-    public Command ampColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
-    }
-
-    public Command climbingColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
-    }
-
-    public Command trapColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
+    public Command alignedToFieldElementColor() {
+        return setPatternCommand(Patterns.FIXED_PALETTE_PATTERN_RAINBOW_LAVA_PALETTE);
     }
 }
