@@ -380,6 +380,13 @@ public class DrivetrainSubsystem implements Subsystem {
             double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
             double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
             double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis.getAsDouble(), deadband)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
+            
+            double totalVelocity = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
+
+            if (totalVelocity > LINEAR_VELOCITY_CONSTRAINT){
+                xVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+                yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+            }
 
             drive(xVelocity, yVelocity, rotVelocity, FIELD_RELATIVE_DRIVE, true);
 
