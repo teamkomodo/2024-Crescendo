@@ -45,12 +45,13 @@ public class RobotContainer extends TimedRobot {
         rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(0);}));
         leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(0);}));
 
-        Trigger aButtom = driverController.a();
+        Trigger aButton = driverController.a();
         Trigger bButton = driverController.b();
 
-        aButtom.whileTrue( Commands.run( () -> turbotakesubsystem.setIndexSpeed(INDEXER_SPEED) ).andThen(Commands.run( () -> turbotakesubsystem.setIndexSpeed(0) )) );
-        bButton.whileFalse( Commands.run( () -> turbotakesubsystem.setIndexSpeed(-INDEXER_SPEED) ).andThen(Commands.run( () -> turbotakesubsystem.setIndexSpeed(0) )) );
-
+        aButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(INDEXER_SPEED) ) );
+        bButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(-INDEXER_SPEED) ) );
+        aButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
+        bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
 
     }
 
