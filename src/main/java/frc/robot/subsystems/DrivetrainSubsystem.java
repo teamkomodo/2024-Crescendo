@@ -46,6 +46,7 @@ import java.util.function.DoubleSupplier;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 public class DrivetrainSubsystem implements Subsystem {
@@ -456,5 +457,33 @@ public class DrivetrainSubsystem implements Subsystem {
             },
             this
         );    
+    }
+
+    public Command pointToSpeakerCommand(){
+        double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.2f;
+        double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.55f;
+
+        double actualAngle;
+
+        if (Math.signum(xDistance) == 1f){ // if 'behind' the speaker
+            actualAngle = Math.signum(yDistance) * (180 - (Math.atan(Math.abs(yDistance)/Math.abs(xDistance))));
+        } else {    //otherwise (if 'above' the speaker)
+            actualAngle = Math.signum(yDistance) * ((Math.atan(Math.abs(yDistance)/Math.abs(xDistance))));
+        }
+
+        //Pose2d targetPose = new Pose2d(10, 5, Rotation2d.fromDegrees(actualAngle));
+
+        Pose2d targetPose = new Pose2d(poseEstimator.getEstimatedPosition().getX(), poseEstimator.getEstimatedPosition().getY(), Rotation2d.fromDegrees(180));
+
+        PathConstraints constraints = new PathConstraints(
+        LINEAR_VELOCITY_CONSTRAINT, LINEAR_ACCEL_CONSTRAINT,
+        Math.toRadians(540), Math.toRadians(720));
+
+        return AutoBuilder.pathfindToPose(
+            targetPose,
+            constraints,
+            0.0, // Goal end velocity in meters/sec
+            0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
+        );
     }
 }
