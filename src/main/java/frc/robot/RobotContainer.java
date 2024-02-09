@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 
 import static frc.robot.Constants.*;
 
@@ -21,6 +22,7 @@ public class RobotContainer {
 
     // Subsystems
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -47,6 +49,23 @@ public class RobotContainer {
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
         // deadband and curves are applied in command
+
+        // Triggers
+        Trigger rTrigger = driverController.rightTrigger();
+        Trigger aButton = driverController.a();
+        Trigger bButton = driverController.b();
+        Trigger xButton = driverController.x();
+        Trigger yButton = driverController.y();
+
+        Trigger rightJoystickDown = driverController.rightStick();
+
+        rightJoystickDown.onTrue(armSubsystem.jointZeroCommand());
+
+        // Slow/Fast Mode
+        rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
+        rTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+
+        // Drivetrain controls
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
                 () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
@@ -55,15 +74,12 @@ public class RobotContainer {
             )
         );
 
-        Trigger bButton = driverController.b();
+        
         bButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.5, 0, 0, true, true), drivetrainSubsystem));
-        Trigger xButton = driverController.x();
         xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
 
 
-        Trigger aButton = driverController.a();
         aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
-        Trigger yButton = driverController.y();
         yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
 
         // Trigger yButton = driverController.y();
