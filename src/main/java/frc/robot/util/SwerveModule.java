@@ -34,12 +34,12 @@ public interface SwerveModule {
      */
     public SwerveModuleState getState();
 
-    /**
-     * Returns the current position of the module.
+     /**
+     * Returns the desired (set) state of the module
      * <p>
-     * The position includes the position and angle of the wheel.
+     * The state includes the desired velocity and angle of the wheel.
      * 
-     * @return The current position of the module.
+     * @return The desired state of the module
      */
     public SwerveModuleState getDesiredState();
 

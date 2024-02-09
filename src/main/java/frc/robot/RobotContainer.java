@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
-
+import frc.robot.subsystems.TurboTakeSubsystem;
 import static frc.robot.Constants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -23,7 +23,7 @@ public class RobotContainer {
     // Subsystems
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
-
+    public final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     

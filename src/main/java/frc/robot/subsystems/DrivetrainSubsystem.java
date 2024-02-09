@@ -191,7 +191,7 @@ public class DrivetrainSubsystem implements Subsystem {
         tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
         poseEstimator = new SwerveDrivePoseEstimator(
-            kinematics,
+                kinematics,
                 navX.getRotation2d(),
                 new SwerveModulePosition[] {
                         frontLeft.getPosition(),
@@ -203,6 +203,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
         resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
     }
+
 
 
     @Override
