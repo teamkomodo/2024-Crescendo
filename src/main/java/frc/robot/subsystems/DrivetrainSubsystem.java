@@ -13,6 +13,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
@@ -21,7 +25,6 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -37,9 +40,13 @@ import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 public class DrivetrainSubsystem implements Subsystem {
 
@@ -115,12 +122,29 @@ public class DrivetrainSubsystem implements Subsystem {
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
+    private ChassisSpeeds currentChassisSpeeds = new ChassisSpeeds();
     private boolean slowMode = false;
     private double rotationOffsetRadians = 0.0;
 
     private ChassisSpeeds lastCommandedChassisSpeeds = new ChassisSpeeds();
 
     public DrivetrainSubsystem() {
+
+        AutoBuilder.configureHolonomic(
+            this::getPose,
+            this::resetPose,
+            this::getChassisSpeeds,
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            () -> {
+                Optional<Alliance> alliance = DriverStation.getAlliance();
+                if(alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            },
+            this
+        );
 
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -177,7 +201,7 @@ public class DrivetrainSubsystem implements Subsystem {
                 }, 
                 new Pose2d());
 
-        resetPose(new Pose2d(new Translation2d(0, 4.0), Rotation2d.fromDegrees(0)));
+        resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
     }
 
 
@@ -193,7 +217,10 @@ public class DrivetrainSubsystem implements Subsystem {
         updateTelemetry();
     }
 
-    
+    public void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
+        drive(chassisSpeeds, false, false);
+    }
+
     private void updateTelemetry(){
         //Swerve
         desiredSwerveStatesPublisher.set(new SwerveModuleState[] {
@@ -291,10 +318,6 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public void zeroGyro() {
         rotationOffsetRadians = -navX.getRotation2d().getRadians();
-        rotationOffsetRadians = -navX.getRotation2d().getRadians();
-        //resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
-        rotationOffsetRadians = -navX.getRotation2d().getRadians();   
-        //resetPose(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(0)));
     }
 
     public void runDriveVolts(double voltage) {
@@ -341,6 +364,11 @@ public class DrivetrainSubsystem implements Subsystem {
     public Rotation2d getAdjustedRotation() {
         return navX.getRotation2d().plus(Rotation2d.fromRadians(rotationOffsetRadians));
     }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return currentChassisSpeeds;
+    }
+
 
     // Setters
 
@@ -410,4 +438,23 @@ public class DrivetrainSubsystem implements Subsystem {
         return steerSysIdRoutine.dynamic(direction);
     }
     
+    public Command followPathCommand(String pathName){
+        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+
+        return new FollowPathHolonomic(
+            path, 
+            this::getPose,
+            this::getChassisSpeeds,
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            () -> {
+                Optional<Alliance> alliance = DriverStation.getAlliance();
+                if(alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            },
+            this
+        );    
+    }
 }
