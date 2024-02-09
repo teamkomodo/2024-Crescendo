@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import static frc.robot.Constants.*;
 
-public class JointSubsystem extends SubsystemBase {
+public class ArmSubsystem extends SubsystemBase {
   
   //alignment
   private double robotDistanceFromSpeaker = 0;
@@ -97,7 +97,7 @@ public class JointSubsystem extends SubsystemBase {
 
   private boolean zeroed = true;
 
-  public JointSubsystem() {
+  public ArmSubsystem() {
     jointMotor = new CANSparkMax(JOINT_MOTOR_ID, MotorType.kBrushless);
     jointMotor.restoreFactoryDefaults();
     jointMotor.setInverted(false);

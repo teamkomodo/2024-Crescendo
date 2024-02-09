@@ -60,19 +60,18 @@ public final class Constants {
     public static final double MAX_ANGULAR_ACCEL = 4.0 * Math.PI;
 
 // Joint/Elevator
-    public static final int JOINT_MOTOR_ID = 0;
+    public static final int JOINT_MOTOR_ID = 31;
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 0;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
-    public static final double JOINT_SLOW_MODE_MULTIPLIER = 0;
 
-    public static final double JOINT_MIN_POSITION = 0; // Code stop
-    public static final double JOINT_MAX_POSITION = 0; // Code stop
+    public static final double JOINT_MIN_POSITION = -10; // Code stop
+    public static final double JOINT_MAX_POSITION = 60; // Code stop
     
     public static final double JOINT_STOW_POSITION = 0;
-    public static final double JOINT_AMP_POSITION = 0;
-    public static final double JOINT_SPEAKER_POSITION = 0;
-    public static final double JOINT_TRAP_POSITION = 0;
-    public static final double JOINT_INTAKE_POSITION = 0;
+    public static final double JOINT_AMP_POSITION = 15;
+    public static final double JOINT_SPEAKER_POSITION = 30;
+    public static final double JOINT_TRAP_POSITION = 45;
+    public static final double JOINT_INTAKE_POSITION = 70;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         JOINT_STOW_POSITION,

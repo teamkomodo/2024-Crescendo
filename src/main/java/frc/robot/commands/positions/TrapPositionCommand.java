@@ -3,29 +3,29 @@ package frc.robot.commands.positions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.JointSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 
 public class TrapPositionCommand extends Command{
 
-    private final JointSubsystem jointSubsystem;
+    private final ArmSubsystem armSubsystem;
 
-    public TrapPositionCommand(JointSubsystem jointSubsystem) {
+    public TrapPositionCommand(ArmSubsystem armSubsystem) {
         
-        this.jointSubsystem = jointSubsystem;
+        this.armSubsystem = armSubsystem;
 
-        addRequirements(jointSubsystem);
+        addRequirements(armSubsystem);
     }
 
     protected Command getCommand() {
-        if(!(jointSubsystem.isZeroed())) {
+        if(!(armSubsystem.isZeroed())) {
             return Commands.parallel(
-                jointSubsystem.jointZeroCommand(),
-                jointSubsystem.elevatorZeroCommand()
+                armSubsystem.jointZeroCommand(),
+                armSubsystem.elevatorZeroCommand()
             );
         }
         return new SequentialCommandGroup(
-            jointSubsystem.jointTrapPositionCommand(),
-            jointSubsystem.elevatorTrapPositionCommand()
+            armSubsystem.jointTrapPositionCommand(),
+            armSubsystem.elevatorTrapPositionCommand()
         );
     }
 }

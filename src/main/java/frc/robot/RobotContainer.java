@@ -10,7 +10,7 @@ import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
 import frc.robot.commands.positions.TrapPositionCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.JointSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 
 import static frc.robot.Constants.*;
 
@@ -25,14 +25,14 @@ public class RobotContainer {
 
     // Subsystems
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
-    private final JointSubsystem jointSubsystem = new JointSubsystem();
+    private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
     // Position commands
-    private final Command stowPositionCommand = new StowPositionCommand(jointSubsystem);
-    private final Command trapPositionCommand = new TrapPositionCommand(jointSubsystem);
-    private final Command intakePositionCommand = new IntakePositionCommand(jointSubsystem);
-    private final Command ampPositionCommand = new AmpPositionCommand(jointSubsystem);
-    private final Command speakerPositionCommand = new SpeakerPositionCommand(jointSubsystem);
+    private final Command stowPositionCommand = new StowPositionCommand(armSubsystem);
+    private final Command trapPositionCommand = new TrapPositionCommand(armSubsystem);
+    private final Command intakePositionCommand = new IntakePositionCommand(armSubsystem);
+    private final Command ampPositionCommand = new AmpPositionCommand(armSubsystem);
+    private final Command speakerPositionCommand = new SpeakerPositionCommand(armSubsystem);
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -51,12 +51,16 @@ public class RobotContainer {
         Trigger xButton = driverController.x();
         Trigger yButton = driverController.y();
 
+        Trigger rightJoystickDown = driverController.rightStick();
+
         // Elevator/joint position commands
         leftJoystickDown.onTrue(stowPositionCommand);
         aButton.onTrue(trapPositionCommand);
         bButton.onTrue(intakePositionCommand);
         xButton.onTrue(ampPositionCommand);
         yButton.onTrue(speakerPositionCommand);
+
+        rightJoystickDown.onTrue(armSubsystem.jointZeroCommand());
 
         // Slow/Fast Mode
         rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
