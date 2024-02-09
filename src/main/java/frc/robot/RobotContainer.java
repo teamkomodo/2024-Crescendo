@@ -9,7 +9,6 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import static frc.robot.Constants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -73,12 +72,6 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
-        
-        PathPlannerPath path = PathPlannerPath.fromPathFile("Test");
-
-
-        return AutoBuilder.followPath(path);
-
-        //return autoChooser.getSelected();
+        return autoChooser.getSelected();
     }
 }

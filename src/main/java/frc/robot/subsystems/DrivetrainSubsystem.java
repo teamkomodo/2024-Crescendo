@@ -47,9 +47,6 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 
 public class DrivetrainSubsystem implements Subsystem {
 
@@ -137,23 +134,17 @@ public class DrivetrainSubsystem implements Subsystem {
             this::getPose,
             this::resetPose,
             this::getChassisSpeeds,
-            this::fieldRelativeDrive,
-            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(1.0, 0.0, 0.0), // Driving PID constants
-                        new PIDConstants(0.0, 0.0, 0.0), // Steering PID constants
-                        MAX_ATTAINABLE_VELOCITY, // Max module speed, in m/s
-                        Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
-                        new ReplanningConfig() // Default path replanning config. See the API for the options here
-                ),
-                () -> {
-                    Optional<Alliance> alliance = DriverStation.getAlliance();
-                    if(alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this
-            );
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            () -> {
+                Optional<Alliance> alliance = DriverStation.getAlliance();
+                if(alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            },
+            this
+        );
 
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -210,7 +201,7 @@ public class DrivetrainSubsystem implements Subsystem {
                 }, 
                 new Pose2d());
 
-        resetPose(new Pose2d(new Translation2d(0, 4.0), Rotation2d.fromDegrees(0)));
+        resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
     }
 
 
@@ -226,7 +217,7 @@ public class DrivetrainSubsystem implements Subsystem {
         updateTelemetry();
     }
 
-    public void fieldRelativeDrive(ChassisSpeeds chassisSpeeds) {
+    public void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
         drive(chassisSpeeds, false, false);
     }
 
@@ -447,21 +438,15 @@ public class DrivetrainSubsystem implements Subsystem {
             path, 
             this::getPose,
             this::getChassisSpeeds,
-            this::fieldRelativeDrive,
-            new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(1.0, 0.0, 0.0), // Driving PID constants
-                        new PIDConstants(0.0, 0.0, 0.0), // Steering PID constants
-                        MAX_ATTAINABLE_VELOCITY, // Max module speed, in m/s
-                        Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2, // Drive base radius in meters. Distance from robot center to furthest module.
-                        new ReplanningConfig() // Default path replanning config. See the API for the options here
-                ),
-                () -> {
-                    Optional<Alliance> alliance = DriverStation.getAlliance();
-                    if(alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
+            this::robotRelativeDrive,
+            HOLONOMIC_PATH_FOLLOWER_CONFIG,
+            () -> {
+                Optional<Alliance> alliance = DriverStation.getAlliance();
+                if(alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            },
             this
         );    
     }
