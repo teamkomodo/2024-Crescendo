@@ -59,6 +59,10 @@ public class RobotContainer extends TimedRobot {
         aButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
         bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
 
+        Trigger rightTrigger = driverController.rightTrigger();
+        rightTrigger.whileTrue( Commands.run( () -> turbotakesubsystem.setIndexSpeed(driverController.getRightTriggerAxis() * INDEXER_SPEED), turbotakesubsystem ) );
+        rightTrigger.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
+
         //shooter button
         Trigger xButton = driverController.x();
         Trigger yButton = driverController.y();
