@@ -34,18 +34,7 @@ public class RobotContainer extends TimedRobot {
         
 
 
-        //competition binds
-        //Turbotake Binds
-        // Trigger rightBumper = driverController.rightBumper();
-        // Trigger leftBumper = driverController.leftBumper();
-
-        // //when true set motors at
-        // rightBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(INDEXER_SPEED);}));
-        // leftBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(SHOOTER_SPEED);}));
-
-        // //when false disable right or left
-        // rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(0);}));
-        // leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(0);}));
+       
 
 
         //Current testing binds
@@ -54,12 +43,15 @@ public class RobotContainer extends TimedRobot {
         Trigger aButton = driverController.a();
         Trigger bButton = driverController.b();
 
+
+        //intakes/outakes for indexer
         aButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(INDEXER_SPEED) ) );
         bButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(-INDEXER_SPEED) ) );
         aButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
         bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
 
         Trigger rightTrigger = driverController.rightTrigger();
+
         rightTrigger.whileTrue( Commands.run( () -> turbotakesubsystem.setIndexSpeed(driverController.getRightTriggerAxis() * INDEXER_SPEED), turbotakesubsystem ) );
         rightTrigger.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
 
@@ -67,15 +59,18 @@ public class RobotContainer extends TimedRobot {
         Trigger xButton = driverController.x();
         Trigger yButton = driverController.y();
 
+        //shoots/intakes for shooter motors
         xButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED) ) );
         yButton.onTrue(Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(-SHOOTER_SPEED) ) );
         xButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
         yButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
         
+
+        //testing buttons
         Trigger rightBumper = driverController.rightBumper();
         Trigger leftBumper = driverController.leftBumper();
 
-        
+        //tests shooters
         rightBumper.whileTrue(Commands.sequence(
                 turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
                 new WaitCommand(5), 
@@ -87,6 +82,7 @@ public class RobotContainer extends TimedRobot {
                 ));
 
 
+        //tests indexer
         leftBumper.whileTrue(Commands.sequence(
                 turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
                 new WaitCommand(5), 

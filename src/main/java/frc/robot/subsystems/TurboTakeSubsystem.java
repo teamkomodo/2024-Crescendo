@@ -98,7 +98,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
         shooterI = 0;
         shooterD = 0;
         shooterIAccumulator = 0;
-        shooterFF = 0;
+        shooterFF = 0.0023097;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
         
