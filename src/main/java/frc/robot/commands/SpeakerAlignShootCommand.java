@@ -1,7 +1,10 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.SPEAKER_SPEED;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.TurboTakeSubsystem;
@@ -20,13 +23,17 @@ public class SpeakerAlignShootCommand extends Command{
     }
 
     protected Command getCommand() {
-        if (turboTakeSubsystem.pieceDetected()) //FIXME: Add function to check if robot is in shooting range
+        if (turboTakeSubsystem.pieceDetected() /*&& drivetrainSubsystem.inRange()*/) //FIXME: Add function to check if robot is in shooting range
             return new SequentialCommandGroup( //FIXME: Add function to align robot to speaker and wait methods
-                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetShooterSpeed(1)),
+                /*drivetrainSubsystem.runOnce(() -> drivetrainSubsystem.alignToSpeaker());*/
+                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetShooterSpeed(SPEAKER_SPEED)),
                 armSubsystem.speakerPositionCommand(),
                 turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetIndexerSpeed(0.5)),
+                new WaitCommand(0.2),
+                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetIndexerSpeed(0)),
                 turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetShooterSpeed(0)),
-                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetIndexerSpeed(0))
+                armSubsystem.elevatorStowPositionCommand(),
+                armSubsystem.jointStowPositionCommand()
             );
         else
             return new SequentialCommandGroup(null);
