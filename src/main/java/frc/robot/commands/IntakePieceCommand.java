@@ -45,15 +45,15 @@ public class IntakePieceCommand extends Command{
 
     //States
     public void IdleState(){//Stowed position with LEDS at idle state
-        //stowPositionCommand();
-        //ledsubsystem.idlePatternCommand(IDLE_PATTERN);
+        //armSubsystem.stowPositionCommand();
+        //ledSubsystem.idlePatternCommand(IDLE_PATTERN);
     }
 
     public void intakeState(){//Intake position with intake motor running, go back to idle
-        //intakePosititonCommand();
+        //armSubsystem.intakePosititonCommand();
         turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
         //if(hasPiece == true)//ledsubsystem.idlePatternCommand(INTAKE_PATTERN);
-        //stowPositionCommand();
+        //armSubsystem.stowPositionCommand();
     }
 
     public void shootState(){//amp/speaker position with shooter running until indexer runs moving the note
@@ -62,7 +62,7 @@ public class IntakePieceCommand extends Command{
         //amp or speaker position
         turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
         //delay or a 1 second
-        turbotakesubsystem.setIndexSpeed(0);
+        turbotakesubsystem.SetIndexerSpeed(0);
         turbotakesubsystem.SetShooterSpeed(0);
     }
 }
