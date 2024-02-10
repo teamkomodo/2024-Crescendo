@@ -12,6 +12,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
@@ -24,6 +27,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -40,6 +44,8 @@ import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
@@ -459,31 +465,32 @@ public class DrivetrainSubsystem implements Subsystem {
         );    
     }
 
-    public Command pointToSpeakerCommand(){
+    public void pointToSpeaker(){
         double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.2f;
         double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.55f;
 
-        double actualAngle;
+        //improve this math eventually
+        double actualAngle = Math.signum(yDistance) //above speaker means +1, below means -1
+        * (((Math.signum(xDistance) - 1) * -90) //in front of speaker (right) means 180, behind (left) means 0
+        - (Math.signum(xDistance) * (Math.atan(Math.abs(yDistance)/Math.abs(xDistance))))); //in front means neg, behind means pos
 
-        if (Math.signum(xDistance) == 1f){ // if 'behind' the speaker
-            actualAngle = Math.signum(yDistance) * (180 - (Math.atan(Math.abs(yDistance)/Math.abs(xDistance))));
-        } else {    //otherwise (if 'above' the speaker)
-            actualAngle = Math.signum(yDistance) * ((Math.atan(Math.abs(yDistance)/Math.abs(xDistance))));
-        }
 
-        //Pose2d targetPose = new Pose2d(10, 5, Rotation2d.fromDegrees(actualAngle));
+        //beyond this point is "idk how this works but im guessing this is how"
 
-        Pose2d targetPose = new Pose2d(poseEstimator.getEstimatedPosition().getX(), poseEstimator.getEstimatedPosition().getY(), Rotation2d.fromDegrees(180));
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+        poseEstimator.getEstimatedPosition(),
+        null,
+        new Pose2d(poseEstimator.getEstimatedPosition().getX(), poseEstimator.getEstimatedPosition().getY(), Rotation2d.fromDegrees(actualAngle)),
+        new TrajectoryConfig(LINEAR_VELOCITY_CONSTRAINT, LINEAR_ACCEL_CONSTRAINT));
 
-        PathConstraints constraints = new PathConstraints(
-        LINEAR_VELOCITY_CONSTRAINT, LINEAR_ACCEL_CONSTRAINT,
-        Math.toRadians(540), Math.toRadians(720));
+        //insert amount needing to rotate/max angular speed... probably maybe idk
+        Trajectory.State goal = trajectory.sample(2);
 
-        return AutoBuilder.pathfindToPose(
-            targetPose,
-            constraints,
-            0.0, // Goal end velocity in meters/sec
-            0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
-        );
+        ChassisSpeeds adjustedSpeeds = driveController.calculate(
+        poseEstimator.getEstimatedPosition(), goal, Rotation2d.fromDegrees(actualAngle));
+
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(adjustedSpeeds);
+
+        setModuleStates(moduleStates);
     }
 }
