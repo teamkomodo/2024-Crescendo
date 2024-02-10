@@ -74,22 +74,22 @@ public class RobotContainer extends TimedRobot {
         
         rightBumper.whileTrue(Commands.sequence(
                 turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(0), 
+                new WaitCommand(5), 
                 turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(0),
+                new WaitCommand(5),
                 turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(0),
+                new WaitCommand(5),
                 turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
                 ));
 
 
         leftBumper.whileTrue(Commands.sequence(
                 turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(0), 
+                new WaitCommand(5), 
                 turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(0),
+                new WaitCommand(5),
                 turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(0),
+                new WaitCommand(5),
                 turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
                 ));
 
