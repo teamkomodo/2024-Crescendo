@@ -66,6 +66,8 @@ public class RobotContainer {
         Trigger yButton = driverController.y();
         yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
 
+
+        //could be .onTrue()
         Trigger rightBumper = driverController.rightBumper();
         rightBumper.whileTrue(drivetrainSubsystem.pointToSpeakerCommand());
 

@@ -465,32 +465,37 @@ public class DrivetrainSubsystem implements Subsystem {
         );    
     }
 
-    public void pointToSpeaker(){
+    public Command pointToSpeakerCommand(){
+        return Commands.run(() ->{
         double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.2f;
         double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.55f;
 
         //improve this math eventually
+        //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
         double actualAngle = Math.signum(yDistance) //above speaker means +1, below means -1
         * (((Math.signum(xDistance) - 1) * -90) //in front of speaker (right) means 180, behind (left) means 0
         - (Math.signum(xDistance) * (Math.atan(Math.abs(yDistance)/Math.abs(xDistance))))); //in front means neg, behind means pos
 
 
         //beyond this point is "idk how this works but im guessing this is how"
-
+        
+        //make a trajectory, start point current, end point same position but pointing at, those are only 2 waypoints, max vel and accel are the constraint constants
+        //may need to change
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
         poseEstimator.getEstimatedPosition(),
         null,
         new Pose2d(poseEstimator.getEstimatedPosition().getX(), poseEstimator.getEstimatedPosition().getY(), Rotation2d.fromDegrees(actualAngle)),
         new TrajectoryConfig(LINEAR_VELOCITY_CONSTRAINT, LINEAR_ACCEL_CONSTRAINT));
 
-        //insert amount needing to rotate/max angular speed... probably maybe idk
-        Trajectory.State goal = trajectory.sample(2);
-
-        ChassisSpeeds adjustedSpeeds = driveController.calculate(
-        poseEstimator.getEstimatedPosition(), goal, Rotation2d.fromDegrees(actualAngle));
-
-        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(adjustedSpeeds);
-
-        setModuleStates(moduleStates);
+        //get the end position at time: end of the trajectory. may need to increase or decrease
+        Trajectory.State goal = trajectory.sample(trajectory.getTotalTimeSeconds());
+        
+        //Calculate what kind of speeds (x and y for all 4 motors) are required
+        //given the current position, goal position, and which way we want to face
+        ChassisSpeeds adjustedSpeeds = driveController.calculate(poseEstimator.getEstimatedPosition(), goal, Rotation2d.fromDegrees(actualAngle));
+        
+        //send the speeds to the motors
+        setModuleStates(kinematics.toSwerveModuleStates(adjustedSpeeds));
+    });
     }
 }
