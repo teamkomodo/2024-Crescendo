@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class RobotContainer extends TimedRobot {
     
@@ -32,19 +34,23 @@ public class RobotContainer extends TimedRobot {
         
 
 
-
+        //competition binds
         //Turbotake Binds
-        Trigger rightBumper = driverController.rightBumper();
-        Trigger leftBumper = driverController.leftBumper();
+        // Trigger rightBumper = driverController.rightBumper();
+        // Trigger leftBumper = driverController.leftBumper();
 
-        //when true set motors at
-        rightBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(INDEXER_SPEED);}));
-        leftBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(SHOOTER_SPEED);}));
+        // //when true set motors at
+        // rightBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(INDEXER_SPEED);}));
+        // leftBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(SHOOTER_SPEED);}));
 
-        //when false disable right or left
-        rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(0);}));
-        leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(0);}));
+        // //when false disable right or left
+        // rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setIndexSpeed(0);}));
+        // leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.setShootSpeed(0);}));
 
+
+        //Current testing binds
+
+        //indexer button
         Trigger aButton = driverController.a();
         Trigger bButton = driverController.b();
 
@@ -52,6 +58,44 @@ public class RobotContainer extends TimedRobot {
         bButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(-INDEXER_SPEED) ) );
         aButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
         bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
+
+        //shooter button
+        Trigger xButton = driverController.x();
+        Trigger yButton = driverController.y();
+
+        xButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED) ) );
+        yButton.onTrue(Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(-SHOOTER_SPEED) ) );
+        xButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
+        yButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
+        
+        Trigger rightBumper = driverController.rightBumper();
+        Trigger leftBumper = driverController.leftBumper();
+
+        
+        rightBumper.whileTrue(Commands.sequence(
+                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(0), 
+                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                new WaitCommand(0),
+                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(0),
+                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+                ));
+
+
+        leftBumper.whileTrue(Commands.sequence(
+                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(0), 
+                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                new WaitCommand(0),
+                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(0),
+                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+                ));
+
+        
+
+
 
     }
 

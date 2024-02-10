@@ -5,17 +5,23 @@
 */
 package frc.robot.subsystems;
 
+//import edu.wpi.first.math.util.Units;
 //Libraries
 import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+
+
 import com.revrobotics.SparkPIDController;
 //Motor Libraries
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import edu.wpi.first.units.Units;
 
 //IDs from Constants
 import static frc.robot.Constants.BEAM_BREAK_SENSOR_PORT;
@@ -58,7 +64,21 @@ public class TurboTakeSubsystem extends SubsystemBase{
     private double shooterP, shooterI, shooterD, shooterIAccumulator, 
     shooterFF, shooterMinOutput, shooterMaxOutput;
     
-    
+    public final SysIdRoutine indexerRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(), 
+        new SysIdRoutine.Mechanism(
+            (voltage) -> SetIndexerSpeed(voltage.in(Units.Volts)),
+            null,
+                this
+        ));
+
+    public final SysIdRoutine shooterRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(), 
+        new SysIdRoutine.Mechanism(
+            (voltage) -> SetShooterSpeed(voltage.in(Units.Volts)),
+            null,
+                this
+        ));
     
     //init outtake motors and restores factory defaults
     public TurboTakeSubsystem(){
@@ -70,17 +90,17 @@ public class TurboTakeSubsystem extends SubsystemBase{
         indexerD = 0;
         indexerIAccumulator = 0;
         indexerFF = 0;
-        indexerMinOutput = 0;
-        indexerMaxOutput = 0;
+        indexerMinOutput = -1;
+        indexerMaxOutput = 1;
         
         // PID coefficients for shooter motors
-        shooterP = 1;
+        shooterP = 3.78e-04;
         shooterI = 0;
         shooterD = 0;
         shooterIAccumulator = 0;
         shooterFF = 0;
-        shooterMinOutput = 0;
-        shooterMaxOutput = 0;
+        shooterMinOutput = -1;
+        shooterMaxOutput = 1;
         
         
         //Initialize the motors
@@ -98,6 +118,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
         shooter1Encoder = shooterMotor1.getEncoder();
         shooter2Encoder = shooterMotor2.getEncoder();
         indexerEncoder = indexerMotor.getEncoder();
+        
         
         //sets encoder positions to 0
         shooter1Encoder.setPosition(0);
@@ -259,6 +280,8 @@ public class TurboTakeSubsystem extends SubsystemBase{
         shooterMotor1.set(-shooterPercent);
         shooterMotor2.set(shooterPercent);
     }
+    
+
     
     
     
