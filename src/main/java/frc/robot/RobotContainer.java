@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 
 import static frc.robot.Constants.*;
 
@@ -13,14 +13,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
 
     // Subsystems
-    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -38,36 +37,9 @@ public class RobotContainer {
     
     private void configureBindings() {
 
-        Trigger rightTrigger = driverController.rightTrigger();
+        Trigger leftTrigger = driverController.leftTrigger();
 
-        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
-
-        Trigger startButton = driverController.start();
-        startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
-
-        // deadband and curves are applied in command
-        drivetrainSubsystem.setDefaultCommand(
-            drivetrainSubsystem.joystickDriveCommand(
-                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
-                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
-            )
-        );
-
-        Trigger bButton = driverController.b();
-        bButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.5, 0, 0, true, true), drivetrainSubsystem));
-        Trigger xButton = driverController.x();
-        xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
-
-
-        Trigger aButton = driverController.a();
-        aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
-        Trigger yButton = driverController.y();
-        yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
-
-        // Trigger yButton = driverController.y();
-        // yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.runDriveVolts(12), drivetrainSubsystem));
+        leftTrigger.onTrue(climberSubsystem.climb());
 
     }
     
