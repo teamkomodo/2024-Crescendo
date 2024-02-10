@@ -54,11 +54,11 @@ public class RobotContainer {
         Trigger rightJoystickDown = driverController.rightStick();
 
         // Elevator/joint position commands
-        leftJoystickDown.onTrue(stowPositionCommand);
-        aButton.onTrue(trapPositionCommand);
-        bButton.onTrue(intakePositionCommand);
-        xButton.onTrue(ampPositionCommand);
-        yButton.onTrue(speakerPositionCommand);
+        leftJoystickDown.onTrue(armSubsystem.jointStowPositionCommand());
+        aButton.onTrue(armSubsystem.jointTrapPositionCommand());
+        bButton.onTrue(armSubsystem.jointIntakePositionCommand());
+        xButton.onTrue(armSubsystem.jointAmpPositionCommand());
+        yButton.onTrue(armSubsystem.jointSpeakerPositionCommand());
 
         rightJoystickDown.whileTrue(armSubsystem.jointZeroCommand());
 

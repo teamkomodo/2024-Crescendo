@@ -26,7 +26,6 @@ public class AmpPositionCommand extends Command{
         return new SequentialCommandGroup(
             armSubsystem.jointAmpPositionCommand(),
             armSubsystem.elevatorAmpPositionCommand()
-
         );
     }
 }

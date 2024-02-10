@@ -17,7 +17,7 @@ public class IntakePositionCommand extends Command{
     }
 
     protected Command getCommand() {
-        if(!(armSubsystem.isZeroed())) {
+        if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
             return Commands.parallel(
                 armSubsystem.jointZeroCommand(),
                 armSubsystem.elevatorZeroCommand()

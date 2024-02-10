@@ -87,6 +87,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   private boolean atJointLimitSwitch = false;
   private boolean jointZeroed = false;
+  private boolean jointBottomZeroed = false;
+  private boolean jointMiddleZeroed = false;
 
   private boolean atJointMiddleLimitSwitch = false;
   private boolean atJointMiddleLimitSwitchAtLastCheck = true;
@@ -102,6 +104,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final DoublePublisher jointPositionPublisher = NetworkTableInstance.getDefault().getTable("arm").getDoubleTopic("jointposition").publish();
   private final BooleanPublisher jointMiddleSwitchPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("jointmiddleswitch").publish();
   private final BooleanPublisher jointBottomSwitchPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("jointbottomswitch").publish();
+  private final BooleanPublisher bottomSwitchOnPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("bottomswitchon").publish();
 
   private boolean useLimits = false;
 
@@ -190,41 +193,13 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void teleopInit() {
       jointPidController.setReference(0, ControlType.kDutyCycle);
+      jointEncoder.setPosition(0);
+      jointMiddleZeroed = false;
+      jointBottomZeroed = false;
       jointZeroCommand();
-      elevatorZeroCommand();
   } 
 
   public void checkLimitSwitch() {
-
-    if (!jointMiddleReverseSwitch.get())
-      atJointMiddleLimitSwitchAtLastCheck = atJointMiddleLimitSwitch;
-      atJointMiddleLimitSwitch = true;
-    if (!jointBottomReverseSwitch.get())
-      atJointBottomLimitSwitchAtLastCheck = atJointBottomLimitSwitch;
-      atJointBottomLimitSwitch = true;
-
-    if (!jointPositiveVelocity) {
-      if(atJointMiddleLimitSwitch && !atJointMiddleLimitSwitchAtLastCheck) {
-        // reset encoder on falling edge incase the robot started up and the switch was pressed
-        jointEncoder.setPosition(0);
-        jointZeroed = true;
-        jointBottomLimitSwitchOn = false;
-      }
-
-      if(atJointBottomLimitSwitch && !atJointBottomLimitSwitchAtLastCheck && jointBottomLimitSwitchOn) {
-        // reset encoder on falling edge incase the robot started up and the switch was pressed
-        jointEncoder.setPosition(0);
-        jointZeroed = true;
-        jointMiddleZeroCommand();
-      }
-    } else {
-      if(!atJointMiddleLimitSwitch && atJointMiddleLimitSwitchAtLastCheck) {
-        // reset encoder on falling edge incase the robot started up and the switch was pressed
-        jointEncoder.setPosition(0);
-        jointZeroed = true;
-        jointBottomLimitSwitchOn = false;
-      }
-    }
 
     // if(!elevatorZeroLimitSwitch.get()) {
     //   // reset encoder on falling edge incase the robot started up and the switch was pressed
@@ -232,18 +207,29 @@ public class ArmSubsystem extends SubsystemBase {
     //   atElevatorLimitSwitch = false;
     //   elevatorZeroed = true;
     // }
+    atJointBottomLimitSwitch = !jointBottomReverseSwitch.get();
+    atJointMiddleLimitSwitch = !jointMiddleReverseSwitch.get();
 
-    if (jointZeroed && elevatorZeroed) {
-      zeroed = true;
-    }
-
-    
-    if(!atJointLimitSwitch) {
+    if(atJointMiddleLimitSwitch) {
       //stop motor and reset encoder on rising edge
       atJointLimitSwitch = true;
+      jointMiddleZeroed = true;
       jointEncoder.setPosition(0);
       setPosition(0, true);
+      setMotorPercent(0, true);
+      jointBottomLimitSwitchOn = false;
     }
+
+    if(atJointMiddleLimitSwitch) {
+      //stop motor and reset encoder on rising edge
+      atJointLimitSwitch = true;
+      jointBottomZeroed = true;
+      jointEncoder.setPosition(0);
+      setPosition(0, true);
+      setMotorPercent(0, true);
+      jointBottomLimitSwitchOn = false;
+    }
+
   }
 
   public void checkMinLimit() {
@@ -251,9 +237,11 @@ public class ArmSubsystem extends SubsystemBase {
     //     atJointMinLimit = false;
     // }
 
-    if(!atJointMinLimit) {
-        atJointMinLimit = true;
-        setPosition(JOINT_MIN_POSITION, true);
+    if(jointEncoder.getPosition() < JOINT_MIN_POSITION && jointMiddleZeroed) {
+      atJointMinLimit = true;
+      setPosition(JOINT_MIN_POSITION + 1, true);
+    } else {
+      atJointMinLimit = false;
     }
 
     // if(elevatorEncoder.getPosition() > ELEVATOR_MIN_POSITION) {
@@ -267,13 +255,11 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void checkMaxLimit() {
-    if(jointEncoder.getPosition() < JOINT_MAX_POSITION) {
-        atJointMaxLimit = false;
-    }
-            
-    if(!atJointMaxLimit) {
-        atJointMaxLimit = true;
-        setPosition(JOINT_MAX_POSITION, true);
+    if(jointEncoder.getPosition() > JOINT_MAX_POSITION && jointMiddleZeroed) {
+      atJointMaxLimit = true;
+      setPosition(JOINT_MAX_POSITION - 1, true);
+    } else {
+      atJointMaxLimit = false;
     }
 
     // if(elevatorEncoder.getPosition() < ELEVATOR_MAX_POSITION) {
@@ -355,8 +341,8 @@ public class ArmSubsystem extends SubsystemBase {
     //    return;
     
     //not zeroed and moving away from limit switch
-    if (joint) {
-      if(!jointZeroed & position > jointEncoder.getPosition())
+    if (joint && jointMiddleZeroed) {
+      if(!jointMiddleZeroed && !jointBottomZeroed & position > jointEncoder.getPosition())
           return;
 
       jointPidController.setReference(position, ControlType.kPosition);
@@ -434,8 +420,9 @@ public class ArmSubsystem extends SubsystemBase {
 
   public Command jointZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setMotorPercent(-0.05, true), this),
-        Commands.waitUntil(() -> (atJointMiddleLimitSwitch || atJointBottomLimitSwitch))
+        Commands.runOnce(() -> setMotorPercent(-0.3, true), this),
+        Commands.waitUntil(() -> (atJointBottomLimitSwitch || atJointMiddleLimitSwitch))
+        
     );
   }
 
@@ -477,6 +464,7 @@ public class ArmSubsystem extends SubsystemBase {
       jointPositionPublisher.set(jointEncoder.getPosition());
       jointMiddleSwitchPublisher.set(jointMiddleReverseSwitch.get());
       jointBottomSwitchPublisher.set(jointBottomReverseSwitch.get());
+      bottomSwitchOnPublisher.set(jointBottomLimitSwitchOn);
   }
 
   public void setJointPID(double p, double i, double d) {
@@ -506,10 +494,6 @@ public class ArmSubsystem extends SubsystemBase {
   // public double getElevatorPosition() {
   //     return elevatorEncoder.getPosition();
   // }
-
-  public boolean isZeroed() {
-      return zeroed;
-  }
 
   public boolean isJointZeroed() {
       return jointZeroed;
