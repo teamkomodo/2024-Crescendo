@@ -73,4 +73,11 @@ public final class Constants {
     // FRC Field
     public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
     public static final double FIELD_LENGTH = 1654;
+
+    // Climber
+    public static final int CLIMBER_MOTOR_1_ID = 0;
+    public static final int CLIMBER_MOTOR_2_ID = 0;
+
+    public static final double CLIMBER_MIN_POSITION = 0;
+    public static final double CLIMBER_MAX_POSITION = 0;
 }
