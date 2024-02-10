@@ -62,7 +62,7 @@ public final class Constants {
 // Joint/Elevator
     public static final int JOINT_MOTOR_ID = 31;
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 0;
-    public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
+    public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 1;
 
     public static final double JOINT_MIN_POSITION = -10; // Code stop
     public static final double JOINT_MAX_POSITION = 60; // Code stop

@@ -24,7 +24,7 @@ public class RobotContainer {
     private Field2d field2d = new Field2d();
 
     // Subsystems
-    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
+    //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
     // Position commands
@@ -60,19 +60,19 @@ public class RobotContainer {
         xButton.onTrue(ampPositionCommand);
         yButton.onTrue(speakerPositionCommand);
 
-        rightJoystickDown.onTrue(armSubsystem.jointZeroCommand());
+        rightJoystickDown.whileTrue(armSubsystem.jointZeroCommand());
 
         // Slow/Fast Mode
-        rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
-        rTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+        // rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
+        // rTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
 
-        // Drivetrain controls
-        drivetrainSubsystem.setDefaultCommand(
-            drivetrainSubsystem.joystickDriveCommand(
-                () -> (driverController.getLeftY()), // +Y on left joystick is +X for robot
-                () -> (driverController.getLeftX()), // +X on left joystick is +Y for robot
-                () -> (-driverController.getRightX())) // -X on right joystick is +Z for robot
-        );
+        // // Drivetrain controls
+        // drivetrainSubsystem.setDefaultCommand(
+        //     drivetrainSubsystem.joystickDriveCommand(
+        //         () -> (driverController.getLeftY()), // +Y on left joystick is +X for robot
+        //         () -> (driverController.getLeftX()), // +X on left joystick is +Y for robot
+        //         () -> (-driverController.getRightX())) // -X on right joystick is +Z for robot
+        // );
     }
     
     public Command getAutonomousCommand() {
