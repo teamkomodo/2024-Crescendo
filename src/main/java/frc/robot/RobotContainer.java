@@ -67,27 +67,27 @@ public class RobotContainer extends TimedRobot {
         Trigger leftBumper = driverController.leftBumper();
 
         //tests shooters
-        rightBumper.whileTrue(Commands.sequence(
-                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5), 
-                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(5),
-                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5),
-                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-                ));
+        // rightTrigger.whileTrue(Commands.sequence(
+        //         turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+        //         new WaitCommand(5), 
+        //         turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+        //         new WaitCommand(5),
+        //         turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
+        //         new WaitCommand(5),
+        //         turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+        //         ));
 
 
         //tests indexer
-        leftBumper.whileTrue(Commands.sequence(
-                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5), 
-                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(5),
-                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5),
-                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-                ));
+        // yButton.whileTrue(Commands.sequence(
+        //         turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+        //         new WaitCommand(5), 
+        //         turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+        //         new WaitCommand(5),
+        //         turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
+        //         new WaitCommand(5),
+        //         turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+        //         ));
 
         
        //Competition binds
