@@ -207,6 +207,7 @@ public class ArmSubsystem extends SubsystemBase {
     //   atElevatorLimitSwitch = false;
     //   elevatorZeroed = true;
     // }
+
     atJointBottomLimitSwitch = !jointBottomReverseSwitch.get();
     atJointMiddleLimitSwitch = !jointMiddleReverseSwitch.get();
 
@@ -220,14 +221,9 @@ public class ArmSubsystem extends SubsystemBase {
       jointBottomLimitSwitchOn = false;
     }
 
-    if(atJointMiddleLimitSwitch) {
+    if(atJointBottomLimitSwitch) {
       //stop motor and reset encoder on rising edge
-      atJointLimitSwitch = true;
-      jointBottomZeroed = true;
-      jointEncoder.setPosition(0);
-      setPosition(0, true);
-      setMotorPercent(0, true);
-      jointBottomLimitSwitchOn = false;
+      
     }
 
   }
