@@ -11,16 +11,18 @@ import static frc.robot.Constants.SHOOTER_SPEED;
 import edu.wpi.first.wpilibj.RobotController;
 //import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.TurboTakeSubsystem;
 
 //import frc.robot.Constants;
  
-public class IntakePieceCommand extends Command{
+public class TurbotakeCommand extends Command{
     public TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
     public boolean hasPiece;
     public long startTime;
+    
 
-    public IntakePieceCommand(TurboTakeSubsystem turbotakesubsystem){
+    public TurbotakeCommand(TurboTakeSubsystem turbotakesubsystem){
         this.turbotakesubsystem = turbotakesubsystem;
 
         addRequirements(turbotakesubsystem);
@@ -34,13 +36,10 @@ public class IntakePieceCommand extends Command{
 
     
 
-    @Override
-    public void execute(){
-        if(turbotakesubsystem.pieceDetected()){
-            System.out.println("We have a Piece");
-            
-        }
-    }
+    // @Override
+    // public void execute(){
+        
+    // }
 
 
     //States
@@ -52,17 +51,37 @@ public class IntakePieceCommand extends Command{
     public void intakeState(){//Intake position with intake motor running, go back to idle
         //armSubsystem.intakePosititonCommand();
         turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
-        //if(hasPiece == true)//ledsubsystem.idlePatternCommand(INTAKE_PATTERN);
+        new WaitCommand(3);
+        turbotakesubsystem.SetIndexerSpeed(0);
+        if(turbotakesubsystem.pieceDetected()){
+            hasPiece = true;
+            System.out.println("We have a Piece: " + hasPiece);
+        }
+        new WaitCommand(2);
         //armSubsystem.stowPositionCommand();
     }
 
-    public void shootState(){//amp/speaker position with shooter running until indexer runs moving the note
+    public void shootAmpState(){//amp/speaker position with shooter running until indexer runs moving the note
+        
+        //armSubsystem.AmpPositionCommand();
+        //ledSubsystem.shootPatternCommand(AMP_PATTERN);
         turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);
-        //delay for x seconds
-        //amp or speaker position
+        new WaitCommand(3);
         turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
-        //delay or a 1 second
+        new WaitCommand(0.5);
         turbotakesubsystem.SetIndexerSpeed(0);
         turbotakesubsystem.SetShooterSpeed(0);
+        IdleState();
+    }
+
+    public void shootSpeakerState(){
+        //armSubsystem.SpeakerPositionCommand();
+        turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);
+        new WaitCommand(3);
+        turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
+        new WaitCommand(0.5);
+        turbotakesubsystem.SetIndexerSpeed(0);
+        turbotakesubsystem.SetShooterSpeed(0);
+        IdleState();
     }
 }

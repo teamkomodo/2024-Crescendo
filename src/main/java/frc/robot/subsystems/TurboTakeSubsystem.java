@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 //import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj2.command.Command;
+// import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
@@ -53,8 +55,6 @@ public class TurboTakeSubsystem extends SubsystemBase{
     //shuffleboard
     public ShuffleboardTab shuffleboardTab;
 
-
-    //defines PID and its values
     
     
     //PID values for indexer
@@ -98,7 +98,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
         shooterI = 0;
         shooterD = 0;
         shooterIAccumulator = 0;
-        shooterFF = 0.0023097;
+        shooterFF = 0/*0.0023097*/;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
         
@@ -124,11 +124,6 @@ public class TurboTakeSubsystem extends SubsystemBase{
         shooter1Encoder.setPosition(0);
         shooter2Encoder.setPosition(0);
         indexerEncoder.setPosition(0);
-        
-        //restores controller parameters to factory defaults for motors
-        indexerMotor.restoreFactoryDefaults();
-        shooterMotor2.restoreFactoryDefaults();
-        shooterMotor1.restoreFactoryDefaults();
         
         
         //initializes indexer PID controller to the PID controller in indexerMotor
@@ -255,6 +250,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
     }
     
     //sets reference for indexer motor so they can start moving
+        //if error still there then try converting to command
     public void SetShooterSpeed(double shooterPercent){
         shooter1PidController.setReference(shooterPercent, CANSparkMax.ControlType.kVelocity);
         shooter2PidController.setReference(shooterPercent, CANSparkMax.ControlType.kVelocity);
@@ -274,6 +270,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
     
     public void setIndexSpeed(double indexerPercent){
         indexerMotor.set(-indexerPercent);
+        System.out.println("speed:" + indexerPercent);
     }
     
     public void setShootSpeed(double shooterPercent){

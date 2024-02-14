@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.TurbotakeCommand;
 import frc.robot.subsystems.TurboTakeSubsystem;
 import static frc.robot.Constants.*;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -22,6 +23,7 @@ public class RobotContainer extends TimedRobot {
 
     // Subsystems
     public final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
+    public final TurbotakeCommand turbotakeCommand = new TurbotakeCommand(turbotakesubsystem);
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
@@ -30,13 +32,6 @@ public class RobotContainer extends TimedRobot {
     }
     
     private void configureBindings() {
-
-        
-
-
-       
-
-
         //Current testing binds
 
         //indexer button
@@ -51,6 +46,7 @@ public class RobotContainer extends TimedRobot {
         bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
 
         Trigger rightTrigger = driverController.rightTrigger();
+        Trigger leftTrigger = driverController.leftStick();
 
         rightTrigger.whileTrue( Commands.run( () -> turbotakesubsystem.setIndexSpeed(driverController.getRightTriggerAxis() * INDEXER_SPEED), turbotakesubsystem ) );
         rightTrigger.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
@@ -60,7 +56,7 @@ public class RobotContainer extends TimedRobot {
         Trigger yButton = driverController.y();
 
         //shoots/intakes for shooter motors
-        xButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED) ) );
+        xButton.onTrue(Commands.runOnce(() -> turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED)));
         yButton.onTrue(Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(-SHOOTER_SPEED) ) );
         xButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
         yButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
@@ -94,9 +90,13 @@ public class RobotContainer extends TimedRobot {
                 ));
 
         
-
-
-
+       //Competition binds
+       //amp shoot
+      leftBumper.whileTrue(Commands.runOnce(() -> {turbotakeCommand.shootAmpState(); System.out.println("shoot");}));
+       //speaker shoot
+       //rightBumper.whileTrue(Commands.runOnce(() -> turbotakeCommand.shootAmpState()));
+       //intake
+    //    leftTrigger.whileTrue(Commands.runOnce(() -> {turbotakeCommand.intakeState(); System.out.println("intake");}));
     }
 
     @Override
