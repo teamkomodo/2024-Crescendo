@@ -29,8 +29,8 @@ public class ClimberSubsystem extends SubsystemBase {
     // private final RelativeEncoder motor2Encoder;
   
     private double p = 1.0;
-    private double i = 0;
-    private double d = 0;
+    private double i = 0.000005;
+    private double d = 0.01;
     private double maxIAccum = 0;
   
     private double smoothCurrent = 0;
@@ -93,29 +93,37 @@ public class ClimberSubsystem extends SubsystemBase {
     } 
 
     public void checkMinPosition() {
-        if(motor1Encoder.getPosition() < CLIMBER_MIN_POSITION) { //&& motor2Encoder.getPosition() < CLIMBER_MIN_POSITION) {
+        if(!atMinPosition && motor1Encoder.getPosition() < CLIMBER_MIN_POSITION) { //&& motor2Encoder.getPosition() < CLIMBER_MIN_POSITION) {
+            atMinPosition = true;
+        } else if (atMinPosition && motor1Encoder.getPosition() > CLIMBER_MIN_POSITION) { //&& motor2Encoder.getPosition() > CLIMBER_MIN_POSITION) {
             atMinPosition = false;
         }
         if(atMinPosition) {
-            setMotorDutyCycle(0);
+            setMotorPosition(CLIMBER_MIN_POSITION);
         }
     }
 
     public void checkMaxPosition() {
-        if(motor1Encoder.getPosition() > CLIMBER_MAX_POSITION) { //&& motor2Encoder.getPosition() > CLIMBER_MAX_POSITION) {
+        if(!atMaxPosition && motor1Encoder.getPosition() > CLIMBER_MAX_POSITION) { //&& motor2Encoder.getPosition() > CLIMBER_MAX_POSITION) {
             atMaxPosition = false;
+        } else if(!atMaxPosition && motor1Encoder.getPosition() < CLIMBER_MAX_POSITION) { //&& motor2Encoder.getPosition() < CLIMBER_MAX_POSITION) {
+            atMaxPosition = true;
         }
         if(atMaxPosition) {
-            setMotorDutyCycle(0);
+            setMotorPosition(CLIMBER_MIN_POSITION);
         }
     }
 
-    public Command climb() {
+    public Command climbPositionCommand() {
         return this.runOnce(() -> {
             motor1Encoder.setPosition(0);
             //motor2Encoder.setPosition(0);
-            setMotorDutyCycle(0.3);
+            setMotorPosition(CLIMBER_PRE_CLIMB_POSITION);
         });
+    }
+
+    public Command climb() {
+        return this.runOnce(() -> setMotorPosition(CLIMBER_POST_CLIMB_POSITION));
     }
 
     public void updateTelemetry() {
@@ -136,6 +144,11 @@ public class ClimberSubsystem extends SubsystemBase {
     public void setMotorVelocity(double velocity) {
         motor1PidController.setReference(velocity, ControlType.kVelocity);
         //motor2PidController.setReference(velocity, ControlType.kVelocity);
+    }
+
+    public void setMotorPosition(Double position) {
+        motor1PidController.setReference(position, ControlType.kPosition);
+        //motor2PidController.setReference(position, ControlType.kPosition);
     }
   
     public void holdMotorPosition() {

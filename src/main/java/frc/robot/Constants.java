@@ -80,4 +80,7 @@ public final class Constants {
 
     public static final double CLIMBER_MIN_POSITION = 0;
     public static final double CLIMBER_MAX_POSITION = 100; //FIXME: change later
+
+    public static final double CLIMBER_PRE_CLIMB_POSITION = 100; //FIXME: change later
+    public static final double CLIMBER_POST_CLIMB_POSITION = 20; //FIXME: change later
 }
