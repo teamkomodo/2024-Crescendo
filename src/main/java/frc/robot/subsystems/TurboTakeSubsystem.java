@@ -28,8 +28,8 @@ import edu.wpi.first.units.Units;
 //IDs from Constants
 import static frc.robot.Constants.BEAM_BREAK_SENSOR_PORT;
 import static frc.robot.Constants.INDEXER_MOTOR_ID;
-import static frc.robot.Constants.SHOOTER_MOTOR_ID1;
-import static frc.robot.Constants.SHOOTER_MOTOR_ID2;
+import static frc.robot.Constants.SHOOTER_MOTOR_1_ID;
+import static frc.robot.Constants.SHOOTER_MOTOR_2_ID;
 
 
 public class TurboTakeSubsystem extends SubsystemBase{
@@ -67,7 +67,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
     public final SysIdRoutine indexerRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(), 
         new SysIdRoutine.Mechanism(
-            (voltage) -> SetIndexerSpeed(voltage.in(Units.Volts)),
+            (voltage) -> setIndexerVelocity(voltage.in(Units.Volts)),
             null,
                 this
         ));
@@ -75,7 +75,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
     public final SysIdRoutine shooterRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(), 
         new SysIdRoutine.Mechanism(
-            (voltage) -> SetShooterSpeed(voltage.in(Units.Volts)),
+            (voltage) -> setShooterVelocity(voltage.in(Units.Volts)),
             null,
                 this
         ));
@@ -104,8 +104,8 @@ public class TurboTakeSubsystem extends SubsystemBase{
         
         
         //Initialize the motors
-        shooterMotor1 = new CANSparkMax(SHOOTER_MOTOR_ID1, MotorType.kBrushless);
-        shooterMotor2 = new CANSparkMax(SHOOTER_MOTOR_ID2, MotorType.kBrushless);
+        shooterMotor1 = new CANSparkMax(SHOOTER_MOTOR_1_ID, MotorType.kBrushless);
+        shooterMotor2 = new CANSparkMax(SHOOTER_MOTOR_2_ID, MotorType.kBrushless);
         indexerMotor = new CANSparkMax(INDEXER_MOTOR_ID, MotorType.kBrushless);
         
         shooterMotor1.setInverted(false);
@@ -249,37 +249,31 @@ public class TurboTakeSubsystem extends SubsystemBase{
         return !beamBreakSensor.get();
     }
     
-    //sets reference for indexer motor so they can start moving
-        //if error still there then try converting to command
-    public void SetShooterSpeed(double shooterPercent){
-        shooter1PidController.setReference(shooterPercent, CANSparkMax.ControlType.kVelocity);
-        shooter2PidController.setReference(shooterPercent, CANSparkMax.ControlType.kVelocity);
+    // commands the shooter to a target velocity
+    public void setShooterVelocity(double velocity){
+        shooter1PidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+        shooter2PidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
     }
     
-    //sets reference for shooter motors so they can move
-    public void SetIndexerSpeed(double indexerPercent){
-        indexerPidController.setReference(indexerPercent, CANSparkMax.ControlType.kVelocity);
+    // commands the indexer to a target velocity
+    public void setIndexerVelocity(double velocity){
+        indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
     }
-    
     
     //Collects and displays turbotake data
     public ShuffleboardTab getTab(){
         return shuffleboardTab;
     }
     
-    
-    public void setIndexSpeed(double indexerPercent){
-        indexerMotor.set(-indexerPercent);
-        System.out.println("speed:" + indexerPercent);
+    // sets the duty cycle (percent output) of the indexer motor
+    public void setIndexerPercent(double percent){
+        indexerMotor.set(-percent);
     }
     
-    public void setShootSpeed(double shooterPercent){
-        shooterMotor1.set(-shooterPercent);
-        shooterMotor2.set(shooterPercent);
+    // set the duty cycle (percent output) of the shooter motors
+    public void setShooterPercent(double percent){
+        shooterMotor1.set(-percent);
+        shooterMotor2.set(percent);
     }
-    
 
-    
-    
-    
 }

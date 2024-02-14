@@ -40,26 +40,26 @@ public class RobotContainer extends TimedRobot {
 
 
         //intakes/outakes for indexer
-        aButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(INDEXER_SPEED) ) );
-        bButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(-INDEXER_SPEED) ) );
-        aButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
-        bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
+        aButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(INDEXER_SPEED) ) );
+        bButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(-INDEXER_SPEED) ) );
+        aButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(0) ) );
+        bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(0) ) );
 
         Trigger rightTrigger = driverController.rightTrigger();
         Trigger leftTrigger = driverController.leftStick();
 
-        rightTrigger.whileTrue( Commands.run( () -> turbotakesubsystem.setIndexSpeed(driverController.getRightTriggerAxis() * INDEXER_SPEED), turbotakesubsystem ) );
-        rightTrigger.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexSpeed(0) ) );
+        rightTrigger.whileTrue( Commands.run( () -> turbotakesubsystem.setIndexerPercent(driverController.getRightTriggerAxis() * INDEXER_SPEED), turbotakesubsystem ) );
+        rightTrigger.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(0) ) );
 
         //shooter button
         Trigger xButton = driverController.x();
         Trigger yButton = driverController.y();
 
         //shoots/intakes for shooter motors
-        xButton.onTrue(Commands.runOnce(() -> turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED)));
-        yButton.onTrue(Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(-SHOOTER_SPEED) ) );
-        xButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
-        yButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.SetShooterSpeed(0) ) );
+        xButton.onTrue(Commands.runOnce(() -> turbotakesubsystem.setShooterPercent(SHOOTER_SPEED)));
+        yButton.onTrue(Commands.runOnce( () -> turbotakesubsystem.setShooterPercent(-SHOOTER_SPEED) ) );
+        xButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setShooterPercent(0) ) );
+        yButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setShooterPercent(0) ) );
         
 
         //testing buttons

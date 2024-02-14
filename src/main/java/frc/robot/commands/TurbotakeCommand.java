@@ -50,9 +50,9 @@ public class TurbotakeCommand extends Command{
 
     public void intakeState(){//Intake position with intake motor running, go back to idle
         //armSubsystem.intakePosititonCommand();
-        turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
+        turbotakesubsystem.setIndexerVelocity(INDEXER_SPEED);
         new WaitCommand(3);
-        turbotakesubsystem.SetIndexerSpeed(0);
+        turbotakesubsystem.setIndexerVelocity(0);
         if(turbotakesubsystem.pieceDetected()){
             hasPiece = true;
             System.out.println("We have a Piece: " + hasPiece);
@@ -65,23 +65,23 @@ public class TurbotakeCommand extends Command{
         
         //armSubsystem.AmpPositionCommand();
         //ledSubsystem.shootPatternCommand(AMP_PATTERN);
-        turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);
+        turbotakesubsystem.setShooterVelocity(SHOOTER_SPEED);
         new WaitCommand(3);
-        turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
+        turbotakesubsystem.setIndexerVelocity(INDEXER_SPEED);
         new WaitCommand(0.5);
-        turbotakesubsystem.SetIndexerSpeed(0);
-        turbotakesubsystem.SetShooterSpeed(0);
+        turbotakesubsystem.setIndexerVelocity(0);
+        turbotakesubsystem.setShooterVelocity(0);
         IdleState();
     }
 
     public void shootSpeakerState(){
         //armSubsystem.SpeakerPositionCommand();
-        turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);
+        turbotakesubsystem.setShooterVelocity(SHOOTER_SPEED);
         new WaitCommand(3);
-        turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);
+        turbotakesubsystem.setIndexerVelocity(INDEXER_SPEED);
         new WaitCommand(0.5);
-        turbotakesubsystem.SetIndexerSpeed(0);
-        turbotakesubsystem.SetShooterSpeed(0);
+        turbotakesubsystem.setIndexerVelocity(0);
+        turbotakesubsystem.setShooterVelocity(0);
         IdleState();
     }
 }
