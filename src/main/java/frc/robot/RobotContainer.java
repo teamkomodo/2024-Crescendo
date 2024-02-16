@@ -32,71 +32,51 @@ public class RobotContainer extends TimedRobot {
     }
     
     private void configureBindings() {
-        //Current testing binds
+        //testing binds
 
         //indexer button
         Trigger aButton = driverController.a();
         Trigger bButton = driverController.b();
 
 
-        //intakes/outakes for indexer
-        aButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(INDEXER_SPEED) ) );
-        bButton.onTrue( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(-INDEXER_SPEED) ) );
-        aButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(0) ) );
-        bButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(0) ) );
-
         Trigger rightTrigger = driverController.rightTrigger();
         Trigger leftTrigger = driverController.leftStick();
 
-        rightTrigger.whileTrue( Commands.run( () -> turbotakesubsystem.setIndexerPercent(driverController.getRightTriggerAxis() * INDEXER_SPEED), turbotakesubsystem ) );
-        rightTrigger.onFalse( Commands.runOnce( () -> turbotakesubsystem.setIndexerPercent(0) ) );
-
-        //shooter button
-        Trigger xButton = driverController.x();
-        Trigger yButton = driverController.y();
-
-        //shoots/intakes for shooter motors
-        xButton.onTrue(Commands.runOnce(() -> turbotakesubsystem.setShooterPercent(SHOOTER_SPEED)));
-        yButton.onTrue(Commands.runOnce( () -> turbotakesubsystem.setShooterPercent(-SHOOTER_SPEED) ) );
-        xButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setShooterPercent(0) ) );
-        yButton.onFalse( Commands.runOnce( () -> turbotakesubsystem.setShooterPercent(0) ) );
-        
 
         //testing buttons
         Trigger rightBumper = driverController.rightBumper();
         Trigger leftBumper = driverController.leftBumper();
 
+        //run state's sequence
+        aButton.onTrue(Commands.runOnce(() -> {turbotakeCommand.shootAmpState();}));
+        bButton.onTrue(Commands.runOnce(() -> {turbotakeCommand.intakeState();}));
+
+        //runs the motors directly
+        rightBumper.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.setIndexerVelocity(INDEXER_SPEED);}));
+        leftBumper.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.setShooterVelocity(SHOOTER_SPEED);}));
+
         //tests shooters
-        // rightTrigger.whileTrue(Commands.sequence(
-        //         turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-        //         new WaitCommand(5), 
-        //         turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-        //         new WaitCommand(5),
-        //         turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
-        //         new WaitCommand(5),
-        //         turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-        //         ));
+        rightTrigger.whileTrue(Commands.sequence(
+                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(5), 
+                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                new WaitCommand(5),
+                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(5),
+                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+                ));
 
 
         //tests indexer
-        // yButton.whileTrue(Commands.sequence(
-        //         turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-        //         new WaitCommand(5), 
-        //         turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-        //         new WaitCommand(5),
-        //         turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
-        //         new WaitCommand(5),
-        //         turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-        //         ));
-
-        
-       //Competition binds
-       //amp shoot
-      leftBumper.whileTrue(Commands.runOnce(() -> {turbotakeCommand.shootAmpState(); System.out.println("shoot");}));
-       //speaker shoot
-       //rightBumper.whileTrue(Commands.runOnce(() -> turbotakeCommand.shootAmpState()));
-       //intake
-    //    leftTrigger.whileTrue(Commands.runOnce(() -> {turbotakeCommand.intakeState(); System.out.println("intake");}));
+        leftTrigger.whileTrue(Commands.sequence(
+                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(5), 
+                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                new WaitCommand(5),
+                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(5),
+                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+                ));
     }
 
     @Override
