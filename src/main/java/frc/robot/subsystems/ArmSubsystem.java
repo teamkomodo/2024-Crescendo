@@ -207,23 +207,53 @@ public class ArmSubsystem extends SubsystemBase {
     //   atElevatorLimitSwitch = false;
     //   elevatorZeroed = true;
     // }
-
+    atJointBottomLimitSwitchAtLastCheck = atJointBottomLimitSwitch;
+    atJointMiddleLimitSwitchAtLastCheck = atJointMiddleLimitSwitch;
     atJointBottomLimitSwitch = !jointBottomReverseSwitch.get();
     atJointMiddleLimitSwitch = !jointMiddleReverseSwitch.get();
+    
+    if (jointPositiveVelocity) {
+      if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
+        //stop motor and reset encoder on rising edge
+        atJointLimitSwitch = true;
+        jointMiddleZeroed = true;
+        jointEncoder.setPosition(0);
+        setPosition(0, true);
+        setMotorPercent(0, true);
+        jointBottomLimitSwitchOn = false;
+      }
 
-    if(atJointMiddleLimitSwitch) {
-      //stop motor and reset encoder on rising edge
-      atJointLimitSwitch = true;
-      jointMiddleZeroed = true;
-      jointEncoder.setPosition(0);
-      setPosition(0, true);
-      setMotorPercent(0, true);
-      jointBottomLimitSwitchOn = false;
+      if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
+        //stop motor and reset encoder on rising edge
+        atJointLimitSwitch = true;
+        jointBottomZeroed = true;
+        jointEncoder.setPosition(0);
+        setPosition(0, true);
+        setMotorPercent(0, true);
+        jointBottomLimitSwitchOn = false;
+      }
     }
 
-    if(atJointBottomLimitSwitch) {
-      //stop motor and reset encoder on rising edge
-      
+    if (!jointPositiveVelocity) {
+      if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
+        //stop motor and reset encoder on rising edge
+        atJointLimitSwitch = true;
+        jointMiddleZeroed = true;
+        jointEncoder.setPosition(0);
+        setPosition(0, true);
+        setMotorPercent(0, true);
+        jointBottomLimitSwitchOn = false;
+      }
+
+      if(!atJointBottomLimitSwitchAtLastCheck && atJointBottomLimitSwitch) {
+        //stop motor and reset encoder on rising edge
+        atJointLimitSwitch = true;
+        jointBottomZeroed = true;
+        jointEncoder.setPosition(0);
+        setPosition(0, true);
+        setMotorPercent(0, true);
+        jointBottomLimitSwitchOn = false;
+      }
     }
 
   }
@@ -233,10 +263,10 @@ public class ArmSubsystem extends SubsystemBase {
     //     atJointMinLimit = false;
     // }
 
-    if(jointEncoder.getPosition() < JOINT_MIN_POSITION && jointMiddleZeroed) {
+    if(!atJointMinLimit && jointEncoder.getPosition() < JOINT_MIN_POSITION && jointMiddleZeroed) {
       atJointMinLimit = true;
-      setPosition(JOINT_MIN_POSITION + 1, true);
-    } else {
+      setPosition(JOINT_MIN_POSITION, true);
+    } else if (atJointLimitSwitch && jointEncoder.getPosition() > JOINT_MIN_POSITION) {
       atJointMinLimit = false;
     }
 
@@ -251,10 +281,10 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void checkMaxLimit() {
-    if(jointEncoder.getPosition() > JOINT_MAX_POSITION && jointMiddleZeroed) {
+    if(!atJointMaxLimit && jointEncoder.getPosition() > JOINT_MAX_POSITION && jointMiddleZeroed) {
       atJointMaxLimit = true;
-      setPosition(JOINT_MAX_POSITION - 1, true);
-    } else {
+      setPosition(JOINT_MAX_POSITION, true);
+    } else if(!atJointMaxLimit && jointEncoder.getPosition() < JOINT_MAX_POSITION) {
       atJointMaxLimit = false;
     }
 
@@ -418,7 +448,6 @@ public class ArmSubsystem extends SubsystemBase {
     return Commands.sequence(
         Commands.runOnce(() -> setMotorPercent(-0.3, true), this),
         Commands.waitUntil(() -> (atJointBottomLimitSwitch || atJointMiddleLimitSwitch))
-        
     );
   }
 
