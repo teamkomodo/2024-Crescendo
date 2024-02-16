@@ -64,11 +64,16 @@ public final class Constants {
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 0;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 1;
 
-    public static final double JOINT_MIN_POSITION = -10; // Code stop
-    public static final double JOINT_MAX_POSITION = 60; // Code stop
+    public static final double JOINT_MIN_POSITION = 0; // Code stop
+    public static final double JOINT_MAX_POSITION = 15; // Code stop
+
+    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 10;
+    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 9;
+
+    public static final double JOINT_BOTTOM_SWITCH_POSITION = JOINT_MIN_POSITION;
     
     public static final double JOINT_STOW_POSITION = 0;
-    public static final double JOINT_AMP_POSITION = 15;
+    public static final double JOINT_AMP_POSITION = 10;
     public static final double JOINT_SPEAKER_POSITION = 30;
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 70;

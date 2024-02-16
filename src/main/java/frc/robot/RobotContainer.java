@@ -16,6 +16,7 @@ import static frc.robot.Constants.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -27,13 +28,6 @@ public class RobotContainer {
     //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
-    // Position commands
-    private final Command stowPositionCommand = new StowPositionCommand(armSubsystem);
-    private final Command trapPositionCommand = new TrapPositionCommand(armSubsystem);
-    private final Command intakePositionCommand = new IntakePositionCommand(armSubsystem);
-    private final Command ampPositionCommand = new AmpPositionCommand(armSubsystem);
-    private final Command speakerPositionCommand = new SpeakerPositionCommand(armSubsystem);
-
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
@@ -44,7 +38,6 @@ public class RobotContainer {
     private void configureBindings() {
 
         // Triggers
-        Trigger rTrigger = driverController.rightTrigger();
         Trigger leftJoystickDown = driverController.leftStick();
         Trigger aButton = driverController.a();
         Trigger bButton = driverController.b();
@@ -55,8 +48,10 @@ public class RobotContainer {
 
         // Elevator/joint position commands
         leftJoystickDown.onTrue(armSubsystem.jointStowPositionCommand());
-        aButton.onTrue(armSubsystem.jointTrapPositionCommand());
-        bButton.onTrue(armSubsystem.jointIntakePositionCommand());
+        aButton.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.1)));
+        bButton.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.1)));
+        aButton.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
+        bButton.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
         xButton.onTrue(armSubsystem.jointAmpPositionCommand());
         yButton.onTrue(armSubsystem.jointSpeakerPositionCommand());
 

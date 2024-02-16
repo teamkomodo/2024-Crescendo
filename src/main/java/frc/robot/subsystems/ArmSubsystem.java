@@ -14,16 +14,9 @@ import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-
 import static frc.robot.Constants.*;
 
 public class ArmSubsystem extends SubsystemBase {
@@ -80,22 +73,17 @@ public class ArmSubsystem extends SubsystemBase {
 
   double jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
   double jointHorizontalPosition = Math.abs(elevatorExtension * Math.cos(jointAngleRadians));
-  
-  private final ShuffleboardTab shuffleboardTab;
 
   private boolean jointPositiveVelocity = true;
 
   private boolean atJointLimitSwitch = false;
   private boolean jointZeroed = false;
-  private boolean jointBottomZeroed = false;
-  private boolean jointMiddleZeroed = false;
 
   private boolean atJointMiddleLimitSwitch = false;
   private boolean atJointMiddleLimitSwitchAtLastCheck = true;
 
   private boolean atJointBottomLimitSwitch = false;
   private boolean atJointBottomLimitSwitchAtLastCheck = true;
-  private boolean jointBottomLimitSwitchOn = true;
 
   private boolean atJointMaxLimit = false;
   private boolean atJointMinLimit = false;
@@ -104,11 +92,10 @@ public class ArmSubsystem extends SubsystemBase {
   private final DoublePublisher jointPositionPublisher = NetworkTableInstance.getDefault().getTable("arm").getDoubleTopic("jointposition").publish();
   private final BooleanPublisher jointMiddleSwitchPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("jointmiddleswitch").publish();
   private final BooleanPublisher jointBottomSwitchPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("jointbottomswitch").publish();
-  private final BooleanPublisher bottomSwitchOnPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("bottomswitchon").publish();
+  private final BooleanPublisher atJointMinPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("atjointmin").publish();
+  private final BooleanPublisher atJointMaxPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("atjointmax").publish();
 
   private boolean useLimits = false;
-
-  private boolean zeroed = true;
 
   public ArmSubsystem() {
     jointMotor = new CANSparkMax(JOINT_MOTOR_ID, MotorType.kBrushless);
@@ -149,53 +136,11 @@ public class ArmSubsystem extends SubsystemBase {
     // elevatorPidController.setSmartMotionAllowedClosedLoopError(elevatorSmartMotionAllowedClosedLoopError, 0);
     // elevatorPidController.setOutputRange(-1.0, 1.0);
 
-    shuffleboardTab = Shuffleboard.getTab("Joint");
-
-    shuffleboardTab.addDouble("Motor Velocity", () -> jointEncoder.getVelocity());
-    shuffleboardTab.addDouble("Motor Current", () -> jointMotor.getOutputCurrent());
-    shuffleboardTab.addDouble("Motor Position", () -> jointEncoder.getPosition());
-
-    ShuffleboardLayout motorList = shuffleboardTab.getLayout("Motor", BuiltInLayouts.kList).withSize(2, 2).withPosition(4, 0);
-    // motorList.addDouble("Motor RPM", () -> elevatorEncoder.getVelocity());
-    // motorList.addDouble("Motor Current", () -> elevatorMotor.getOutputCurrent());
-    // motorList.addDouble("Motor %", () -> elevatorMotor.get());
-    // motorList.addDouble("Motor Position", () -> elevatorEncoder.getPosition());
-
-    // ShuffleboardLayout controlList = shuffleboardTab.getLayout("Control", BuiltInLayouts.kList).withSize(2, 4).withPosition(2, 0);
-    // controlList.addBoolean("Limit Switch", () -> !elevatorZeroLimitSwitch.get());
-    // controlList.addBoolean("Zeroed", () -> (zeroed));
-    // controlList.addBoolean("At Joint Zero", () -> (atJointLimitSwitch));
-    // controlList.addBoolean("At Elevator Zero", () -> (atElevatorLimitSwitch));
-    // controlList.addBoolean("At Joint Min", () -> (atJointMinLimit));
-    // controlList.addBoolean("At Joint Max", () -> (atJointMaxLimit));
-    // controlList.addBoolean("At Elevator Min", () -> (atElevatorMinLimit));
-    // controlList.addBoolean("At Elevator Max", () -> (atElevatorMaxLimit));
-    // controlList.addDouble("Commanded Position", () -> (elevatorCommandedPosition));
-
-    SmartDashboard.putNumber("Joint Motor Velocity", jointEncoder.getVelocity());
-    SmartDashboard.putNumber("Joint Motor Current", jointMotor.getOutputCurrent());
-    SmartDashboard.putNumber("Joint Motor Position", jointEncoder.getPosition());
-
-    // SmartDashboard.putNumber("Elevator Motor RPM", elevatorEncoder.getVelocity());
-    // SmartDashboard.putNumber("Elevator Motor Current", elevatorMotor.getOutputCurrent());
-    // SmartDashboard.putNumber("Elevator Motor Percent", elevatorMotor.get());
-    // SmartDashboard.putNumber("Elevator Motor Position", elevatorEncoder.getPosition());
-    // SmartDashboard.putNumber("Elevator Commanded Position", elevatorCommandedPosition);
-
-    SmartDashboard.putBoolean("At Elevator Zero", atElevatorLimitSwitch);
-    SmartDashboard.putBoolean("At Elevator Min", atElevatorMinLimit);
-    SmartDashboard.putBoolean("At Elevator Max", atElevatorMaxLimit);
-    SmartDashboard.putBoolean("At Joint Zero", atJointLimitSwitch);
-    SmartDashboard.putBoolean("At Joint Min", atJointMinLimit);
-    SmartDashboard.putBoolean("At Joint Max", atJointMaxLimit);
-
     }
 
   public void teleopInit() {
       jointPidController.setReference(0, ControlType.kDutyCycle);
       jointEncoder.setPosition(0);
-      jointMiddleZeroed = false;
-      jointBottomZeroed = false;
       jointZeroCommand();
   } 
 
@@ -209,51 +154,31 @@ public class ArmSubsystem extends SubsystemBase {
     // }
     atJointBottomLimitSwitchAtLastCheck = atJointBottomLimitSwitch;
     atJointMiddleLimitSwitchAtLastCheck = atJointMiddleLimitSwitch;
-    atJointBottomLimitSwitch = !jointBottomReverseSwitch.get();
-    atJointMiddleLimitSwitch = !jointMiddleReverseSwitch.get();
+    atJointBottomLimitSwitch = isJointBottomLimitSwitchTriggered();
+    atJointMiddleLimitSwitch = isJointMiddleLimitSwitchTriggered();
     
-    if (jointPositiveVelocity) {
-      if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
-        //stop motor and reset encoder on rising edge
-        atJointLimitSwitch = true;
-        jointMiddleZeroed = true;
-        jointEncoder.setPosition(0);
-        setPosition(0, true);
-        setMotorPercent(0, true);
-        jointBottomLimitSwitchOn = false;
-      }
-
-      if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
-        //stop motor and reset encoder on rising edge
-        atJointLimitSwitch = true;
-        jointBottomZeroed = true;
-        jointEncoder.setPosition(0);
-        setPosition(0, true);
-        setMotorPercent(0, true);
-        jointBottomLimitSwitchOn = false;
-      }
+    //Falling edge of middle switch
+    if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
+      // Update encoder reading with known position
+      jointEncoder.setPosition(jointEncoder.getVelocity() > 0 ? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION);
+      jointZeroed = true;
     }
 
-    if (!jointPositiveVelocity) {
-      if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
-        //stop motor and reset encoder on rising edge
-        atJointLimitSwitch = true;
-        jointMiddleZeroed = true;
-        jointEncoder.setPosition(0);
-        setPosition(0, true);
-        setMotorPercent(0, true);
-        jointBottomLimitSwitchOn = false;
-      }
+    //Falling edge of bottom switch
+    if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
+      // Update encoder reading with known position
+      jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
+      jointZeroed = true;
+    }
 
-      if(!atJointBottomLimitSwitchAtLastCheck && atJointBottomLimitSwitch) {
-        //stop motor and reset encoder on rising edge
-        atJointLimitSwitch = true;
-        jointBottomZeroed = true;
-        jointEncoder.setPosition(0);
-        setPosition(0, true);
-        setMotorPercent(0, true);
-        jointBottomLimitSwitchOn = false;
-      }
+    //Rising edge of bottom switch
+    if(!atJointBottomLimitSwitchAtLastCheck && atJointBottomLimitSwitch) {
+      // Stop motor
+      setJointPosition(JOINT_BOTTOM_SWITCH_POSITION);
+
+      // Update encoder reading with known position
+      jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
+      jointZeroed = true;
     }
 
   }
@@ -263,10 +188,11 @@ public class ArmSubsystem extends SubsystemBase {
     //     atJointMinLimit = false;
     // }
 
-    if(!atJointMinLimit && jointEncoder.getPosition() < JOINT_MIN_POSITION && jointMiddleZeroed) {
+    //Rising edge
+    if(!atJointMinLimit && jointEncoder.getPosition() < JOINT_MIN_POSITION && jointZeroed) {
       atJointMinLimit = true;
-      setPosition(JOINT_MIN_POSITION, true);
-    } else if (atJointLimitSwitch && jointEncoder.getPosition() > JOINT_MIN_POSITION) {
+      setJointPosition(JOINT_MIN_POSITION);
+    } else if (jointEncoder.getPosition() > JOINT_MIN_POSITION){
       atJointMinLimit = false;
     }
 
@@ -276,15 +202,17 @@ public class ArmSubsystem extends SubsystemBase {
 
     if(!atElevatorMinLimit) {
         atElevatorMinLimit = true;
-        setPosition(ELEVATOR_MIN_POSITION, true);
+        setElevatorPosition(ELEVATOR_MIN_POSITION);
     }
   }
 
   public void checkMaxLimit() {
-    if(!atJointMaxLimit && jointEncoder.getPosition() > JOINT_MAX_POSITION && jointMiddleZeroed) {
+
+    //Rising edge
+    if(!atJointMaxLimit && jointEncoder.getPosition() > JOINT_MAX_POSITION) {
       atJointMaxLimit = true;
-      setPosition(JOINT_MAX_POSITION, true);
-    } else if(!atJointMaxLimit && jointEncoder.getPosition() < JOINT_MAX_POSITION) {
+      setJointPosition(JOINT_MAX_POSITION);
+    } else if(jointEncoder.getPosition() < JOINT_MAX_POSITION) {
       atJointMaxLimit = false;
     }
 
@@ -294,22 +222,24 @@ public class ArmSubsystem extends SubsystemBase {
             
     if(!atElevatorMaxLimit) {
         atElevatorMaxLimit = true;
-        setPosition(ELEVATOR_MAX_POSITION, true);
+        setElevatorPosition(ELEVATOR_MAX_POSITION);
     }
   }
 
-  public void setMotorPercent(double percent, Boolean joint) {
-    if (joint) {
-      //at min and attempting to decrease and zeroed (allow movement past limit if not yet zeroed)
-      if(atJointMinLimit && percent < 0 && jointZeroed && useLimits)
-          return;
+  public void setJointMotorPercent(double percent) {
+    // if the speed is negative, we cannot move if we're at the min limit AND the joint is zeroed
+    if(percent < 0 && atJointMinLimit && jointZeroed)
+        return;
+    
+    // if the speed is positive, we cannot move if we're at the max limit OR the joint is not zeroed
+    if(percent > 0 && (atJointMaxLimit || !jointZeroed))
+        return;
       
-      //at max or not yet zeroed and attempting to increase
-      if((atJointMaxLimit || !jointZeroed) && percent > 0 && useLimits)
-          return;
-      jointPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
-    } //else {
-    //   //at min and attempting to decrease and zeroed (allow movement past limit if not yet zeroed)
+    jointPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
+  }
+
+  public void setElevatorMotorPercent(double percent) {
+    //at min and attempting to decrease and zeroed (allow movement past limit if not yet zeroed)
     //   if(atElevatorMinLimit && percent < 0 && elevatorZeroed && useLimits)
     //       return;
       
@@ -317,17 +247,6 @@ public class ArmSubsystem extends SubsystemBase {
     //   if((atElevatorMaxLimit || !elevatorZeroed) && percent > 0 && useLimits)
     //       return;
     //   elevatorPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
-    // }
-  }
-
-  public void checkCloseToEnds() {
-    // if(ELEVATOR_MAX_POSITION - elevatorEncoder.getPosition() < ELEVATOR_BUFFER_DISTANCE) {
-    //     elevatorPidController.setOutputRange(-1.0, 0.8);
-    // }else if(elevatorEncoder.getPosition() - ELEVATOR_MIN_POSITION < ELEVATOR_BUFFER_DISTANCE) {
-    //     elevatorPidController.setOutputRange(-0.8, 1.0);
-    // }else {
-    //     elevatorPidController.setOutputRange(-1.0, 1.0);
-    // }
   }
 
   public void checkExtensionPerimeter() {
@@ -361,74 +280,76 @@ public class ArmSubsystem extends SubsystemBase {
       jointPositiveVelocity = false;
   }
 
-  public void setPosition(double position, Boolean joint) {
-    //position out of bounds
-    //if(position < JOINT_MIN_POSITION || position > JOINT_MAX_POSITION)
-    //    return;
+  public void setJointPosition(double position) {
     
     //not zeroed and moving away from limit switch
-    if (joint && jointMiddleZeroed) {
-      if(!jointMiddleZeroed && !jointBottomZeroed & position > jointEncoder.getPosition())
-          return;
-
-      jointPidController.setReference(position, ControlType.kPosition);
-    } else {
-      // Position out of bounds
-      if(position < ELEVATOR_MIN_POSITION || position > ELEVATOR_MAX_POSITION)
+    if(!jointZeroed && position > jointEncoder.getPosition())
         return;
 
-      // Not zeroed and moving away from limit switch
-      // if(!elevatorZeroed && position > elevatorEncoder.getPosition())
-      //     return;
+    if(position < JOINT_MIN_POSITION || JOINT_MAX_POSITION < position)
+        return;
+    
+    jointPidController.setReference(position, ControlType.kPosition);
 
-      elevatorCommandedPosition = position;
-    }
+      // Position out of bounds
   }
 
+public void setElevatorPosition(double position) {
+  // Position out of bounds
+  if(position < ELEVATOR_MIN_POSITION || position > ELEVATOR_MAX_POSITION)
+    return;
+  
+  //elevatorPidController.setReference(position, ControlType.kPosition);
+
+  // Not zeroed and moving away from limit switch
+  // if(!elevatorZeroed && position > elevatorEncoder.getPosition())
+  //     return;
+}
+
   public void gotoSetPosition(int positionId) {
-    setPosition(JOINT_POSITIONS_ORDERED[positionId], true);
-    setPosition(ELEVATOR_POSITIONS_ORDERED[positionId], false);
+    setJointPosition(JOINT_POSITIONS_ORDERED[positionId]);
+    setElevatorPosition(ELEVATOR_POSITIONS_ORDERED[positionId]);
   }
 
 //set motor positions
   public Command jointStowPositionCommand() {
-    return this.runOnce(() -> setPosition(JOINT_STOW_POSITION, true));
+    return this.runOnce(() -> setJointPosition(JOINT_STOW_POSITION));
   }
 
   public Command jointAmpPositionCommand() {
-    return this.runOnce(() -> setPosition(JOINT_AMP_POSITION, true));
+    return this.runOnce(() -> setJointPosition(JOINT_AMP_POSITION));
   }
 
   public Command jointSpeakerPositionCommand() {
-    return this.runOnce(() -> setPosition(JOINT_SPEAKER_POSITION, true));
+    return this.runOnce(() -> setJointPosition(JOINT_SPEAKER_POSITION));
   }
 
   public Command jointTrapPositionCommand( ) {
-    return this.runOnce(() -> setPosition(JOINT_TRAP_POSITION, true));
+    return this.runOnce(() -> setJointPosition(JOINT_TRAP_POSITION));
   }
 
   public Command jointIntakePositionCommand() {
-    return this.runOnce(() -> setPosition(JOINT_INTAKE_POSITION, true));
+    return this.runOnce(() -> setJointPosition(JOINT_INTAKE_POSITION));
   }
 
   public Command elevatorStowPositionCommand() {
-    return this.runOnce(() -> setPosition(ELEVATOR_STOW_POSITION, false));
+    return this.runOnce(() -> setJointPosition(ELEVATOR_STOW_POSITION));
   }
 
   public Command elevatorAmpPositionCommand() {
-    return this.runOnce(() -> setPosition(ELEVATOR_AMP_POSITION, false));
+    return this.runOnce(() -> setJointPosition(ELEVATOR_AMP_POSITION));
   }
 
   public Command elevatorSpeakerPositionCommand() {
-    return this.runOnce(() -> setPosition(ELEVATOR_SPEAKER_POSITION, false));
+    return this.runOnce(() -> setJointPosition(ELEVATOR_SPEAKER_POSITION));
   }
 
   public Command elevatorTrapPositionCommand( ) {
-    return this.runOnce(() -> setPosition(ELEVATOR_TRAP_POSITION, false));
+    return this.runOnce(() -> setJointPosition(ELEVATOR_TRAP_POSITION));
   }
 
   public Command elevatorIntakePositionCommand() {
-    return this.runOnce(() -> setPosition(ELEVATOR_INTAKE_POSITION, false));
+    return this.runOnce(() -> setJointPosition(ELEVATOR_INTAKE_POSITION));
   }
 
   public Command speakerPositionCommand() {
@@ -439,28 +360,28 @@ public class ArmSubsystem extends SubsystemBase {
     double jointAngle = Math.toRadians(70) - turbotakeAngle;
     double jointPosition = jointAngle / JOINT_RADIAN_PER_REVOLUTION;
     return this.runOnce(() -> {
-      setPosition(0, false);
-      setPosition(jointPosition, true);
+      setJointPosition(0);
+      setJointPosition(jointPosition);
     });
   }
 
   public Command jointZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setMotorPercent(-0.3, true), this),
+        Commands.runOnce(() -> setJointMotorPercent(-0.3), this),
         Commands.waitUntil(() -> (atJointBottomLimitSwitch || atJointMiddleLimitSwitch))
     );
   }
 
   public Command jointMiddleZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setMotorPercent(0.3, true), this),
+        Commands.runOnce(() -> setJointMotorPercent(0.3), this),
         Commands.waitUntil(() -> (atJointMiddleLimitSwitch))
     );
   }
 
     public Command elevatorZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setMotorPercent(-0.3, false), this),
+        Commands.runOnce(() -> setJointMotorPercent(-0.3), this),
         Commands.waitUntil(() -> (atElevatorLimitSwitch))
     );
   }
@@ -475,21 +396,21 @@ public class ArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-      updateArmVariables();
+      //updateArmVariables();
       checkLimitSwitch();
       checkMinLimit();
       checkMaxLimit();
-      checkCloseToEnds();
-      checkExtensionPerimeter();
+      // checkExtensionPerimeter();
       updateTelemetry();
   }
 
   public void updateTelemetry() {
       jointZeroedPublisher.set(jointZeroed);
       jointPositionPublisher.set(jointEncoder.getPosition());
-      jointMiddleSwitchPublisher.set(jointMiddleReverseSwitch.get());
-      jointBottomSwitchPublisher.set(jointBottomReverseSwitch.get());
-      bottomSwitchOnPublisher.set(jointBottomLimitSwitchOn);
+      jointMiddleSwitchPublisher.set(isJointMiddleLimitSwitchTriggered());
+      jointBottomSwitchPublisher.set(isJointBottomLimitSwitchTriggered());
+      atJointMinPublisher.set(atJointMinLimit);
+      atJointMaxPublisher.set(atJointMaxLimit);
   }
 
   public void setJointPID(double p, double i, double d) {
@@ -512,6 +433,14 @@ public class ArmSubsystem extends SubsystemBase {
     // elevatorPidController.setD(d);
   }
 
+  public boolean isJointBottomLimitSwitchTriggered() {
+    return !(jointBottomReverseSwitch.get());
+  }
+
+  public boolean isJointMiddleLimitSwitchTriggered() {
+    return !(jointMiddleReverseSwitch.get());
+  }
+
   public double getJointPosition() {
       return jointEncoder.getPosition();
   }
@@ -526,9 +455,5 @@ public class ArmSubsystem extends SubsystemBase {
 
   public boolean isElevatorZeroed() {
       return elevatorZeroed;
-  }
-
-  public ShuffleboardTab getTab() {
-      return shuffleboardTab;
   }
 }
