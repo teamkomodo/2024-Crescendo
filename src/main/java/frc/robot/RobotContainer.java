@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.States.IntakeNoteState;
 import frc.robot.commands.States.ShootAmpState;
 import frc.robot.commands.States.ShootSpeakerState;
 import frc.robot.subsystems.TurboTakeSubsystem;
@@ -28,6 +29,7 @@ public class RobotContainer extends TimedRobot {
     //States
     public final ShootAmpState shootampState = new ShootAmpState(turbotakesubsystem);
     public final ShootSpeakerState shootspeakerState = new ShootSpeakerState(turbotakesubsystem);
+    public final IntakeNoteState intakenoteState = new IntakeNoteState(turbotakesubsystem);
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -54,7 +56,7 @@ public class RobotContainer extends TimedRobot {
 
         //run state's sequence
         aButton.onTrue(shootampState);
-        bButton.onTrue(shootspeakerState);
+        bButton.onTrue(intakenoteState);
         
 
         //runs the motors directly
