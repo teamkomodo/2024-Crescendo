@@ -27,6 +27,9 @@ public final class Constants {
     //Constants
     public static final double INDEXER_SPEED = 0.7;
     public static final double SHOOTER_SPEED = 1;
+
+    public static final double AMP_SPEED = 0.75;
+    public static final double SPEAKER_SPEED = 1;
 // Drivetrain
     public static final boolean FIELD_RELATIVE_DRIVE = true;
     public static final double LINEAR_SLOW_MODE_MODIFIER = 0.5;

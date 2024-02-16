@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-import frc.robot.commands.TurbotakeCommand;
+import frc.robot.commands.States.ShootAmpState;
+import frc.robot.commands.States.ShootSpeakerState;
 import frc.robot.subsystems.TurboTakeSubsystem;
 import static frc.robot.Constants.*;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -21,9 +22,13 @@ public class RobotContainer extends TimedRobot {
     
     
 
-    // Subsystems
+    // Subsystem
     public final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
-    public final TurbotakeCommand turbotakeCommand = new TurbotakeCommand(turbotakesubsystem);
+
+    //States
+    public final ShootAmpState shootampState = new ShootAmpState(turbotakesubsystem);
+    public final ShootSpeakerState shootspeakerState = new ShootSpeakerState(turbotakesubsystem);
+
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
@@ -34,22 +39,23 @@ public class RobotContainer extends TimedRobot {
     private void configureBindings() {
         //testing binds
 
-        //indexer button
-        Trigger aButton = driverController.a();
-        Trigger bButton = driverController.b();
+        //state buttons
+        Trigger aButton = driverController.a();//amp
+        Trigger bButton = driverController.b();//speaker
 
-
+        //SysID testing binds
         Trigger rightTrigger = driverController.rightTrigger();
         Trigger leftTrigger = driverController.leftStick();
 
 
-        //testing buttons
+        //motor buttons
         Trigger rightBumper = driverController.rightBumper();
         Trigger leftBumper = driverController.leftBumper();
 
         //run state's sequence
-        aButton.onTrue(Commands.runOnce(() -> {turbotakeCommand.shootAmpState();}));
-        bButton.onTrue(Commands.runOnce(() -> {turbotakeCommand.intakeState();}));
+        aButton.onTrue(shootampState);
+        bButton.onTrue(shootspeakerState);
+        
 
         //runs the motors directly
         rightBumper.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.setIndexerVelocity(INDEXER_SPEED);}));
@@ -81,7 +87,7 @@ public class RobotContainer extends TimedRobot {
 
     @Override
     public void teleopPeriodic(){
-        turbotakesubsystem.updateShuffleboard();
+        
     }
     
     public Command getAutonomousCommand() {
