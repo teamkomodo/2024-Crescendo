@@ -62,20 +62,20 @@ public final class Constants {
     public static final double ANGULAR_VELOCITY_CONSTRAINT = (LINEAR_VELOCITY_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
     public static final double ANGULAR_ACCEL_CONSTRAINT = (LINEAR_ACCEL_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
 
-    public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
-        new PIDConstants(1.0, 0, 0),
-        new PIDConstants(0, 0, 0),
-        MAX_ATTAINABLE_VELOCITY,
-        Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2,
-        new ReplanningConfig()
-    );
+    // public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
+    //     new PIDConstants(1.0, 0, 0),
+    //     new PIDConstants(0, 0, 0),
+    //     MAX_ATTAINABLE_VELOCITY,
+    //     Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2,
+    //     new ReplanningConfig()
+    // );
 
     // FRC Field
     public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
     public static final double FIELD_LENGTH = 1654;
 
     // Climber
-    public static final int CLIMBER_MOTOR_1_ID = 0;
+    public static final int CLIMBER_MOTOR_1_ID = 31;
     public static final int CLIMBER_MOTOR_2_ID = 0;
 
     public static final double CLIMBER_MIN_POSITION = 0;

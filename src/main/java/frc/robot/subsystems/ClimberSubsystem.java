@@ -28,7 +28,7 @@ public class ClimberSubsystem extends SubsystemBase {
     // private final SparkPIDController motor2PidController;
     // private final RelativeEncoder motor2Encoder;
   
-    private double p = 1.0;
+    private double p = 0.01;
     private double i = 0.000005;
     private double d = 0.01;
     private double maxIAccum = 0;
@@ -38,6 +38,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private Boolean atMinPosition = true;
     private Boolean atMaxPosition = false;
+
+    private Boolean climberMoving = false;
 
     private final BooleanPublisher minPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("minposition").publish();
     private final BooleanPublisher maxPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("maxposition").publish();
@@ -85,6 +87,7 @@ public class ClimberSubsystem extends SubsystemBase {
         checkMinPosition();
         checkMaxPosition();
         updateTelemetry();
+        holdInPlace();
     }
   
     public void teleopInit() {
@@ -133,6 +136,13 @@ public class ClimberSubsystem extends SubsystemBase {
         //motor2DutyCyclePublisher.set(motor2.getOutputCurrent());
         motor1PositionPublisher.set(motor1Encoder.getPosition());
         //motor2PositionPublisher.set(motor2Encoder.getPosition());
+    }
+
+    public void holdInPlace() {
+        climberMoving = (motor1.getOutputCurrent() == 0);
+        if (!climberMoving) {
+            holdMotorPosition();
+        }
     }
   
     public void setMotorDutyCycle(double dutyCycle) {

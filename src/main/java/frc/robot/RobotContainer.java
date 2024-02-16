@@ -38,7 +38,9 @@ public class RobotContainer {
     private void configureBindings() {
 
         Trigger leftTrigger = driverController.leftTrigger();
-
+        Trigger rightTrigger = driverController.rightTrigger();
+        
+        rightTrigger.onTrue(climberSubsystem.climbPositionCommand());
         leftTrigger.onTrue(climberSubsystem.climb());
 
     }
