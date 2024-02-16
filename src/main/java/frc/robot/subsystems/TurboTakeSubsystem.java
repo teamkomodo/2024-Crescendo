@@ -172,17 +172,5 @@ public class TurboTakeSubsystem extends SubsystemBase{
     public void setIndexerVelocity(double velocity){
         indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
     }
-    
-    
-    // sets the duty cycle (percent output) of the indexer motor
-    public void setIndexerPercent(double percent){
-        indexerMotor.set(-percent);
-    }
-    
-    // set the duty cycle (percent output) of the shooter motors
-    public void setShooterPercent(double percent){
-        shooterMotor1.set(-percent);
-        shooterMotor2.set(percent);
-    }
 
 }
