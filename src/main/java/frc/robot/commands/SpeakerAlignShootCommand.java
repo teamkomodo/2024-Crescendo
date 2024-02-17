@@ -26,13 +26,7 @@ public class SpeakerAlignShootCommand extends Command{
         if (turboTakeSubsystem.pieceDetected() /*&& drivetrainSubsystem.inRange()*/) //FIXME: Add function to check if robot is in shooting range
             return new SequentialCommandGroup( //FIXME: Add function to align robot to speaker and wait methods
                 /*drivetrainSubsystem.runOnce(() -> drivetrainSubsystem.alignToSpeaker());*/
-                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetShooterSpeed(SPEAKER_SPEED)),
-                armSubsystem.speakerPositionCommand(),
-                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetIndexerSpeed(0.5)),
-                new WaitCommand(0.2),
-                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetIndexerSpeed(0)),
-                turboTakeSubsystem.runOnce(() -> turboTakeSubsystem.SetShooterSpeed(0)),
-                armSubsystem.elevatorStowPositionCommand(),
+                
                 armSubsystem.jointStowPositionCommand()
             );
         else
