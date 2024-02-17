@@ -14,10 +14,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class RobotContainer extends TimedRobot {
     
@@ -64,27 +62,11 @@ public class RobotContainer extends TimedRobot {
         leftBumper.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.setShooterVelocity(SHOOTER_SPEED);}));
 
         //tests shooters
-        rightTrigger.whileTrue(Commands.sequence(
-                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5), 
-                turbotakesubsystem.shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(5),
-                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5),
-                turbotakesubsystem.shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-                ));
+        rightTrigger.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.getShooterSysID();}));
 
 
         //tests indexer
-        leftTrigger.whileTrue(Commands.sequence(
-                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5), 
-                turbotakesubsystem.indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(5),
-                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5),
-                turbotakesubsystem.indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-                ));
+        leftTrigger.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.getIndexerSysID();}));
     }
 
     @Override

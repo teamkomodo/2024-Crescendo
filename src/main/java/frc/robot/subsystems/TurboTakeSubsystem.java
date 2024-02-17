@@ -8,9 +8,10 @@ package frc.robot.subsystems;
 //import edu.wpi.first.math.util.Units;
 //Libraries
 import edu.wpi.first.wpilibj.DigitalInput;
-//import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 
@@ -20,6 +21,10 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
 
 //IDs from Constants
@@ -49,10 +54,16 @@ public class TurboTakeSubsystem extends SubsystemBase{
     
     
     
-    //shuffleboard
-    public ShuffleboardTab shuffleboardTab;
+    //Telemetry
 
-    
+    //motor telemetry
+    private final DoublePublisher shooter1RPMPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("shooter1 RPM").publish();
+    private final DoublePublisher shooter2RPMPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("shooter2 RPM").publish();
+    private final DoublePublisher indexerRPMPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("indexer RPM").publish();
+
+    //beam break sensor telemetry
+    private final BooleanPublisher beamBreakBooleanPublisher = NetworkTableInstance.getDefault().getBooleanTopic("beam break").publish();
+
     
     //PID values for indexer
     private double indexerP, indexerI, indexerD, indexerIAccumulator, 
@@ -171,6 +182,44 @@ public class TurboTakeSubsystem extends SubsystemBase{
     // commands the indexer to a target velocity
     public void setIndexerVelocity(double velocity){
         indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+    }
+
+    @Override
+    public void periodic(){
+        updateShooterTelemetry();
+    }
+
+    public void updateShooterTelemetry(){
+        beamBreakBooleanPublisher.set(pieceDetected());
+        shooter1RPMPublisher.set(shooter1Encoder.getVelocity());
+        shooter2RPMPublisher.set(shooter2Encoder.getVelocity());
+        indexerRPMPublisher.set(indexerEncoder.getVelocity());
+    }
+
+
+    public Command getIndexerSysID(){
+        return Commands.sequence(
+                indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(5), 
+                indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                new WaitCommand(5),
+                indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
+                new WaitCommand(5),
+                indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+        );
+        
+    }
+
+    public Command getShooterSysID(){
+        return Commands.sequence(
+            shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+            new WaitCommand(5), 
+            shooterRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+            new WaitCommand(5),
+            shooterRoutine.dynamic(SysIdRoutine.Direction.kForward),
+            new WaitCommand(5),
+            shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
+            );
     }
 
 }
