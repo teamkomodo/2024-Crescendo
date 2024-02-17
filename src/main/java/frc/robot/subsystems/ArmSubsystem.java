@@ -105,7 +105,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   public ArmSubsystem() {
     jointMotor = new CANSparkMax(JOINT_MOTOR_ID, MotorType.kBrushless);
-    jointMotor.restoreFactoryDefaults();
     jointMotor.setInverted(false);
     jointMotor.setSmartCurrentLimit(50);
 
@@ -123,14 +122,12 @@ public class ArmSubsystem extends SubsystemBase {
     jointPidController.setReference(0, ControlType.kPosition);
 
     jointSecondMotor = new CANSparkMax(JOINT_SECOND_MOTOR_ID, MotorType.kBrushless);
-    jointSecondMotor.restoreFactoryDefaults();
     jointSecondMotor.setInverted(true);
     jointSecondMotor.follow(jointMotor);
 
     elevatorZeroLimitSwitch = new DigitalInput(ELEVATOR_ZERO_SWITCH_CHANNEL);
 
     elevatorMotor = new CANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless);
-    elevatorMotor.restoreFactoryDefaults();
     elevatorMotor.setInverted(false);
     elevatorMotor.setSmartCurrentLimit(elevatorHoldingCurrentLimit, elevatorRunningCurrentLimit);
 
