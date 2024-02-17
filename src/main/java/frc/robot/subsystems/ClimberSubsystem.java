@@ -98,10 +98,6 @@ public class ClimberSubsystem extends SubsystemBase {
         return this.runOnce(() -> setMotorPosition(CLIMBER_PRE_CLIMB_POSITION));
     }
 
-    public Command validPositionCommand() {
-        return this.runOnce(() -> setMotorPosition(20.0));
-    }
-
     public Command climb() {
         return this.runOnce(() -> setMotorPosition(CLIMBER_POST_CLIMB_POSITION));
     }

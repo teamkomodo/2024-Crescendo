@@ -29,13 +29,11 @@ public class RobotContainer {
 
         Trigger leftTrigger = driverController.leftTrigger();
         Trigger rightTrigger = driverController.rightTrigger();
-        Trigger aButton = driverController.a();
         Trigger xButton = driverController.x();
         Trigger bButton = driverController.b();
         
         rightTrigger.onTrue(climberSubsystem.climbPositionCommand());
         leftTrigger.onTrue(climberSubsystem.climb());
-        aButton.onTrue(climberSubsystem.validPositionCommand());
         xButton.onTrue(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(-0.3)));
         xButton.onFalse(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(0)));
         bButton.onTrue(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(0.3)));
