@@ -4,11 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.commands.positions.AmpPositionCommand;
-import frc.robot.commands.positions.IntakePositionCommand;
-import frc.robot.commands.positions.SpeakerPositionCommand;
-import frc.robot.commands.positions.StowPositionCommand;
-import frc.robot.commands.positions.TrapPositionCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 
@@ -48,14 +43,14 @@ public class RobotContainer {
 
         // Elevator/joint position commands
         leftJoystickDown.onTrue(armSubsystem.jointStowPositionCommand());
-        aButton.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.1)));
-        bButton.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.1)));
-        aButton.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
-        bButton.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
-        xButton.onTrue(armSubsystem.jointAmpPositionCommand());
-        yButton.onTrue(armSubsystem.jointSpeakerPositionCommand());
+        aButton.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0.1)));
+        bButton.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(-0.1)));
+        aButton.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
+        bButton.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
+        xButton.onTrue(armSubsystem.elevatorAmpPositionCommand());
+        yButton.onTrue(armSubsystem.elevatorSpeakerPositionCommand());
 
-        rightJoystickDown.whileTrue(armSubsystem.jointZeroCommand());
+        rightJoystickDown.whileTrue(armSubsystem.elevatorStowPositionCommand());
 
         // Slow/Fast Mode
         // rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());

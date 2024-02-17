@@ -61,6 +61,7 @@ public final class Constants {
 
 // Joint/Elevator
     public static final int JOINT_MOTOR_ID = 31;
+    public static final int JOINT_SECOND_MOTOR_ID = 0;
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 0;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 1;
 
@@ -100,17 +101,17 @@ public final class Constants {
 
     public static double ELEVATOR_MAX_EXTENSION = 35.0;
 
-    public static final int ELEVATOR_MOTOR_ID = 0;
+    public static final int ELEVATOR_MOTOR_ID = 31;
     public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0;
     public static final double ELEVATOR_SLOW_MODE_MULTIPLIER = 0.5;
 
     // Position in rotations of the motor shaft before gearbox
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
-    public static final double ELEVATOR_MAX_POSITION = 0; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 15; // Code stop
 
-    public static final double ELEVATOR_STOW_POSITION = 0;
-    public static final double ELEVATOR_AMP_POSITION = 0;
-    public static final double ELEVATOR_SPEAKER_POSITION = 0;
+    public static final double ELEVATOR_STOW_POSITION = -5;
+    public static final double ELEVATOR_AMP_POSITION = 10;
+    public static final double ELEVATOR_SPEAKER_POSITION = 17;
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 0;
     public static final double ELEVATOR_BUFFER_DISTANCE = 0;
