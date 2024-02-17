@@ -112,7 +112,7 @@ public class ArmSubsystem extends SubsystemBase {
     jointBottomReverseSwitch = new DigitalInput(JOINT_BOTTOM_ZERO_SWITCH_CHANNEL);
     
     jointEncoder = jointMotor.getEncoder();
-    jointEncoder.setPosition(0);
+    jointEncoder.setPosition(2.6);
 
     jointPidController = jointMotor.getPIDController();
     jointPidController.setP(jointP);
@@ -158,9 +158,11 @@ public class ArmSubsystem extends SubsystemBase {
     if(!atElevatorLimitSwitchAtLastCheck && atElevatorLimitSwitch) { // Rising edge
       elevatorEncoder.setPosition(0);
       atElevatorLimitSwitch = true;;
-      elevatorZeroed = true;
     } else if(atElevatorLimitSwitchAtLastCheck && !atElevatorLimitSwitch) { // Falling edge
       atElevatorLimitSwitch = false;
+    }
+
+    if(atElevatorLimitSwitch) { // Rising edge
       elevatorZeroed = true;
     }
 
@@ -173,13 +175,15 @@ public class ArmSubsystem extends SubsystemBase {
     if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
       // Update encoder reading with known position
       jointEncoder.setPosition(jointEncoder.getVelocity() > 0 ? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION);
-      jointZeroed = true;
     }
 
     // Falling edge of bottom switch
     if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
       // Update encoder reading with known position
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
+    }
+
+    if (atJointMiddleLimitSwitch || atJointBottomLimitSwitch) {
       jointZeroed = true;
     }
 

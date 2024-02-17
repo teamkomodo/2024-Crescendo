@@ -62,14 +62,14 @@ public final class Constants {
 // Joint/Elevator
     public static final int JOINT_MOTOR_ID = 32;
     public static final int JOINT_SECOND_MOTOR_ID = 33;
-    public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 0;
-    public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 1;
+    public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
+    public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
     public static final double JOINT_MIN_POSITION = 0; // Code stop
-    public static final double JOINT_MAX_POSITION = 15; // Code stop
+    public static final double JOINT_MAX_POSITION = 50; // Code stop
 
-    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 10;
-    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 9;
+    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 2.8;
+    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 0;
 
     public static final double JOINT_BOTTOM_SWITCH_POSITION = JOINT_MIN_POSITION;
 
@@ -78,9 +78,9 @@ public final class Constants {
     
     public static final double JOINT_STOW_POSITION = 0;
     public static final double JOINT_AMP_POSITION = 10;
-    public static final double JOINT_SPEAKER_POSITION = 30;
+    public static final double JOINT_SPEAKER_POSITION = 20;
     public static final double JOINT_TRAP_POSITION = 45;
-    public static final double JOINT_INTAKE_POSITION = 70;
+    public static final double JOINT_INTAKE_POSITION = 1;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         JOINT_STOW_POSITION,
@@ -105,12 +105,12 @@ public final class Constants {
     public static double ELEVATOR_MAX_EXTENSION = 35.0;
 
     public static final int ELEVATOR_MOTOR_ID = 34;
-    public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0;
+    public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 2;
     public static final double ELEVATOR_SLOW_MODE_MULTIPLIER = 0.5;
 
     // Position in rotations of the motor shaft before gearbox
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
-    public static final double ELEVATOR_MAX_POSITION = 15; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 54; // Code stop
 
     public static final double ELEVATOR_STOW_POSITION = -5;
     public static final double ELEVATOR_AMP_POSITION = 10;
