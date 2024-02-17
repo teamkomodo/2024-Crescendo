@@ -18,7 +18,7 @@ public class ShootAmpState extends Command{
     protected Command getCommand(){
 
         return new SequentialCommandGroup(
-            turbotakeSubsystem.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(INDEXER_SPEED)),
+            turbotakeSubsystem.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(-INDEXER_SPEED)),
             new WaitCommand(0.6),
             turbotakeSubsystem.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(0))
         );
