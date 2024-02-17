@@ -247,7 +247,12 @@ public class TurboTakeSubsystem extends SubsystemBase{
          return shuffleboardTab;
      }
 
-
+    public double calculateLaunchVelocity()
+    {
+      double rpm = Math.abs(shooter1Encoder.getVelocity() / 2) + Math.abs(shooter2Encoder.getVelocity() / 2);
+      final double k = 0.9; //Constant of difference between tangential velocity of wheel and launch speed of note, determine this with experiments
+      return(k * rpm / 60 * 4 * Math.PI* 0.0508); //0.05 is radius in meters
+    }
     /*
      * @return returns double radians, -1 if it shot is impossible
      * @param s double launch speed, tangential velocity of 
@@ -256,8 +261,10 @@ public class TurboTakeSubsystem extends SubsystemBase{
      */
     public static double calculateAngleRadians(double s, double x, double h)
     {
-        final double increment = 0.0000001;
         final double error = 0.0001;
+        final double increment = 0.0000001; 
+        /*  Maybe test increment and error until we find largest of each that still work. Even 1 more 0 can take it from being 
+        400 percent off to being 0.1% off */
         double angle = 0;
         h = 2.182 - h; // total vertical displacement = height of speaker in m - initial height
         while(Math.abs(x*s*Math.sin(2*angle)+0.5+(-9.8*x*x)/(s*s)-h*Math.sin(2*angle+Math.PI/2)) > error && angle<=Math.PI/4) 
