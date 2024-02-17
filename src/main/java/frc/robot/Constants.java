@@ -60,8 +60,8 @@ public final class Constants {
     public static final double MAX_ANGULAR_ACCEL = 4.0 * Math.PI;
 
 // Joint/Elevator
-    public static final int JOINT_MOTOR_ID = 31;
-    public static final int JOINT_SECOND_MOTOR_ID = 0;
+    public static final int JOINT_MOTOR_ID = 32;
+    public static final int JOINT_SECOND_MOTOR_ID = 33;
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 0;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 1;
 
@@ -104,7 +104,7 @@ public final class Constants {
 
     public static double ELEVATOR_MAX_EXTENSION = 35.0;
 
-    public static final int ELEVATOR_MOTOR_ID = 31;
+    public static final int ELEVATOR_MOTOR_ID = 34;
     public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 0;
     public static final double ELEVATOR_SLOW_MODE_MULTIPLIER = 0.5;
 
