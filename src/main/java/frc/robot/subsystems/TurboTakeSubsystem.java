@@ -248,5 +248,54 @@ public class TurboTakeSubsystem extends SubsystemBase{
      }
 
 
+    /*
+     * @return returns double radians, -1 if it shot is impossible
+     * @param s double launch speed, tangential velocity of 
+     * @param x horizontal distance from speaker
+     * @param h initial height of the launcher (usually 0.3 - 0.5 m)
+     */
+    public static double calculateAngleRadians(double s, double x, double h)
+    {
+        final double increment = 0.0000001;
+        final double error = 0.0001;
+        double angle = 0;
+        h = 2.182 - h; // total vertical displacement = height of speaker in m - initial height
+        while(Math.abs(x*s*Math.sin(2*angle)+0.5+(-9.8*x*x)/(s*s)-h*Math.sin(2*angle+Math.PI/2)) > error && angle<=Math.PI/4) 
+        //just increment theta until it works lmfao, im a mathematical genius /s
+        {
+            angle+=increment;
+        }
+        if(angle >= Math.PI/4)
+        {
+            System.out.println("[BIG GOOF] ERROR COMPUTING ANGLE - SHOT IMPOSSIBLE");
+            return(-1);
+        }
+        System.out.println(angle);
+        return angle;
+    }
+
+    /*
+     * @return returns double max shot distance given speed and height of shooter, returns 9 if it shot is always possible from any distance (we won't shoot more than 8.22 meters)
+     * @param s double launch speed, tangential velocity of 
+     * @param h initial height of the launcher (usually 0.3 - 0.5 m)
+     */
+    public static double calculateMaxDist(double s, double h)
+    {
+        //increment x until it doesn't work
+        h = 2.182 - h; // total vertical displacement = height of speaker in m - initial height
+        double x = 0;
+        final double increment = 0.0001;
+        final double error = 0.001;
+        final double a = Math.PI/4;
+        while(Math.abs(x*s*Math.sin(2*a)+0.5+(-9.8*x*x)/(s*s)-h*Math.sin(2*a+Math.PI/2)) > error && x <= 9)
+        {
+            x+=increment;
+        }
+        if(x >= 9)
+        {
+            System.out.println("[calculateMaxDist] Shot possible from any distance with given params");
+        }
+        return x;
+    }
      
 }
