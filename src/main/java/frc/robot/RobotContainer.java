@@ -8,11 +8,8 @@ import frc.robot.subsystems.ClimberSubsystem;
 
 import static frc.robot.Constants.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -23,29 +20,31 @@ public class RobotContainer {
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
-    
-    private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        //NamedCommands.registerCommand("ExampleCommand", null);
-
         configureBindings();
-
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser",autoChooser);
     }
     
     private void configureBindings() {
 
         Trigger leftTrigger = driverController.leftTrigger();
         Trigger rightTrigger = driverController.rightTrigger();
+        Trigger aButton = driverController.a();
+        Trigger xButton = driverController.x();
+        Trigger bButton = driverController.b();
         
         rightTrigger.onTrue(climberSubsystem.climbPositionCommand());
         leftTrigger.onTrue(climberSubsystem.climb());
+        aButton.onTrue(climberSubsystem.validPositionCommand());
+        xButton.onTrue(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(-0.3)));
+        xButton.onFalse(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(0)));
+        bButton.onTrue(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(0.3)));
+        bButton.onFalse(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(0)));
 
     }
-    
+
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return null;
     }
+    
 }

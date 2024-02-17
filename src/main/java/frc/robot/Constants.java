@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -79,8 +75,8 @@ public final class Constants {
     public static final int CLIMBER_MOTOR_2_ID = 0;
 
     public static final double CLIMBER_MIN_POSITION = 0;
-    public static final double CLIMBER_MAX_POSITION = 100; //FIXME: change later
+    public static final double CLIMBER_MAX_POSITION = 80; //FIXME: change later
 
     public static final double CLIMBER_PRE_CLIMB_POSITION = 100; //FIXME: change later
-    public static final double CLIMBER_POST_CLIMB_POSITION = 20; //FIXME: change later
+    public static final double CLIMBER_POST_CLIMB_POSITION = -20; //FIXME: change later
 }
