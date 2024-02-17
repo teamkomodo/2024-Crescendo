@@ -44,14 +44,23 @@ public class RobotContainer {
         Trigger yButton = driverController.y();
         Trigger rightTrigger = driverController.rightTrigger();
         Trigger leftTrigger = driverController.leftTrigger();
+        Trigger rightBumper = driverController.rightBumper();
+        Trigger leftBumper = driverController.leftBumper();
+
 
         // Elevator/joint position commands
         aButton.onTrue(new StowPositionCommand(armSubsystem));
         bButton.onTrue(new IntakePositionCommand(armSubsystem));
         xButton.onTrue(new AmpPositionCommand(armSubsystem));
         yButton.onTrue(new SpeakerPositionCommand(armSubsystem));
-        rightTrigger.onTrue(new TrapPositionCommand(armSubsystem));
-        leftTrigger.onTrue(null);
+        rightTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.3)));
+        rightTrigger.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
+        leftTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.3)));
+        leftTrigger.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
+        rightBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0.3)));
+        rightBumper.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
+        leftBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(-0.3)));
+        leftBumper.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
 
         
 
