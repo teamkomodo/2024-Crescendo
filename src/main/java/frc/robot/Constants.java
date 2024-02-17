@@ -72,6 +72,9 @@ public final class Constants {
     public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 9;
 
     public static final double JOINT_BOTTOM_SWITCH_POSITION = JOINT_MIN_POSITION;
+
+    public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
+    public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
     public static final double JOINT_STOW_POSITION = 0;
     public static final double JOINT_AMP_POSITION = 10;

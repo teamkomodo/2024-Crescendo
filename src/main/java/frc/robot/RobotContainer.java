@@ -5,6 +5,11 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.commands.positions.AmpPositionCommand;
+import frc.robot.commands.positions.IntakePositionCommand;
+import frc.robot.commands.positions.SpeakerPositionCommand;
+import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.commands.positions.TrapPositionCommand;
 import frc.robot.subsystems.ArmSubsystem;
 
 import static frc.robot.Constants.*;
@@ -33,24 +38,22 @@ public class RobotContainer {
     private void configureBindings() {
 
         // Triggers
-        Trigger leftJoystickDown = driverController.leftStick();
         Trigger aButton = driverController.a();
         Trigger bButton = driverController.b();
         Trigger xButton = driverController.x();
         Trigger yButton = driverController.y();
-
-        Trigger rightJoystickDown = driverController.rightStick();
+        Trigger rightTrigger = driverController.rightTrigger();
+        Trigger leftTrigger = driverController.leftTrigger();
 
         // Elevator/joint position commands
-        leftJoystickDown.onTrue(armSubsystem.jointStowPositionCommand());
-        aButton.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0.1)));
-        bButton.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(-0.1)));
-        aButton.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
-        bButton.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
-        xButton.onTrue(armSubsystem.elevatorAmpPositionCommand());
-        yButton.onTrue(armSubsystem.elevatorSpeakerPositionCommand());
+        aButton.onTrue(new StowPositionCommand(armSubsystem));
+        bButton.onTrue(new IntakePositionCommand(armSubsystem));
+        xButton.onTrue(new AmpPositionCommand(armSubsystem));
+        yButton.onTrue(new SpeakerPositionCommand(armSubsystem));
+        rightTrigger.onTrue(new TrapPositionCommand(armSubsystem));
+        leftTrigger.onTrue(null);
 
-        rightJoystickDown.whileTrue(armSubsystem.elevatorStowPositionCommand());
+        
 
         // Slow/Fast Mode
         // rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());

@@ -83,9 +83,6 @@ public class ArmSubsystem extends SubsystemBase {
   double jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
   double jointHorizontalPosition = Math.abs(elevatorExtension * Math.cos(jointAngleRadians));
 
-  private boolean jointPositiveVelocity = true;
-
-  private boolean atJointLimitSwitch = false;
   private boolean jointZeroed = false;
 
   private boolean atJointMiddleLimitSwitch = false;
@@ -276,16 +273,10 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void updateArmVariables() {
-      jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
       elevatorExtension = getElevatorPosition() * ELEVATOR_INCHES_PER_REVOLUTION;
       //Trig calculation that find extension (extension*sin(angle) & extension*cos(angle))
       jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
       jointHorizontalPosition = Math.abs(elevatorExtension * Math.cos(jointAngleRadians));
-
-    if (jointEncoder.getVelocity() > 0)
-      jointPositiveVelocity = true;
-    else
-      jointPositiveVelocity = false;
   }
 
   public void setJointPosition(double position) {
@@ -329,7 +320,10 @@ public void setElevatorPosition(double position) {
   }
 
   public Command jointSpeakerPositionCommand() {
-    return this.runOnce(() -> setJointPosition(JOINT_SPEAKER_POSITION));
+    jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
+    double targetAngle = Math.atan(JOINT_AVERAGE_SHOOT_HEIGHT / robotDistanceFromSpeaker);
+    double jointTargetAngle = targetAngle + TURBOTAKE_JOINT_RADIAN_OFFSET;
+    return this.runOnce(() -> setJointPosition(jointTargetAngle / JOINT_RADIAN_PER_REVOLUTION));
   }
 
   public Command jointTrapPositionCommand( ) {
@@ -375,8 +369,15 @@ public void setElevatorPosition(double position) {
 
   public Command elevatorZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setJointMotorPercent(-0.3), this),
+        Commands.runOnce(() -> setElevatorMotorPercent(-0.3), this),
         Commands.waitUntil(() -> (atElevatorLimitSwitch))
+    );
+  }
+
+  public Command jointZeroCommand() {
+    return Commands.sequence(
+        Commands.runOnce(() -> setJointMotorPercent(-0.3), this),
+        Commands.waitUntil(() -> (atJointBottomLimitSwitch || atJointMiddleLimitSwitch))
     );
   }
 
