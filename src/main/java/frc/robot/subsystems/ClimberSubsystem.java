@@ -43,7 +43,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public ClimberSubsystem() {
         motor1 = new CANSparkMax(CLIMBER_MOTOR_1_ID, MotorType.kBrushless); // CHANGE DEVICE ID
-        motor1.restoreFactoryDefaults();
         motor1.setInverted(false);
         motor1.setSmartCurrentLimit(30);
         
@@ -58,7 +57,6 @@ public class ClimberSubsystem extends SubsystemBase {
         motor1PidController.setReference(0, ControlType.kDutyCycle);
         
         motor2 = new CANSparkMax(CLIMBER_MOTOR_2_ID, MotorType.kBrushless);
-        motor2.restoreFactoryDefaults();
         motor2.setInverted(true);
         motor2.follow(motor1);
       }
