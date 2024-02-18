@@ -55,20 +55,21 @@ public class RobotContainer {
             )
         );
 
-        Trigger bButton = driverController.b();
-        bButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.5, 0, 0, true, true), drivetrainSubsystem));
-        Trigger xButton = driverController.x();
-        xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
-
-
         Trigger aButton = driverController.a();
-        aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
+        aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.5, 0, 0, true, true), drivetrainSubsystem));
+        Trigger bButton = driverController.b();
+        bButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
+
+        Trigger xButton = driverController.x();
+        xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
         Trigger yButton = driverController.y();
         yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
 
-        // Trigger yButton = driverController.y();
-        // yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.runDriveVolts(12), drivetrainSubsystem));
+        Trigger rightBumper = driverController.rightBumper();
+        Trigger leftBumper = driverController.leftBumper();
 
+        rightBumper.whileTrue(drivetrainSubsystem.driveSysIdRoutineCommand());
+        leftBumper.whileTrue(drivetrainSubsystem.steerSysIdRoutineCommand());
     }
     
     public Command getAutonomousCommand() {

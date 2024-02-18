@@ -422,20 +422,30 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     // SysID Routine Commands
-    public Command driveSysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
-        return driveSysIdRoutine.quasistatic(direction);
+    public Command driveSysIdRoutineCommand() {
+        return Commands.sequence(
+            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(7),
+            Commands.waitSeconds(2),
+            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(7),
+            Commands.waitSeconds(2),
+            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2),
+            Commands.waitSeconds(2),
+            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(2),
+            Commands.waitSeconds(2)
+        );
     }
 
-    public Command steerSysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
-        return steerSysIdRoutine.quasistatic(direction);
-    }
-
-    public Command driveSysIdDynamicCommand(SysIdRoutine.Direction direction) {
-        return driveSysIdRoutine.dynamic(direction);
-    }
-
-    public Command steerSysIdDynamicCommand(SysIdRoutine.Direction direction) {
-        return steerSysIdRoutine.dynamic(direction);
+    public Command steerSysIdRoutineCommand() {
+        return Commands.sequence(
+            steerSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(7),
+            Commands.waitSeconds(2),
+            steerSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(7),
+            Commands.waitSeconds(2),
+            steerSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2),
+            Commands.waitSeconds(2),
+            steerSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(2),
+            Commands.waitSeconds(2)
+        );
     }
     
     public Command followPathCommand(String pathName){
