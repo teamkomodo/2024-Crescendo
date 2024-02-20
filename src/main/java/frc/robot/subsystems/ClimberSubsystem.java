@@ -13,7 +13,9 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.*;
@@ -24,7 +26,12 @@ public class ClimberSubsystem extends SubsystemBase {
     private final SparkPIDController motor1PidController;
     private final RelativeEncoder motor1Encoder;
 
+    private final DigitalInput motor1BeamBreak;
+    private final DigitalInput motor2BeamBreak;
+
     private final CANSparkMax motor2;
+    private final SparkPIDController motor2PidController;
+    private final RelativeEncoder motor2Encoder;
   
     private double p = 0.009;
     private double i = 0.000000001;
@@ -36,6 +43,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private boolean atMinPosition = false;
     private boolean atMaxPosition = false;
+
+    private boolean motor1Zeroed = false;
+    private boolean motor2Zeroed = false;
+
+    private boolean atMotor1Limit = false;
+    private boolean atMotor2Limit = false;
 
     private final BooleanPublisher minPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("minposition").publish();
     private final BooleanPublisher maxPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("maxposition").publish();
@@ -55,10 +68,23 @@ public class ClimberSubsystem extends SubsystemBase {
         motor1PidController.setD(d);
         motor1PidController.setIMaxAccum(maxIAccum, 0);
         motor1PidController.setReference(0, ControlType.kDutyCycle);
+
+        motor1BeamBreak = new DigitalInput(CLIMBER_MOTOR_1_BEAM_BREAK_ID);
+        motor2BeamBreak = new DigitalInput(CLIMBER_MOTOR_2_BEAM_BREAK_ID);
         
         motor2 = new CANSparkMax(CLIMBER_MOTOR_2_ID, MotorType.kBrushless);
         motor2.setInverted(true);
-        motor2.follow(motor1);
+        motor2.setSmartCurrentLimit(30);
+
+        motor2Encoder = motor2.getEncoder();
+        motor2Encoder.setPosition(0);
+
+        motor2PidController = motor1.getPIDController();
+        motor2PidController.setP(p);
+        motor2PidController.setI(i);
+        motor2PidController.setD(d);
+        motor2PidController.setIMaxAccum(maxIAccum, 0);
+        motor2PidController.setReference(0, ControlType.kDutyCycle);
       }
   
     @Override
@@ -73,6 +99,25 @@ public class ClimberSubsystem extends SubsystemBase {
         motor1Encoder.setPosition(0);
         motor1PidController.setReference(0, ControlType.kDutyCycle);
     } 
+
+    public void checkSensor() {
+        atMotor1Limit = motor1BeamBreak.get();
+        atMotor2Limit = motor2BeamBreak.get();
+
+        if(atMotor1Limit) {
+            motor1Encoder.setPosition(0);
+            motor1Zeroed = true;
+        }
+
+        if(atMotor2Limit) {
+            motor2Encoder.setPosition(0);
+            motor2Zeroed = true;
+        }
+
+        if (atMotor1Limit && atMotor2Limit) {
+            motor2.follow(motor1);
+        }
+    }
 
     public void checkMinPosition() {
         if(!atMinPosition && motor1Encoder.getPosition() < CLIMBER_MIN_POSITION) {
@@ -105,6 +150,13 @@ public class ClimberSubsystem extends SubsystemBase {
         maxPositionPublisher.set(atMaxPosition);
         motor1PositionPublisher.set(motor1Encoder.getPosition());
 
+    }
+
+    public Command climberZeroCommand() {
+        return Commands.sequence(
+            Commands.runOnce(() -> setMotorDutyCycle(-0.3), this),
+            Commands.waitUntil(() -> (motor1Zeroed))
+        );
     }
   
     public void setMotorDutyCycle(double dutyCycle) {

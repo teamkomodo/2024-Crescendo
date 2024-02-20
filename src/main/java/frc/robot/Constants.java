@@ -74,6 +74,9 @@ public final class Constants {
     public static final int CLIMBER_MOTOR_1_ID = 38;
     public static final int CLIMBER_MOTOR_2_ID = 39;
 
+    public static final int CLIMBER_MOTOR_1_BEAM_BREAK_ID = 6;
+    public static final int CLIMBER_MOTOR_2_BEAM_BREAK_ID = 7;
+
     public static final double CLIMBER_MIN_POSITION = 0;
     public static final double CLIMBER_MAX_POSITION = 80; //FIXME: change later
 
