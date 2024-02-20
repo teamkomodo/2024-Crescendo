@@ -5,6 +5,12 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.commands.positions.AmpPositionCommand;
+import frc.robot.commands.positions.IntakePositionCommand;
+import frc.robot.commands.positions.SpeakerPositionCommand;
+import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.commands.positions.TrapPositionCommand;
+import frc.robot.subsystems.ArmSubsystem;
 
 import static frc.robot.Constants.*;
 
@@ -20,6 +26,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
 
     // Subsystems
+
+    private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
 
     //Inputs Devices
@@ -60,14 +68,10 @@ public class RobotContainer {
         Trigger xButton = driverController.x();
         xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
 
-
         Trigger aButton = driverController.a();
         aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
         Trigger yButton = driverController.y();
         yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
-
-        // Trigger yButton = driverController.y();
-        // yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.runDriveVolts(12), drivetrainSubsystem));
 
     }
     
