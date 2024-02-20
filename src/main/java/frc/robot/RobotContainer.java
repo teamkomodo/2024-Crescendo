@@ -14,70 +14,68 @@ import frc.robot.subsystems.ArmSubsystem;
 
 import static frc.robot.Constants.*;
 
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
-    
-    private Field2d field2d = new Field2d();
 
     // Subsystems
-    //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
+
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
+    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
+    private final SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
+        //NamedCommands.registerCommand("ExampleCommand", null);
+
         configureBindings();
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser",autoChooser);
     }
     
     private void configureBindings() {
 
-        // Triggers
-        Trigger aButton = driverController.a();
-        Trigger bButton = driverController.b();
-        Trigger xButton = driverController.x();
-        Trigger yButton = driverController.y();
         Trigger rightTrigger = driverController.rightTrigger();
-        Trigger leftTrigger = driverController.leftTrigger();
-        Trigger rightBumper = driverController.rightBumper();
-        Trigger leftBumper = driverController.leftBumper();
 
+        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
-        // Elevator/joint position commands
-        aButton.onTrue(armSubsystem.jointAmpPositionCommand());
-        bButton.onTrue(armSubsystem.jointIntakePositionCommand());
-        xButton.onTrue(armSubsystem.elevatorAmpPositionCommand());
-        yButton.onTrue(armSubsystem.elevatorSpeakerPositionCommand());
-        rightTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.5)));
-        rightTrigger.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
-        leftTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.5)));
-        leftTrigger.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
-        rightBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0.5)));
-        rightBumper.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
-        leftBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(-0.5)));
-        leftBumper.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
+        Trigger startButton = driverController.start();
+        startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        
+        // deadband and curves are applied in command
+        drivetrainSubsystem.setDefaultCommand(
+            drivetrainSubsystem.joystickDriveCommand(
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+            )
+        );
 
-        // Slow/Fast Mode
-        // rTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
-        // rTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+        Trigger bButton = driverController.b();
+        bButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.5, 0, 0, true, true), drivetrainSubsystem));
+        Trigger xButton = driverController.x();
+        xButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.5, 0, 0, true, true), drivetrainSubsystem));
 
-        // // Drivetrain controls
-        // drivetrainSubsystem.setDefaultCommand(
-        //     drivetrainSubsystem.joystickDriveCommand(
-        //         () -> (driverController.getLeftY()), // +Y on left joystick is +X for robot
-        //         () -> (driverController.getLeftX()), // +X on left joystick is +Y for robot
-        //         () -> (-driverController.getRightX())) // -X on right joystick is +Z for robot
-        // );
+        Trigger aButton = driverController.a();
+        aButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(2.5, 0, 0, true, true), drivetrainSubsystem));
+        Trigger yButton = driverController.y();
+        yButton.whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-2.5, 0, 0, true, true), drivetrainSubsystem));
+
     }
     
     public Command getAutonomousCommand() {
-        return null;
+        return autoChooser.getSelected();
     }
 }
