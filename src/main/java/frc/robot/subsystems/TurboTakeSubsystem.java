@@ -97,7 +97,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterMotor.setInverted(false);
         rightShooterMotor.setInverted(true);
         indexerMotor.setInverted(true);
-        
+
         //Initialize the beam break sensor
         beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_PORT);
         
@@ -142,11 +142,31 @@ public class TurbotakeSubsystem extends SubsystemBase{
         rightShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
     }
+
+    @Override
+    public void periodic(){
+        updateShooterTelemetry();
+    }
+    
+    public void updateShooterTelemetry(){
+        pieceDetectedPublisher.set(isPieceDetected());
+        leftShooterVelocityPublisher.set(leftShooterEncoder.getVelocity());
+        rightShooterVelocityPublisher.set(rightShooterEncoder.getVelocity());
+        indexerVelocityPublisher.set(indexerEncoder.getVelocity());
+    }
     
     // Returns true if a piece has triggered the beambreak
     public boolean isPieceDetected(){
         // The sensor returns false when the beam is broken
         return !beamBreakSensor.get();
+    }
+
+    public double getShooterVelocity() {
+        return rightShooterEncoder.getVelocity();
+    }
+
+    public double getIndexerVelocity() {
+        return indexerEncoder.getVelocity();
     }
     
     // commands the shooter to a target velocity
@@ -167,22 +187,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public void setShootPercent(double percent, double spinRatio) {
         leftShooterPidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
         rightShooterPidController.setReference(percent, ControlType.kDutyCycle);
-    } 
+    }
     
     public void setIndexerPercent(double percent){
         indexerPidController.setReference(percent, ControlType.kDutyCycle);
-    }
-    
-    @Override
-    public void periodic(){
-        updateShooterTelemetry();
-    }
-    
-    public void updateShooterTelemetry(){
-        pieceDetectedPublisher.set(isPieceDetected());
-        leftShooterVelocityPublisher.set(leftShooterEncoder.getVelocity());
-        rightShooterVelocityPublisher.set(rightShooterEncoder.getVelocity());
-        indexerVelocityPublisher.set(indexerEncoder.getVelocity());
     }
     
     // Commands
