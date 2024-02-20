@@ -25,6 +25,7 @@ public class StowPositionCommand extends DynamicCommand{
             );
         }
         return new SequentialCommandGroup(
+            armSubsystem.elevatorZeroPositionCommand(),
             armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorStowPositionCommand()
         );

@@ -47,18 +47,18 @@ public class RobotContainer {
 
 
         // Elevator/joint position commands
-        aButton.onTrue(armSubsystem.jointAmpPositionCommand());
-        bButton.onTrue(armSubsystem.jointIntakePositionCommand());
+        aButton.onTrue(new AmpPositionCommand(armSubsystem));
+        bButton.onTrue(new StowPositionCommand(armSubsystem));
         xButton.onTrue(armSubsystem.elevatorAmpPositionCommand());
         yButton.onTrue(armSubsystem.elevatorSpeakerPositionCommand());
         rightTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.5)));
-        rightTrigger.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
+        rightTrigger.onFalse(Commands.runOnce(() -> {armSubsystem.setJointMotorPercent(0); armSubsystem.holdJointPosition();}));
         leftTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.5)));
-        leftTrigger.onFalse(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0)));
+        leftTrigger.onFalse(Commands.runOnce(() -> {armSubsystem.setJointMotorPercent(0); armSubsystem.holdJointPosition();}));
         rightBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0.5)));
-        rightBumper.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
+        rightBumper.onFalse(Commands.runOnce(() -> {armSubsystem.setElevatorMotorPercent(0); armSubsystem.holdElevatorPosition();}));
         leftBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(-0.5)));
-        leftBumper.onFalse(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0)));
+        leftBumper.onFalse(Commands.runOnce(() -> {armSubsystem.setElevatorMotorPercent(0); armSubsystem.holdElevatorPosition();}));
 
         
 

@@ -75,9 +75,9 @@ public class ArmSubsystem extends SubsystemBase {
 
   private final CANSparkMax jointSecondMotor;
 
-  private double jointP = 0.075;
+  private double jointP = 0.1;
   private double jointI = 0.000005;
-  private double jointD = 0.01;
+  private double jointD = 0.3;
   private double jointMaxIAccum = 0;
 
   double jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
@@ -164,6 +164,8 @@ public class ArmSubsystem extends SubsystemBase {
       elevatorEncoder.setPosition(0);
     }
 
+    double jointVelocity = jointEncoder.getVelocity();
+
     atJointBottomLimitSwitchAtLastCheck = atJointBottomLimitSwitch;
     atJointMiddleLimitSwitchAtLastCheck = atJointMiddleLimitSwitch;
     atJointBottomLimitSwitch = isJointBottomLimitSwitchTriggered();
@@ -176,30 +178,30 @@ public class ArmSubsystem extends SubsystemBase {
     // Falling edge of middle switch
     if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
       // Update encoder reading with known position
-      jointEncoder.setPosition(jointEncoder.getVelocity() > 0 ? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION);
+      if (jointVelocity > 0) {
+        jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
+        jointZeroed = true;
+      }
     }
 
     // Rising edge of middle switch
     if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
       // Update encoder reading with known position
-      jointEncoder.setPosition(jointEncoder.getVelocity() > 0 ? JOINT_MIDDLE_SWITCH_BOTTOM_POSITION : JOINT_MIDDLE_SWITCH_TOP_POSITION);
+      if (jointVelocity < 0) {
+        jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
+        jointZeroed = true;
+      }
     }
 
     // Falling edge of bottom switch
     if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
       // Update encoder reading with known position
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
+      jointZeroed = true;
     }
 
     // Rising edge of bottom switch
     if(!atJointBottomLimitSwitchAtLastCheck && atJointBottomLimitSwitch) {
-      // Update encoder reading with known position
-      jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
-      jointZeroed = true;
-
-      // Stop motor
-      setJointPosition(JOINT_BOTTOM_SWITCH_POSITION);
-
       // Update encoder reading with known position
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
       jointZeroed = true;
@@ -208,11 +210,11 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void checkMinLimit() {
     //Rising edge
-    if(!atJointMinLimit && jointEncoder.getPosition() < JOINT_MIN_POSITION && jointZeroed) {
-      atJointMinLimit = true;
-      setJointPosition(JOINT_MIN_POSITION);
-    } else if (jointEncoder.getPosition() > JOINT_MIN_POSITION){
-      atJointMinLimit = false;
+    if(!atJointMinLimit && jointEncoder.getPosition() < JOINT_MIN_POSITION) { //Rising edge
+        atJointMinLimit = true;
+        setJointPosition(JOINT_MIN_POSITION);
+    } else if(jointEncoder.getPosition() > JOINT_MIN_POSITION) {
+        atJointMinLimit = false;
     }
 
     if(!atElevatorMinLimit && elevatorEncoder.getPosition() < ELEVATOR_MIN_POSITION) { //Rising edge
@@ -293,24 +295,36 @@ public class ArmSubsystem extends SubsystemBase {
     if(!jointZeroed && position > jointEncoder.getPosition())
         return;
 
-    if(position < JOINT_MIN_POSITION || JOINT_MAX_POSITION < position)
-        return;
-    
-    jointPidController.setReference(position, ControlType.kPosition);
+    if(position < JOINT_MIN_POSITION)
+        jointPidController.setReference(JOINT_MIN_POSITION, ControlType.kPosition);
+    else if (position > JOINT_MAX_POSITION)
+      jointPidController.setReference(JOINT_MAX_POSITION, ControlType.kPosition);
+    else
+      jointPidController.setReference(position, ControlType.kPosition);
 
       // Position out of bounds
   }
 
 public void setElevatorPosition(double position) {
-  // Position out of bounds
-  if(position < ELEVATOR_MIN_POSITION || position > ELEVATOR_MAX_POSITION)
-    return;
-  
   //Not zeroed and moving away from limit switch
   if(!elevatorZeroed && position > elevatorEncoder.getPosition())
       return;
-  
-  elevatorPidController.setReference(position, ControlType.kPosition);
+
+      // Position out of bounds
+  if(position < ELEVATOR_MIN_POSITION)
+    elevatorPidController.setReference(ELEVATOR_MIN_POSITION, ControlType.kPosition);
+  else if (position > ELEVATOR_MAX_POSITION)
+    elevatorPidController.setReference(ELEVATOR_MAX_POSITION, ControlType.kPosition);
+  else
+    elevatorPidController.setReference(position, ControlType.kPosition);
+}
+
+public void holdJointPosition() {
+  setJointPosition(jointEncoder.getPosition());
+}
+
+public void holdElevatorPosition() {
+  setElevatorPosition(elevatorEncoder.getPosition());
 }
 
   public void gotoSetPosition(int positionId) {
@@ -319,6 +333,10 @@ public void setElevatorPosition(double position) {
   }
 
 //set motor positions
+  public Command jointZeroPositionCommand() {
+    return this.runOnce(() -> setJointPosition(0));
+  }
+
   public Command jointStowPositionCommand() {
     return this.runOnce(() -> setJointPosition(JOINT_STOW_POSITION));
   }
@@ -340,6 +358,10 @@ public void setElevatorPosition(double position) {
 
   public Command jointIntakePositionCommand() {
     return this.runOnce(() -> setJointPosition(JOINT_INTAKE_POSITION));
+  }
+
+  public Command elevatorZeroPositionCommand() {
+    return this.runOnce(() -> setElevatorPosition(0));
   }
 
   public Command elevatorStowPositionCommand() {
