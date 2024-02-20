@@ -9,7 +9,9 @@ package frc.robot.subsystems;
 //Libraries
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+//import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+//import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -27,11 +29,16 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
 
+import static frc.robot.Constants.AMP_SPEED;
 //IDs from Constants
 import static frc.robot.Constants.BEAM_BREAK_SENSOR_PORT;
 import static frc.robot.Constants.INDEXER_MOTOR_ID;
+import static frc.robot.Constants.INDEXER_SPEED;
 import static frc.robot.Constants.SHOOTER_MOTOR_1_ID;
 import static frc.robot.Constants.SHOOTER_MOTOR_2_ID;
+import static frc.robot.Constants.SPEAKER_SPEED;
+
+
 
 
 public class TurboTakeSubsystem extends SubsystemBase{
@@ -64,6 +71,8 @@ public class TurboTakeSubsystem extends SubsystemBase{
     //beam break sensor telemetry
     private final BooleanPublisher beamBreakBooleanPublisher = NetworkTableInstance.getDefault().getBooleanTopic("beam break").publish();
 
+    private boolean hasPiece = false;
+
     
     //PID values for indexer
     private double indexerP, indexerI, indexerD, indexerIAccumulator, 
@@ -88,6 +97,22 @@ public class TurboTakeSubsystem extends SubsystemBase{
                 this
         ));
     
+
+    public static enum TurbotakeState {
+        IDLE,
+        INTAKE,
+        AMP_SHOOT,
+        SPEAKER_SHOOT,
+        TRAP_SHOOT
+    }
+
+    //current turbotake state
+    private TurbotakeState currentState = TurbotakeState.IDLE;
+
+    //true when state exit condition is met and runs next state
+    private boolean stateSwitched = false;
+
+    //private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
     //init outtake motors and restores factory defaults
     public TurboTakeSubsystem(){
         
@@ -165,12 +190,13 @@ public class TurboTakeSubsystem extends SubsystemBase{
         shooter2PidController.setIAccum(shooterIAccumulator);
         shooter2PidController.setFF(shooterFF);
         shooter2PidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
-        
     }
   
     //returns false if something breaks the beam
     public boolean pieceDetected(){
         return !beamBreakSensor.get();
+        
+        
     }
     
     // commands the shooter to a target velocity
@@ -187,6 +213,102 @@ public class TurboTakeSubsystem extends SubsystemBase{
     @Override
     public void periodic(){
         updateShooterTelemetry();
+        if(true)
+            return;
+        switch (currentState){
+            case IDLE:
+                if(stateSwitched){
+                    stateSwitched = false;
+
+                    if(pieceDetected()){
+                        hasPiece = true;
+                    }
+
+                    //executed when enter state
+                     if(this.getCurrentCommand() != this.getDefaultCommand()){
+                        setShooterVelocity(0);
+                        setIndexerVelocity(0);
+                     }
+                }
+                
+                    currentState = TurbotakeState.INTAKE;
+                    stateSwitched = true;
+                break;
+
+            case INTAKE:
+                if(stateSwitched){
+                    stateSwitched = false;
+
+                    if(this.getCurrentCommand() != this.getDefaultCommand()){
+                        setIndexerVelocity(INDEXER_SPEED);
+                    }    
+                }
+                if(hasPiece == true){
+                    currentState = TurbotakeState.IDLE;
+                    setIndexerVelocity(0);
+                    stateSwitched = true;
+                }
+                break;
+
+            case AMP_SHOOT:
+                if(stateSwitched){
+                    stateSwitched = false;
+
+                    if(this.getCurrentCommand() != this.getDefaultCommand()){
+                        setIndexerVelocity(-AMP_SPEED);
+                        
+                    }
+                }
+
+                if(hasPiece == false){
+                    setIndexerVelocity(0);
+                    currentState = TurbotakeState.SPEAKER_SHOOT;
+                    stateSwitched = true;
+                }
+            break;
+
+            case SPEAKER_SHOOT:
+                if(stateSwitched){
+                    stateSwitched = false;
+
+                    if(this.getCurrentCommand() != this.getDefaultCommand()){
+                       setShooterVelocity(SPEAKER_SPEED);
+                    }
+                }
+
+                if(shooter1Encoder.getVelocity() == 1200){
+                    setIndexerVelocity(INDEXER_SPEED);
+                }
+
+                if(hasPiece == false){
+                    currentState = TurbotakeState.TRAP_SHOOT;
+                    stateSwitched = true;
+                }
+
+                if(stateSwitched){
+                    setIndexerVelocity(0);
+                    setShooterVelocity(0);
+                }
+                break;
+            case TRAP_SHOOT:
+                if(stateSwitched){
+                    stateSwitched = false;
+
+                    if(this.getCurrentCommand() != this.getDefaultCommand()){
+                        setIndexerVelocity(-INDEXER_SPEED);
+                    }
+                }
+
+                if(hasPiece == false){
+                    currentState = TurbotakeState.IDLE;
+                    stateSwitched = true;
+                }
+
+                if(stateSwitched){
+                    setIndexerVelocity(0);
+                }
+            break;
+        }
     }
 
     public void updateShooterTelemetry(){
@@ -220,6 +342,16 @@ public class TurboTakeSubsystem extends SubsystemBase{
             new WaitCommand(5),
             shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
             );
+    }
+
+
+    public void dutyCycleShooters(double speed){
+        shooterMotor1.set(speed);
+        shooterMotor2.set(speed);
+    }
+
+    public void dutyCycleIndexer(double speed){
+        indexerMotor.set(speed);
     }
 
 }
