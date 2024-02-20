@@ -306,8 +306,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerRPMPublisher.set(indexerEncoder.getVelocity());
     }
 
-
-    public Command getIndexerSysID(){
+    public Command indexerSysIdCommand(){
         return Commands.sequence(
                 indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
                 new WaitCommand(5), 
@@ -320,7 +319,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         
     }
 
-    public Command getShooterSysID(){
+    public Command shooterSysIdCommand(){
         return Commands.sequence(
             shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
             new WaitCommand(5), 

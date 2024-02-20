@@ -17,8 +17,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer extends TimedRobot {
     
-    
-
     // Subsystem
     public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
 
@@ -46,8 +44,8 @@ public class RobotContainer extends TimedRobot {
         Trigger leftBumper = driverController.leftBumper();
 
         //run duty cycles
-        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.dutyCycleIndexer(1), () -> turbotakeSubsystem.dutyCycleIndexer(0), turbotakeSubsystem));
-        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.dutyCycleShooters(1), () -> turbotakeSubsystem.dutyCycleShooters(0), turbotakeSubsystem));
+        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0), turbotakeSubsystem));
+        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShooterPercent(0), turbotakeSubsystem));
         
 
         //runs the motors directly
@@ -55,11 +53,10 @@ public class RobotContainer extends TimedRobot {
         leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
 
         //tests shooters
-        rightTrigger.whileTrue(Commands.runOnce(() -> {turbotakeSubsystem.getShooterSysID();}));
-
+        rightTrigger.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.shooterSysIdCommand()));
 
         //tests indexer
-        leftTrigger.whileTrue(Commands.runOnce(() -> {turbotakeSubsystem.getIndexerSysID();}));
+        leftTrigger.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.indexerSysIdCommand()));
     }
 
     @Override
