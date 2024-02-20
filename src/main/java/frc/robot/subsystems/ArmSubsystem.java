@@ -151,30 +151,38 @@ public class ArmSubsystem extends SubsystemBase {
   } 
 
   public void checkLimitSwitch() {
-
     atElevatorLimitSwitchAtLastCheck = atElevatorLimitSwitch;
     atElevatorLimitSwitch = isElevatorLimitSwitchTriggered();
 
-    if(!atElevatorLimitSwitchAtLastCheck && atElevatorLimitSwitch) { // Rising edge
-      elevatorEncoder.setPosition(0);
-      atElevatorLimitSwitch = true;;
-    } else if(atElevatorLimitSwitchAtLastCheck && !atElevatorLimitSwitch) { // Falling edge
-      atElevatorLimitSwitch = false;
+    if(atElevatorLimitSwitch) {
+      elevatorZeroed = true;
     }
 
-    if(atElevatorLimitSwitch) { // Rising edge
-      elevatorZeroed = true;
+    if(!atElevatorLimitSwitchAtLastCheck && atElevatorLimitSwitch) { // Rising edge
+      elevatorEncoder.setPosition(0);
+    } else if(atElevatorLimitSwitchAtLastCheck && !atElevatorLimitSwitch) { // Falling edge
+      elevatorEncoder.setPosition(0);
     }
 
     atJointBottomLimitSwitchAtLastCheck = atJointBottomLimitSwitch;
     atJointMiddleLimitSwitchAtLastCheck = atJointMiddleLimitSwitch;
     atJointBottomLimitSwitch = isJointBottomLimitSwitchTriggered();
     atJointMiddleLimitSwitch = isJointMiddleLimitSwitchTriggered();
+
+    if (atJointMiddleLimitSwitch || atJointBottomLimitSwitch) {
+      jointZeroed = true;
+    }
     
     // Falling edge of middle switch
     if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
       // Update encoder reading with known position
       jointEncoder.setPosition(jointEncoder.getVelocity() > 0 ? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION);
+    }
+
+    // Rising edge of middle switch
+    if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
+      // Update encoder reading with known position
+      jointEncoder.setPosition(jointEncoder.getVelocity() > 0 ? JOINT_MIDDLE_SWITCH_BOTTOM_POSITION : JOINT_MIDDLE_SWITCH_TOP_POSITION);
     }
 
     // Falling edge of bottom switch
@@ -183,12 +191,12 @@ public class ArmSubsystem extends SubsystemBase {
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
     }
 
-    if (atJointMiddleLimitSwitch || atJointBottomLimitSwitch) {
-      jointZeroed = true;
-    }
-
     // Rising edge of bottom switch
     if(!atJointBottomLimitSwitchAtLastCheck && atJointBottomLimitSwitch) {
+      // Update encoder reading with known position
+      jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
+      jointZeroed = true;
+
       // Stop motor
       setJointPosition(JOINT_BOTTOM_SWITCH_POSITION);
 
@@ -196,7 +204,6 @@ public class ArmSubsystem extends SubsystemBase {
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
       jointZeroed = true;
     }
-
   }
 
   public void checkMinLimit() {

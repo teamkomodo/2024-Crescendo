@@ -3,9 +3,10 @@ package frc.robot.commands.positions;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.DynamicCommand;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class StowPositionCommand extends Command{
+public class StowPositionCommand extends DynamicCommand{
 
     private final ArmSubsystem armSubsystem;
 

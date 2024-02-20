@@ -21,8 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
-    
-    private Field2d field2d = new Field2d();
 
     // Subsystems
     //private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
