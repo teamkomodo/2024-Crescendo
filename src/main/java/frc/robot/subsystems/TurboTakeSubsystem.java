@@ -1,25 +1,14 @@
-/*Turbotake subsystem code
-*Intake/Shooter
-* 2 Shooter Motors
-* 1 indexer motor
-*/
 package frc.robot.subsystems;
 
-//import edu.wpi.first.math.util.Units;
-//Libraries
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-//import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
-
-
 import com.revrobotics.SparkPIDController;
-//Motor Libraries
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -29,19 +18,9 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
 
-import static frc.robot.Constants.AMP_SPEED;
-//IDs from Constants
-import static frc.robot.Constants.BEAM_BREAK_SENSOR_PORT;
-import static frc.robot.Constants.INDEXER_MOTOR_ID;
-import static frc.robot.Constants.INDEXER_SPEED;
-import static frc.robot.Constants.SHOOTER_MOTOR_1_ID;
-import static frc.robot.Constants.SHOOTER_MOTOR_2_ID;
-import static frc.robot.Constants.SPEAKER_SPEED;
+import static frc.robot.Constants.*;
 
-
-
-
-public class TurboTakeSubsystem extends SubsystemBase{
+public class TurbotakeSubsystem extends SubsystemBase{
     //defines motors
     private final CANSparkMax shooterMotor1;
     private final CANSparkMax shooterMotor2;
@@ -75,11 +54,9 @@ public class TurboTakeSubsystem extends SubsystemBase{
 
     
     //PID values for indexer
-    private double indexerP, indexerI, indexerD, indexerIAccumulator, 
-    indexerFF, indexerMinOutput, indexerMaxOutput;
-    //PID values for shooterMotor1
-    private double shooterP, shooterI, shooterD, shooterIAccumulator, 
-    shooterFF, shooterMinOutput, shooterMaxOutput;
+    private double indexerP, indexerI, indexerD, indexerIAccumulator, indexerFF, indexerMinOutput, indexerMaxOutput;
+    //PID values for shooter motors
+    private double shooterP, shooterI, shooterD, shooterIAccumulator, shooterFF, shooterMinOutput, shooterMaxOutput;
     
     public final SysIdRoutine indexerRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(), 
@@ -114,7 +91,7 @@ public class TurboTakeSubsystem extends SubsystemBase{
 
     //private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
     //init outtake motors and restores factory defaults
-    public TurboTakeSubsystem(){
+    public TurbotakeSubsystem(){
         
         
         // PID coefficients for indexer
@@ -195,8 +172,6 @@ public class TurboTakeSubsystem extends SubsystemBase{
     //returns false if something breaks the beam
     public boolean pieceDetected(){
         return !beamBreakSensor.get();
-        
-        
     }
     
     // commands the shooter to a target velocity
@@ -208,6 +183,19 @@ public class TurboTakeSubsystem extends SubsystemBase{
     // commands the indexer to a target velocity
     public void setIndexerVelocity(double velocity){
         indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+    }
+
+    public void setShooterPercent(double percent){
+        setShootPercent(percent, 1.0);
+    }
+
+    public void setShootPercent(double percent, double spinRatio) {
+        shooter1PidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
+        shooter2PidController.setReference(percent, ControlType.kDutyCycle);
+    } 
+
+    public void setIndexerPercent(double percent){
+        indexerPidController.setReference(percent, ControlType.kDutyCycle);
     }
 
     @Override
@@ -342,16 +330,6 @@ public class TurboTakeSubsystem extends SubsystemBase{
             new WaitCommand(5),
             shooterRoutine.dynamic(SysIdRoutine.Direction.kReverse)
             );
-    }
-
-
-    public void dutyCycleShooters(double speed){
-        shooterMotor1.set(speed);
-        shooterMotor2.set(speed);
-    }
-
-    public void dutyCycleIndexer(double speed){
-        indexerMotor.set(speed);
     }
 
 }

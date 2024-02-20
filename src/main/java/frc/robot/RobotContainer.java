@@ -5,7 +5,7 @@
 package frc.robot;
 
 
-import frc.robot.subsystems.TurboTakeSubsystem;
+import frc.robot.subsystems.TurbotakeSubsystem;
 import static frc.robot.Constants.*;
 import edu.wpi.first.wpilibj.TimedRobot;
 
@@ -20,9 +20,7 @@ public class RobotContainer extends TimedRobot {
     
 
     // Subsystem
-    public final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
-
-
+    public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -48,20 +46,20 @@ public class RobotContainer extends TimedRobot {
         Trigger leftBumper = driverController.leftBumper();
 
         //run duty cycles
-        aButton.whileTrue(Commands.runEnd(() -> turbotakesubsystem.dutyCycleIndexer(1), () -> turbotakesubsystem.dutyCycleIndexer(0), turbotakesubsystem));
-        bButton.whileTrue(Commands.runEnd(() -> turbotakesubsystem.dutyCycleShooters(1), () -> turbotakesubsystem.dutyCycleShooters(0), turbotakesubsystem));
+        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.dutyCycleIndexer(1), () -> turbotakeSubsystem.dutyCycleIndexer(0), turbotakeSubsystem));
+        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.dutyCycleShooters(1), () -> turbotakeSubsystem.dutyCycleShooters(0), turbotakeSubsystem));
         
 
         //runs the motors directly
-        rightBumper.whileTrue(Commands.runEnd(() -> turbotakesubsystem.setIndexerVelocity(1), () -> turbotakesubsystem.setIndexerVelocity(0), turbotakesubsystem));
-        leftBumper.whileTrue(Commands.runEnd(() -> turbotakesubsystem.setShooterVelocity(1), () -> turbotakesubsystem.setIndexerVelocity(0), turbotakesubsystem));
+        rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
+        leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
 
         //tests shooters
-        rightTrigger.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.getShooterSysID();}));
+        rightTrigger.whileTrue(Commands.runOnce(() -> {turbotakeSubsystem.getShooterSysID();}));
 
 
         //tests indexer
-        leftTrigger.whileTrue(Commands.runOnce(() -> {turbotakesubsystem.getIndexerSysID();}));
+        leftTrigger.whileTrue(Commands.runOnce(() -> {turbotakeSubsystem.getIndexerSysID();}));
     }
 
     @Override
