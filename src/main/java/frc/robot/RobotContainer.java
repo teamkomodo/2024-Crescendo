@@ -5,24 +5,34 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.commands.positions.AmpPositionCommand;
+import frc.robot.commands.positions.IntakePositionCommand;
+import frc.robot.commands.positions.SpeakerPositionCommand;
+import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.commands.positions.TrapPositionCommand;
+import frc.robot.subsystems.ArmSubsystem;
 
-import static frc.robot.Constants.*;
-
+import frc.robot.subsystems.TurbotakeSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import static frc.robot.Constants.*;
+
 public class RobotContainer {
 
     // Subsystems
+    private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
 
     private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem);
 
@@ -41,6 +51,7 @@ public class RobotContainer {
     }
     
     private void configureBindings() {
+        //testing binds
 
         Trigger leftBumper = driverController.leftBumper();
 
@@ -51,13 +62,6 @@ public class RobotContainer {
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
         // deadband and curves are applied in command
-        // drivetrainSubsystem.setDefaultCommand(
-        //     drivetrainSubsystem.joystickDriveCommand(
-        //         () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
-        //         () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-        //         () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
-        //     )
-        // );
 
         Trigger aButton = driverController.a();
         aButton.whileTrue(teleopStateMachine.alignSpeakerCommand());
@@ -71,10 +75,13 @@ public class RobotContainer {
         Trigger rightBumper = driverController.rightBumper();
         rightBumper.whileTrue(teleopStateMachine.pickupGroundCommand());
 
-        Trigger xButton = driverController.b();
-        CANSparkMax intake = new CANSparkMax(35, MotorType.kBrushless);
-        xButton.whileTrue(Commands.runEnd(() -> intake.set(-1), () -> intake.set(0)));
-
+        drivetrainSubsystem.setDefaultCommand(
+            drivetrainSubsystem.joystickDriveCommand(
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+            )
+        );
     }
     
     public Command getAutonomousCommand() {
