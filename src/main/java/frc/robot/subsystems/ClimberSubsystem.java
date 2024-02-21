@@ -73,8 +73,7 @@ public class ClimberSubsystem extends SubsystemBase {
         // motor2BeamBreak = new DigitalInput(CLIMBER_MOTOR_2_BEAM_BREAK_ID);
         
         motor2 = new CANSparkMax(CLIMBER_MOTOR_2_ID, MotorType.kBrushless);
-        motor2.setInverted(true);
-        motor2.follow(motor1);
+        motor2.follow(motor1, true);
 
         // motor2Encoder = motor2.getEncoder();
         // motor2Encoder.setPosition(0);
