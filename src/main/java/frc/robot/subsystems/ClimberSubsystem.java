@@ -26,12 +26,12 @@ public class ClimberSubsystem extends SubsystemBase {
     private final SparkPIDController motor1PidController;
     private final RelativeEncoder motor1Encoder;
 
-    private final DigitalInput motor1BeamBreak;
-    private final DigitalInput motor2BeamBreak;
+    // private final DigitalInput motor1BeamBreak;
+    // private final DigitalInput motor2BeamBreak;
 
     private final CANSparkMax motor2;
-    private final SparkPIDController motor2PidController;
-    private final RelativeEncoder motor2Encoder;
+    // private final SparkPIDController motor2PidController;
+    // private final RelativeEncoder motor2Encoder;
   
     private double p = 0.009;
     private double i = 0.000000001;
@@ -69,29 +69,28 @@ public class ClimberSubsystem extends SubsystemBase {
         motor1PidController.setIMaxAccum(maxIAccum, 0);
         motor1PidController.setReference(0, ControlType.kDutyCycle);
 
-        motor1BeamBreak = new DigitalInput(CLIMBER_MOTOR_1_BEAM_BREAK_ID);
-        motor2BeamBreak = new DigitalInput(CLIMBER_MOTOR_2_BEAM_BREAK_ID);
+        // motor1BeamBreak = new DigitalInput(CLIMBER_MOTOR_1_BEAM_BREAK_ID);
+        // motor2BeamBreak = new DigitalInput(CLIMBER_MOTOR_2_BEAM_BREAK_ID);
         
         motor2 = new CANSparkMax(CLIMBER_MOTOR_2_ID, MotorType.kBrushless);
         motor2.setInverted(true);
-        motor2.setSmartCurrentLimit(30);
+        motor2.follow(motor1);
 
-        motor2Encoder = motor2.getEncoder();
-        motor2Encoder.setPosition(0);
+        // motor2Encoder = motor2.getEncoder();
+        // motor2Encoder.setPosition(0);
 
-        motor2PidController = motor1.getPIDController();
-        motor2PidController.setP(p);
-        motor2PidController.setI(i);
-        motor2PidController.setD(d);
-        motor2PidController.setIMaxAccum(maxIAccum, 0);
-        motor2PidController.setReference(0, ControlType.kDutyCycle);
+        // motor2PidController = motor1.getPIDController();
+        // motor2PidController.setP(p);
+        // motor2PidController.setI(i);
+        // motor2PidController.setD(d);
+        // motor2PidController.setIMaxAccum(maxIAccum, 0);
+        // motor2PidController.setReference(0, ControlType.kDutyCycle);
       }
   
     @Override
     public void periodic() {
-        smoothCurrent = smoothCurrent * filterConstant + motor1.getOutputCurrent() * (1-filterConstant);
-        checkMinPosition();
-        checkMaxPosition();
+        //checkMinPosition();
+        //checkMaxPosition();
         updateTelemetry();
     }
   
@@ -100,30 +99,30 @@ public class ClimberSubsystem extends SubsystemBase {
         motor1PidController.setReference(0, ControlType.kDutyCycle);
     } 
 
-    public void checkSensor() {
-        atMotor1Limit = motor1BeamBreak.get();
-        atMotor2Limit = motor2BeamBreak.get();
+    // public void checkSensor() {
+    //     atMotor1Limit = motor1BeamBreak.get();
+    //     atMotor2Limit = motor2BeamBreak.get();
 
-        if(atMotor1Limit) {
-            motor1Encoder.setPosition(0);
-            motor1Zeroed = true;
-        }
+    //     if(atMotor1Limit) {
+    //         motor1Encoder.setPosition(0);
+    //         motor1Zeroed = true;
+    //     }
 
-        if(atMotor2Limit) {
-            motor2Encoder.setPosition(0);
-            motor2Zeroed = true;
-        }
+    //     if(atMotor2Limit) {
+    //         motor2Encoder.setPosition(0);
+    //         motor2Zeroed = true;
+    //     }
 
-        if (atMotor1Limit && atMotor2Limit) {
-            motor2.follow(motor1);
-        }
-    }
+    //     if (atMotor1Limit && atMotor2Limit) {
+    //         motor2.follow(motor1);
+    //     }
+    // }
 
     public void checkMinPosition() {
         if(!atMinPosition && motor1Encoder.getPosition() < CLIMBER_MIN_POSITION) {
             atMinPosition = true;
             setMotorPosition(CLIMBER_MIN_POSITION);
-        } else if (atMinPosition && motor1Encoder.getPosition() > CLIMBER_MIN_POSITION) {
+        } else if (motor1Encoder.getPosition() > CLIMBER_MIN_POSITION) {
             atMinPosition = false;
         }
     }
@@ -132,7 +131,7 @@ public class ClimberSubsystem extends SubsystemBase {
         if(!atMaxPosition && motor1Encoder.getPosition() > CLIMBER_MAX_POSITION) {
             atMaxPosition = true;
             setMotorPosition(CLIMBER_MAX_POSITION);
-        } else if(atMaxPosition && motor1Encoder.getPosition() < CLIMBER_MAX_POSITION) {
+        } else if(motor1Encoder.getPosition() < CLIMBER_MAX_POSITION) {
             atMaxPosition = false;
         }
     }
