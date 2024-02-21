@@ -417,7 +417,7 @@ public class DrivetrainSubsystem implements Subsystem {
                 yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
             }
 
-            drive(xVelocity, yVelocity, rotVelocity, FIELD_RELATIVE_DRIVE, true);
+            drive(xVelocity, yVelocity, rotVelocity, true, true);
 
         }, this);
     }
