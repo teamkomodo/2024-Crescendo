@@ -69,6 +69,7 @@ public final class Constants {
     public static final double JOINT_MAX_POSITION = 50; // Code stop
 
     public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 2.8;
+    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 2.8;
     public static final double JOINT_BOTTOM_SWITCH_POSITION = JOINT_MIN_POSITION;
 
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees

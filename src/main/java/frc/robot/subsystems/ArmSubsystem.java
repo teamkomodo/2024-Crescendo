@@ -155,6 +155,7 @@ public class ArmSubsystem extends SubsystemBase {
     atElevatorLimitSwitch = isElevatorLimitSwitchTriggered();
 
     if(atElevatorLimitSwitch) {
+      elevatorEncoder.setPosition(0);
       elevatorZeroed = true;
     }
 
@@ -171,53 +172,56 @@ public class ArmSubsystem extends SubsystemBase {
     atJointBottomLimitSwitch = isJointBottomLimitSwitchTriggered();
     atJointMiddleLimitSwitch = isJointMiddleLimitSwitchTriggered();
 
-    if (atJointMiddleLimitSwitch || atJointBottomLimitSwitch) {
+    if (atJointBottomLimitSwitch) {
+      jointEncoder.setPosition(0);
       jointZeroed = true;
     }
-    
-    // Falling edge of middle switch
-    if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
-      // Update encoder reading with known position
-      if (jointVelocity > 0) {
-        jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
-        jointZeroed = true;
-      }
-    }
 
-    // Rising edge of middle switch
-    if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
-      // Update encoder reading with known position
-      if (jointVelocity < 0) {
-        jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
-        jointZeroed = true;
-      }
+    // if (atJointMiddleLimitSwitch) {
+    //   jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
+    //   jointZeroed = true;
+    // }
+    
+    // // Falling edge of middle switch
+    // if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
+    //   // Update encoder reading with known position
+    //   jointEncoder.setPosition((jointVelocity > 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
+    // }
+
+    // // Rising edge of middle switch
+    // if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
+    //   // Update encoder reading with known position
+    //   jointEncoder.setPosition((jointVelocity < 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
+    // }
+
+    if (atJointBottomLimitSwitch) {
+      jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
+      jointZeroed = true;
     }
 
     // Falling edge of bottom switch
     if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
       // Update encoder reading with known position
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
-      jointZeroed = true;
     }
 
     // Rising edge of bottom switch
     if(!atJointBottomLimitSwitchAtLastCheck && atJointBottomLimitSwitch) {
       // Update encoder reading with known position
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
-      jointZeroed = true;
     }
   }
 
   public void checkMinLimit() {
     //Rising edge
-    if(!atJointMinLimit && jointEncoder.getPosition() < JOINT_MIN_POSITION) { //Rising edge
+    if(!atJointMinLimit && jointEncoder.getPosition() < JOINT_MIN_POSITION && jointZeroed) { //Rising edge
         atJointMinLimit = true;
         setJointPosition(JOINT_MIN_POSITION);
     } else if(jointEncoder.getPosition() > JOINT_MIN_POSITION) {
         atJointMinLimit = false;
     }
 
-    if(!atElevatorMinLimit && elevatorEncoder.getPosition() < ELEVATOR_MIN_POSITION) { //Rising edge
+    if(!atElevatorMinLimit && elevatorEncoder.getPosition() < ELEVATOR_MIN_POSITION && elevatorZeroed) { //Rising edge
         atElevatorMinLimit = true;
         setElevatorPosition(ELEVATOR_MIN_POSITION);
     } else if(elevatorEncoder.getPosition() > ELEVATOR_MIN_POSITION) {
@@ -228,14 +232,14 @@ public class ArmSubsystem extends SubsystemBase {
   public void checkMaxLimit() {
 
     //Rising edge
-    if(!atJointMaxLimit && jointEncoder.getPosition() > JOINT_MAX_POSITION) {
+    if(!atJointMaxLimit && jointEncoder.getPosition() > JOINT_MAX_POSITION && jointZeroed) {
       atJointMaxLimit = true;
       setJointPosition(JOINT_MAX_POSITION);
     } else if(jointEncoder.getPosition() < JOINT_MAX_POSITION) {
       atJointMaxLimit = false;
     }
 
-    if(!atElevatorMaxLimit && elevatorEncoder.getPosition() > ELEVATOR_MAX_POSITION) { //Rising edge
+    if(!atElevatorMaxLimit && elevatorEncoder.getPosition() > ELEVATOR_MAX_POSITION && elevatorZeroed) { //Rising edge
         atElevatorMaxLimit = true;
         setElevatorPosition(ELEVATOR_MAX_POSITION);
     } else if(elevatorEncoder.getPosition() < ELEVATOR_MAX_POSITION) {
