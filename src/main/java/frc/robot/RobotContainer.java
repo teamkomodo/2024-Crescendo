@@ -4,15 +4,16 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
 import frc.robot.commands.positions.TrapPositionCommand;
 import frc.robot.subsystems.ArmSubsystem;
-
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurbotakeSubsystem;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -31,6 +32,7 @@ public class RobotContainer {
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
+    private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
