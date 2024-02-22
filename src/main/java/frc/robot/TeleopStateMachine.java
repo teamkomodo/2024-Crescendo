@@ -1,10 +1,19 @@
 package frc.robot;
 
+import static frc.robot.Constants.SHOOTER_MAX_VELOCITY;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.PickupCommand;
+import frc.robot.commands.positions.AmpPositionCommand;
+import frc.robot.commands.positions.IntakePositionCommand;
+import frc.robot.commands.positions.SpeakerPositionCommand;
+import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.TurbotakeSubsystem;
 
 public class TeleopStateMachine {
     
@@ -26,6 +35,8 @@ public class TeleopStateMachine {
     
     // Store references to each of the subsystems, so that we can schedule their commands.
     private final DrivetrainSubsystem drivetrainSubsystem;
+    private final ArmSubsystem armSubsystem;
+    private final TurbotakeSubsystem turbotakeSubsystem;
 
     // Store the current state
     private State currentState = State.START;
@@ -38,10 +49,12 @@ public class TeleopStateMachine {
     private boolean commandingShootSpeaker = false;
     private boolean commandingScoreAmp = false;
 
-    public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem) {
+    public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem, ArmSubsystem armSubsystem, TurbotakeSubsystem turbotakeSubsystem) {
 
         // Set our references
         this.drivetrainSubsystem = drivetrainSubsystem;
+        this.armSubsystem = armSubsystem;
+        this.turbotakeSubsystem = turbotakeSubsystem;
 
         // Run the periodic method every iteration by wrapping it in a command and scheduling it
         // This is the same way we can schedule other commands in the periodic method
@@ -54,35 +67,21 @@ public class TeleopStateMachine {
         // Switch through all of all states to determine what code to execute this iteration
         switch (currentState) {
             case START:
-                // currentState = turbotakeSubsystem.hasPiece()? State.DRIVE_WITH_PIECE : State.DRIVE_WITHOUT_PIECE;
+                currentState = turbotakeSubsystem.isPieceDetected()? State.DRIVE_WITH_PIECE : State.DRIVE_WITHOUT_PIECE;
                 stateSwitched = true;
+                // intentionally no break statement
             case DRIVE_WITHOUT_PIECE:
 
                 // Did we just enter this state?
                 if(stateSwitched) {
                     stateSwitched = false;
-                    
-                    // Code to be executed when entering this state
-                    if(drivetrainSubsystem.getCurrentCommand() != drivetrainSubsystem.getDefaultCommand()) {
-                        drivetrainSubsystem.getCurrentCommand().cancel();
-                    }
                 }
 
 
                 // Check exit conditions
                 if(commandingPickupGround) {
-                    // The a button was pressed (ie. one of the exit conditions was met), so we will switch the state to the PICKUP_GROUND state
                     currentState = State.PICKUP_GROUND;
-
-                    // Signal to the next state that it needs to run its entrance code
                     stateSwitched = true;
-                }
-                
-                // If stateSwitched is true, then we're planning on exiting this state after this iteration
-                if(stateSwitched) {
-
-                    // Code to be executed when exting this state
-
                 }
 
                 break;
@@ -92,7 +91,7 @@ public class TeleopStateMachine {
                     stateSwitched = false;
                 }
 
-                if(drivetrainSubsystem.getPose().getX() < 8) { // TODO Measure and fix
+                if(drivetrainSubsystem.getPose().getX() < 8.5) { // TODO Account for alliance
                     stateSwitched = true;
                     currentState = State.PREPARE_SHOOT;
                 }
@@ -107,9 +106,10 @@ public class TeleopStateMachine {
                 
                 if(stateSwitched) {
                     stateSwitched = false;
-
-                    // ground position command
-                    // run intake command
+                    commandScheduler.schedule(Commands.sequence(
+                        new IntakePositionCommand(armSubsystem),
+                        new PickupCommand(armSubsystem, turbotakeSubsystem))
+                    );
                 }
 
                 if(!commandingPickupGround) {
@@ -117,26 +117,27 @@ public class TeleopStateMachine {
                     currentState = State.DRIVE_WITHOUT_PIECE;
                 }
 
-                // has piece
-                if(false == false) { // TODO turbotakeSubsystem.hasPiece();
+                if(turbotakeSubsystem.isPieceDetected()) {
                     stateSwitched = true;
                     currentState = State.DRIVE_WITH_PIECE;
                 }
 
                 if(stateSwitched) {
-                    // stow position command
-                    // stop intake command
+                    commandScheduler.schedule(new StowPositionCommand(armSubsystem));
+                    turbotakeSubsystem.setIndexerPercent(0);
                 }
                 
                 break;
             case PREPARE_SHOOT:
 
+                double shooterThreshold = SHOOTER_MAX_VELOCITY - 50;
+
                 if(stateSwitched) {
                     stateSwitched = false;
-                    // turbotake ramp up command
+                    turbotakeSubsystem.setShooterVelocity(SHOOTER_MAX_VELOCITY);
                 }
 
-                if(false == false) { // TODO turbotakeSubsystem.readyToShoot();
+                if(turbotakeSubsystem.getShooterVelocity() > shooterThreshold) {
                     stateSwitched = true;
                     currentState = State.READY_SHOOT;
                 }
@@ -147,7 +148,7 @@ public class TeleopStateMachine {
                 }
 
                 if(stateSwitched) {
-                    // turbotake cancel ramp
+                    turbotakeSubsystem.setShooterPercent(0);
                 }
 
                 break;
@@ -172,7 +173,7 @@ public class TeleopStateMachine {
                 
                 if(stateSwitched) {
                     stateSwitched = false;
-                    // align to speaker command
+                    commandScheduler.schedule(new SpeakerPositionCommand(armSubsystem));
                 }
 
                 if(commandingShootSpeaker) {
@@ -184,15 +185,34 @@ public class TeleopStateMachine {
             case SHOOT_SPEAKER:
                 if(stateSwitched) {
                     stateSwitched = false;
-                    // turbotake shoot command
+                    turbotakeSubsystem.setIndexerPercent(1);
                 }
 
-                if(false == false) { // !TODO turbotake.hasPiece()
+                if(!turbotakeSubsystem.isPieceDetected()) {
                     stateSwitched = true;
                     currentState = State.DRIVE_WITHOUT_PIECE;
                 }
+
+                if(stateSwitched) {
+                    turbotakeSubsystem.setIndexerPercent(0);
+                    turbotakeSubsystem.setShooterPercent(0);
+                }
                 break;
             case SCORE_AMP:
+                if(stateSwitched) {
+                    stateSwitched = false;
+                    commandScheduler.schedule(new AmpPositionCommand(armSubsystem));
+                }
+
+                if(!commandingScoreAmp) {
+                    stateSwitched = true;
+                    currentState = State.DRIVE_WITH_PIECE;
+                }
+
+                if(stateSwitched) {
+                    commandScheduler.schedule(new StowPositionCommand(armSubsystem));
+                }
+
                 break;
             default:
                 // The default case will only run if the currentState doesn't have a corresponding case in the switch statement. This is an error

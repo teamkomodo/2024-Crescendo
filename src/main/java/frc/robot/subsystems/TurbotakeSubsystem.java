@@ -44,7 +44,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final DoublePublisher leftShooterVelocityPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("leftshootervelocity").publish();
     private final DoublePublisher rightShooterVelocityPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("rightshootervelocity").publish();
     private final DoublePublisher indexerVelocityPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("indexervelocity").publish();
-    
+    private final DoublePublisher filteredCurrentPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("filteredcurrent").publish();
+
     //beam break sensor telemetry
     private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getBooleanTopic("piecedetected").publish();
     
@@ -68,6 +69,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
             null,
             this
     ));
+
+    private double filteredCurrent = 0;
+    private double currentFilterConstant = 0.1;
     
     public TurbotakeSubsystem(){
         
@@ -99,7 +103,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerMotor.setInverted(true);
 
         //Initialize the beam break sensor
-        beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_PORT);
+        beamBreakSensor = new DigitalInput(INTAKE_BEAM_BREAK_PORT);
         
         //Initializes encoders
         leftShooterEncoder = leftShooterMotor.getEncoder();
@@ -144,8 +148,13 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         updateShooterTelemetry();
+        filterCurrent();
+    }
+
+    private void filterCurrent() {
+        filteredCurrent = filteredCurrent * (1 - currentFilterConstant) + indexerMotor.getOutputCurrent() * currentFilterConstant;
     }
     
     public void updateShooterTelemetry(){
@@ -153,6 +162,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterVelocityPublisher.set(leftShooterEncoder.getVelocity());
         rightShooterVelocityPublisher.set(rightShooterEncoder.getVelocity());
         indexerVelocityPublisher.set(indexerEncoder.getVelocity());
+        filteredCurrentPublisher.set(filteredCurrent);
     }
     
     // Returns true if a piece has triggered the beambreak
@@ -168,6 +178,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public double getIndexerVelocity() {
         return indexerEncoder.getVelocity();
     }
+
+    public double getFilteredCurrent() {
+        return filteredCurrent;
+    }
     
     // commands the shooter to a target velocity
     public void setShooterVelocity(double velocity){
@@ -181,10 +195,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
     
     public void setShooterPercent(double percent){
-        setShootPercent(percent, 1.0);
+        setShooterPercent(percent, 1.0);
     }
     
-    public void setShootPercent(double percent, double spinRatio) {
+    public void setShooterPercent(double percent, double spinRatio) {
         leftShooterPidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
         rightShooterPidController.setReference(percent, ControlType.kDutyCycle);
     }

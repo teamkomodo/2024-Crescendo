@@ -20,6 +20,7 @@ public final class Constants {
 
 // Controls
     public static final int DRIVER_XBOX_PORT = 0;
+    public static final int OPERATOR_XBOX_PORT = 1;
 
 // Turbotake
     //Motors
@@ -27,10 +28,10 @@ public final class Constants {
     public static final int RIGHT_SHOOTER_MOTOR_ID = 37;
     public static final int INDEXER_MOTOR_ID = 35;
     //Beam Break Sensor
-    public static final int BEAM_BREAK_SENSOR_PORT = 1;
+    public static final int INTAKE_BEAM_BREAK_PORT = 3;
     //Constants
     public static final double INDEXER_SPEED = 0.7;
-    public static final double SHOOTER_SPEED = 1;
+    public static final double SHOOTER_MAX_VELOCITY = 2900;
 
     public static final double AMP_SPEED = 0.75;
     public static final double SPEAKER_SPEED = 1;
