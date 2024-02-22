@@ -5,11 +5,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Patterns;
 
+import static frc.robot.Constants.*;
+
 public class LEDSubsystem extends SubsystemBase {
     public static final double IDLE_PATTERN = 0.43; //Sparkle, Color 1 on Color 2
-    private static final int LED_PWM_CHANNEL = 0;
 
-    private Spark controller = new Spark(LED_PWM_CHANNEL);
+    private Spark controller = new Spark(LED_CHANNEL);
 
     public void setPattern(double pattern){
         controller.set(pattern);
@@ -19,7 +20,7 @@ public class LEDSubsystem extends SubsystemBase {
         return this.runOnce(() -> setPattern(pattern));
     }
 
-    public Command setSolidColor(int colorId) {
+    public Command setSolidColorCommand(int colorId) {
         // Not including black
         return this.runOnce(() -> setPattern(0.57 + (0.02 * (colorId % 21))));
     }

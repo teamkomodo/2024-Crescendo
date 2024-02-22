@@ -68,4 +68,7 @@ public final class Constants {
 
     public static final double MAX_ANGULAR_VELOCITY = 4.0 * Math.PI;
     public static final double MAX_ANGULAR_ACCEL = 4.0 * Math.PI;
+
+    public static final int LED_CHANNEL = 0;
+
 }
