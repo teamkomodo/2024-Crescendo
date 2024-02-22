@@ -4,66 +4,90 @@
 
 package frc.robot;
 
+import frc.robot.commands.positions.AmpPositionCommand;
+import frc.robot.commands.positions.IntakePositionCommand;
+import frc.robot.commands.positions.SpeakerPositionCommand;
+import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.commands.positions.TrapPositionCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
-import frc.robot.subsystems.TurboTakeSubsystem;
-import static frc.robot.Constants.*;
+import frc.robot.subsystems.TurbotakeSubsystem;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import static frc.robot.Constants.*;
+
 public class RobotContainer {
-    
-    private Field2d field2d = new Field2d();
 
     // Subsystems
-    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(field2d);
-    private final TurboTakeSubsystem turbotakesubsystem = new TurboTakeSubsystem();
+    private final ArmSubsystem armSubsystem = new ArmSubsystem();
+    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
+
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
+    private final SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
+        //NamedCommands.registerCommand("ExampleCommand", null);
+
         configureBindings();
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser",autoChooser);
     }
     
     private void configureBindings() {
+        //testing binds
 
+        //state buttons
+        Trigger aButton = driverController.a();//amp
+        Trigger bButton = driverController.b();//speaker
+
+        //SysID testing binds
         Trigger rightTrigger = driverController.rightTrigger();
 
-        rightTrigger.onTrue(drivetrainSubsystem.disableSlowModeCommand());
-        rightTrigger.onFalse(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
         Trigger startButton = driverController.start();
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        double deadband = 0.1;
-
+        // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
-                () -> ( MathUtil.applyDeadband(-driverController.getLeftY(), deadband) ), // -Y on left joystick is +X for robot
-                () -> ( MathUtil.applyDeadband(-driverController.getLeftX(), deadband) ), // -X on left joystick is +Y for robot
-                () -> ( MathUtil.applyDeadband(-driverController.getRightX(), deadband) )) // -X on right joystick is +Z for robot
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+            )
         );
 
-        //Turbotake Binds
+        //motor buttons
         Trigger rightBumper = driverController.rightBumper();
         Trigger leftBumper = driverController.leftBumper();
 
-        //when true set motors at
-        rightBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(INDEXER_SPEED);}));
-        leftBumper.onTrue(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(SHOOTER_SPEED);}));
+        //run duty cycles
+        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0), turbotakeSubsystem));
+        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShooterPercent(0), turbotakeSubsystem));
+        
+        //runs the motors directly
+        rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
+        leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
 
-        //when false disable right or left
-        rightBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetIndexerSpeed(0);}));
-        leftBumper.onFalse(Commands.runOnce(() -> {turbotakesubsystem.SetShooterSpeed(0);}));
     }
     
     public Command getAutonomousCommand() {
-        return null;
+        return autoChooser.getSelected();
     }
 }
