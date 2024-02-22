@@ -155,4 +155,6 @@ public final class Constants {
     public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
     public static final double FIELD_LENGTH = 1654;
 
+    public static final int LED_CHANNEL = 0;
+
 }
