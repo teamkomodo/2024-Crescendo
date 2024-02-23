@@ -57,7 +57,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public ClimberSubsystem() {
         motor1 = new CANSparkMax(CLIMBER_MOTOR_1_ID, MotorType.kBrushless); // CHANGE DEVICE ID
         motor1.setInverted(false);
-        motor1.setSmartCurrentLimit(30);
+        motor1.setSmartCurrentLimit(80);
         
         motor1Encoder = motor1.getEncoder();
         motor1Encoder.setPosition(0);
@@ -158,9 +158,9 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   
     public void setMotorDutyCycle(double dutyCycle) {
-        if ((atMaxPosition && dutyCycle > 0) || (atMinPosition && dutyCycle < 0))
-            return;
-        motor1PidController.setReference(dutyCycle, ControlType.kDutyCycle);
+        // if ((atMaxPosition && dutyCycle > 0) || (atMinPosition && dutyCycle < 0))
+        //     return;
+        motor1.set(dutyCycle);
     }
 
   

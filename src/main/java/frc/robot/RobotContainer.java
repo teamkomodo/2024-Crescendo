@@ -36,10 +36,10 @@ public class RobotContainer {
         
         rightTrigger.onTrue(climberSubsystem.climbPositionCommand());
         leftTrigger.onTrue(climberSubsystem.climb());
-        xButton.onTrue(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(-0.3)));
-        xButton.onFalse(Commands.runOnce(() -> {climberSubsystem.setMotorDutyCycle(0); climberSubsystem.holdMotorPosition();}));
-        bButton.onTrue(Commands.runOnce(() -> climberSubsystem.setMotorDutyCycle(0.3)));
-        bButton.onFalse(Commands.runOnce(() -> {climberSubsystem.setMotorDutyCycle(0); climberSubsystem.holdMotorPosition();}));
+        xButton.onTrue(Commands.run(() -> climberSubsystem.setMotorDutyCycle(-1.0)));
+        xButton.onFalse(Commands.run(() -> {climberSubsystem.setMotorDutyCycle(0); climberSubsystem.holdMotorPosition();}));
+        bButton.onTrue(Commands.run(() -> climberSubsystem.setMotorDutyCycle(1.0)));
+        bButton.onFalse(Commands.run(() -> {climberSubsystem.setMotorDutyCycle(0); climberSubsystem.holdMotorPosition();}));
     }
 
     public Command getAutonomousCommand() {
