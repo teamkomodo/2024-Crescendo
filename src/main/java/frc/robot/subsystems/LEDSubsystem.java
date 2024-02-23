@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.Patterns;
+import frc.robot.util.BlinkinPattern;
 
 import static frc.robot.Constants.*;
 
@@ -29,31 +29,31 @@ public class LEDSubsystem extends SubsystemBase {
         return setPatternCommand(IDLE_PATTERN);
     }
 
-    public Command defaultColor() {
-        return setPatternCommand(Patterns.COLOR_1_AND_2_PATTERN_SPARKLE_COLOR_1_ON_COLOR_2);
+    public Command defaultColorCommand() {
+        return setPatternCommand(BlinkinPattern.COLOR_1_AND_2_PATTERN_SPARKLE_COLOR_1_ON_COLOR_2);
     }
 
-    public Command autonomousColor() {
-        return setPatternCommand(Patterns.FIXED_PALETTE_PATTERN_COLOR_WAVES_OCEAN_PALETTE);
+    public Command autonomousColorCommand() {
+        return setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_COLOR_WAVES_OCEAN_PALETTE);
     }
 
-    public Command flywheelsRampingColor() {
-        return setPatternCommand(Patterns.COLOR_1_PATTERN_STROBE);
+    public Command flywheelsRampingColorCommand() {
+        return setPatternCommand(BlinkinPattern.COLOR_1_PATTERN_STROBE);
     }
 
-    public Command flywheelsRampedColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_BLUE);
+    public Command flywheelsRampedColorCommand() {
+        return setPatternCommand(BlinkinPattern.SOLID_COLORS_BLUE);
     }
 
-    public Command intakeColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_RED);
+    public Command intakeColorCommand() {
+        return setPatternCommand(BlinkinPattern.SOLID_COLORS_RED);
     }
 
-    public Command pieceLoadedColor() {
-        return setPatternCommand(Patterns.SOLID_COLORS_GREEN);
+    public Command pieceLoadedColorCommand() {
+        return setPatternCommand(BlinkinPattern.SOLID_COLORS_GREEN);
     }
 
-    public Command alignedToFieldElementColor() {
-        return setPatternCommand(Patterns.FIXED_PALETTE_PATTERN_RAINBOW_LAVA_PALETTE);
+    public Command alignedToFieldElementColorCommand() {
+        return setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_RAINBOW_LAVA_PALETTE);
     }
 }

@@ -47,7 +47,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final DoublePublisher filteredCurrentPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("filteredcurrent").publish();
 
     //beam break sensor telemetry
-    private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getBooleanTopic("piecedetected").publish();
+    private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getBooleanTopic("piecedetected").publish();
     
     //PID values for indexer
     private double indexerP, indexerI, indexerD, indexerIAccumulator, indexerFF, indexerMinOutput, indexerMaxOutput;
