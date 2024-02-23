@@ -60,13 +60,13 @@ public class RobotContainer {
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
         // deadband and curves are applied in command
-        drivetrainSubsystem.setDefaultCommand(
-            drivetrainSubsystem.joystickDriveCommand(
-                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
-                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
-            )
-        );
+        // drivetrainSubsystem.setDefaultCommand(
+        //     drivetrainSubsystem.joystickDriveCommand(
+        //         () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+        //         () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+        //         () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+        //     )
+        // );
 
         //motor buttons
         Trigger rightBumper = driverController.rightBumper();
