@@ -127,7 +127,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterPidController = leftShooterMotor.getPIDController();
         rightShooterPidController = rightShooterMotor.getPIDController();
         
-        //sets PID values for shooter1
+        //sets PID values for left shooter
         leftShooterPidController.setP(shooterP);
         leftShooterPidController.setI(shooterI);
         leftShooterPidController.setD(shooterD);
@@ -135,7 +135,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterPidController.setFF(shooterFF);
         leftShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
-        //sets PID values for shooter2
+        //sets PID values for right shooter
         rightShooterPidController.setP(shooterP);
         rightShooterPidController.setI(shooterI);
         rightShooterPidController.setD(shooterD);
