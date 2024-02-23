@@ -35,6 +35,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final SparkPIDController indexerPidController;
     private final SparkPIDController leftShooterPidController;
     private final SparkPIDController rightShooterPidController;
+    
     //defines beam break sensor
     private final DigitalInput turbotakeNoteSensor;
     
@@ -94,6 +95,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         rightShooterMotor = new CANSparkMax(RIGHT_SHOOTER_MOTOR_ID, MotorType.kBrushless);
         indexerMotor = new CANSparkMax(INDEXER_MOTOR_ID, MotorType.kBrushless);
         
+        //inverts motors to correct orientation
         leftShooterMotor.setInverted(false);
         rightShooterMotor.setInverted(true);
         indexerMotor.setInverted(true);
@@ -127,16 +129,16 @@ public class TurbotakeSubsystem extends SubsystemBase{
         
         //sets PID values for shooter1
         leftShooterPidController.setP(shooterP);
-        leftShooterPidController.setP(shooterI);
-        leftShooterPidController.setP(shooterD);
+        leftShooterPidController.setI(shooterI);
+        leftShooterPidController.setD(shooterD);
         leftShooterPidController.setIAccum(shooterIAccumulator);
         leftShooterPidController.setFF(shooterFF);
         leftShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
         //sets PID values for shooter2
         rightShooterPidController.setP(shooterP);
-        rightShooterPidController.setP(shooterI);
-        rightShooterPidController.setP(shooterD);
+        rightShooterPidController.setI(shooterI);
+        rightShooterPidController.setD(shooterD);
         rightShooterPidController.setIAccum(shooterIAccumulator);
         rightShooterPidController.setFF(shooterFF);
         rightShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);

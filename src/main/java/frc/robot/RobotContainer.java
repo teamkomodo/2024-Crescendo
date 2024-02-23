@@ -45,9 +45,10 @@ public class RobotContainer {
     private void configureBindings() {
         //testing binds
 
-        //state buttons
+        //duty cycle buttons
         Trigger aButton = driverController.a();//amp
         Trigger bButton = driverController.b();//speaker
+        Trigger xButton = driverController.x();//trap
 
         //SysID testing binds
         Trigger rightTrigger = driverController.rightTrigger();
@@ -70,15 +71,20 @@ public class RobotContainer {
         //motor buttons
         Trigger rightBumper = driverController.rightBumper();
         Trigger leftBumper = driverController.leftBumper();
+        Trigger yButton = driverController.y();
 
         //run duty cycles
         aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0)));
         bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShootPercent(0, 0.5)));
-        
-        //runs the motors directly
-       // rightBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
-        leftBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(1)));
+        xButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1), () -> turbotakeSubsystem.setIndexerPercent(0)));//reverses indexer to score in trap
 
+        
+        //runs closed loop velocity
+        // rightBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(1)));
+        leftBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(25000)));
+        yButton.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(-1)));
+
+        //runs sysID routine to find indexer PID
         rightBumper.whileTrue(Commands.runOnce(() -> {turbotakeSubsystem.indexerSysIdCommand();}));
 
     }
