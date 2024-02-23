@@ -26,6 +26,7 @@ public class AmpPositionCommand extends DynamicCommand {
             );
         }
         return new SequentialCommandGroup(
+            armSubsystem.elevatorZeroPositionCommand(),
             armSubsystem.jointAmpPositionCommand(),
             armSubsystem.elevatorAmpPositionCommand()
         );

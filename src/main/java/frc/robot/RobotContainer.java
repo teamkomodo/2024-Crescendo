@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+
 import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
@@ -37,19 +38,17 @@ public class RobotContainer {
 
     private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem);
 
+
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_XBOX_PORT);
     
-    private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
         //NamedCommands.registerCommand("ExampleCommand", null);
 
         configureBindings();
 
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser",autoChooser);
     }
     
     private void configureBindings() {
@@ -94,12 +93,10 @@ public class RobotContainer {
 
         Trigger operatorB = operatorController.b();
         operatorB.whileTrue(teleopStateMachine.scoreAmpCommand());
-
         
-
     }
     
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return null;
     }
 }

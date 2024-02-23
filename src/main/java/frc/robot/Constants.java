@@ -90,21 +90,20 @@ public final class Constants {
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
     public static final double JOINT_MIN_POSITION = 0; // Code stop
-    public static final double JOINT_MAX_POSITION = 50; // Code stop
+    public static final double JOINT_MAX_POSITION = 47; // Code stop
 
-    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 2.8;
-    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 0;
-
+    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 6.262;
+    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 2.738;
     public static final double JOINT_BOTTOM_SWITCH_POSITION = JOINT_MIN_POSITION;
 
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 0;
-    public static final double JOINT_AMP_POSITION = 10;
+    public static final double JOINT_STOW_POSITION = 5.2;
+    public static final double JOINT_AMP_POSITION = 26;
     public static final double JOINT_SPEAKER_POSITION = 20;
     public static final double JOINT_TRAP_POSITION = 45;
-    public static final double JOINT_INTAKE_POSITION = 1;
+    public static final double JOINT_INTAKE_POSITION = 35;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         JOINT_STOW_POSITION,
@@ -134,13 +133,13 @@ public final class Constants {
 
     // Position in rotations of the motor shaft before gearbox
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
-    public static final double ELEVATOR_MAX_POSITION = 54; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 65; // Code stop
 
-    public static final double ELEVATOR_STOW_POSITION = -5;
-    public static final double ELEVATOR_AMP_POSITION = 10;
+    public static final double ELEVATOR_STOW_POSITION = 31;
+    public static final double ELEVATOR_AMP_POSITION = 54;
     public static final double ELEVATOR_SPEAKER_POSITION = 17;
     public static final double ELEVATOR_TRAP_POSITION = 0;
-    public static final double ELEVATOR_INTAKE_POSITION = 0;
+    public static final double ELEVATOR_INTAKE_POSITION = 30;
     public static final double ELEVATOR_BUFFER_DISTANCE = 0;
 
     public static final double[] ELEVATOR_POSITIONS_ORDERED = { // Order in array corresponds to selector position
