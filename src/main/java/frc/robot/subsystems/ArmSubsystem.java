@@ -77,7 +77,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   private double jointP = 0.1;
   private double jointI = 0.000005;
-  private double jointD = 0.3;
+  private double jointD = 0.5;
   private double jointMaxIAccum = 0;
 
   double jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
@@ -172,29 +172,24 @@ public class ArmSubsystem extends SubsystemBase {
     atJointBottomLimitSwitch = isJointBottomLimitSwitchTriggered();
     atJointMiddleLimitSwitch = isJointMiddleLimitSwitchTriggered();
 
-    if (atJointBottomLimitSwitch) {
-      jointEncoder.setPosition(0);
+    if (atJointMiddleLimitSwitch && !jointZeroed) {
+      jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
       jointZeroed = true;
     }
-
-    // if (atJointMiddleLimitSwitch) {
-    //   jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
-    //   jointZeroed = true;
-    // }
     
-    // // Falling edge of middle switch
-    // if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
-    //   // Update encoder reading with known position
-    //   jointEncoder.setPosition((jointVelocity > 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
-    // }
+    // Falling edge of middle switch
+    if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
+      // Update encoder reading with known position
+      jointEncoder.setPosition((jointVelocity > 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
+    }
 
-    // // Rising edge of middle switch
-    // if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
-    //   // Update encoder reading with known position
-    //   jointEncoder.setPosition((jointVelocity < 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
-    // }
+    // Rising edge of middle switch
+    if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
+      // Update encoder reading with known position
+      jointEncoder.setPosition((jointVelocity < 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
+    }
 
-    if (atJointBottomLimitSwitch) {
+    if (atJointBottomLimitSwitch && !jointZeroed) {
       jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
       jointZeroed = true;
     }
