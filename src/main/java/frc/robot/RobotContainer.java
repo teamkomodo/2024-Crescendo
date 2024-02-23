@@ -5,11 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.commands.positions.AmpPositionCommand;
-import frc.robot.commands.positions.IntakePositionCommand;
-import frc.robot.commands.positions.SpeakerPositionCommand;
-import frc.robot.commands.positions.StowPositionCommand;
-import frc.robot.commands.positions.TrapPositionCommand;
+
 import frc.robot.subsystems.ArmSubsystem;
 
 import frc.robot.subsystems.TurbotakeSubsystem;
@@ -76,16 +72,18 @@ public class RobotContainer {
         Trigger leftBumper = driverController.leftBumper();
 
         //run duty cycles
-        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0), turbotakeSubsystem));
-        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShooterPercent(0), turbotakeSubsystem));
+        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShootPercent(0, 0.5)));
         
         //runs the motors directly
-        rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
-        leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
+       // rightBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
+        leftBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(1)));
+
+        rightBumper.whileTrue(Commands.runOnce(() -> {turbotakeSubsystem.indexerSysIdCommand();}));
 
     }
     
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return null;
     }
 }

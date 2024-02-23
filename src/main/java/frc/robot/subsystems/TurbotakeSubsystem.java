@@ -36,7 +36,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final SparkPIDController leftShooterPidController;
     private final SparkPIDController rightShooterPidController;
     //defines beam break sensor
-    private final DigitalInput beamBreakSensor;
+    private final DigitalInput turbotakeNoteSensor;
     
     //Telemetry
     
@@ -85,7 +85,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         shooterI = 0;
         shooterD = 0;
         shooterIAccumulator = 0;
-        shooterFF = 0/*0.0023097*/;
+        shooterFF = 0.0023097;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
         
@@ -99,7 +99,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerMotor.setInverted(true);
 
         //Initialize the beam break sensor
-        beamBreakSensor = new DigitalInput(BEAM_BREAK_SENSOR_PORT);
+        turbotakeNoteSensor = new DigitalInput(TURBOTAKE_NOTE_SENSOR_PORT);
         
         //Initializes encoders
         leftShooterEncoder = leftShooterMotor.getEncoder();
@@ -158,7 +158,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     // Returns true if a piece has triggered the beambreak
     public boolean isPieceDetected(){
         // The sensor returns false when the beam is broken
-        return !beamBreakSensor.get();
+        return !turbotakeNoteSensor.get();
     }
 
     public double getShooterVelocity() {
