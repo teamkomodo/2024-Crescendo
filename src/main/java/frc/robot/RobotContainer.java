@@ -52,7 +52,7 @@ public class RobotContainer {
         Trigger driverStart = driverController.start();
         driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        // deadband and curves are applied in command
+        // // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
                 () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
@@ -96,11 +96,11 @@ public class RobotContainer {
         Trigger operatorLS = operatorController.leftStick();
         operatorLS.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightX()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
         
-        Trigger operatorStart = operatorController.start();
-        operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+        // Trigger operatorStart = operatorController.start();
+        // operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(climberVelocity), () -> climberSubsystem.holdMotorPosition()));
 
-        Trigger operatorBack = operatorController.back();
-        operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+        // Trigger operatorBack = operatorController.back();
+        // operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
 
     }
     

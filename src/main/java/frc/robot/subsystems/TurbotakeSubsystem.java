@@ -53,6 +53,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
     //PID values for shooter motors
     private double shooterP, shooterI, shooterD, shooterIZone, shooterFF, shooterMinOutput, shooterMaxOutput;
+
+    private boolean pieceLoaded = false;
+    private boolean pieceLoadedAtLastCheck = false;
     
     
     public final SysIdRoutine shooterRoutine = new SysIdRoutine(
@@ -65,6 +68,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
     
     public TurbotakeSubsystem(){
         
+       
+
         // PID coefficients for indexer
         indexerP = 1;
         indexerI = 0;
@@ -146,6 +151,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
         updateShooterTelemetry();
     }
     
+
+
     public void updateShooterTelemetry(){
         pieceDetectedPublisher.set(isPieceDetected());
         leftShooterVelocityPublisher.set(leftShooterEncoder.getVelocity());
@@ -208,6 +215,14 @@ public class TurbotakeSubsystem extends SubsystemBase{
         setIndexerPercent(0);
         indexerPidController.setIAccum(0);
 
+    }
+
+    public void stopIndexer(){
+        pieceLoadedAtLastCheck = pieceLoaded;
+        pieceLoaded = isPieceDetected();
+        if(!pieceLoadedAtLastCheck && pieceLoaded){
+            turnoffIndexer();
+        }
     }
     
     // Command 

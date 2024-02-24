@@ -89,7 +89,7 @@ public final class Constants {
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
-    public static final double JOINT_MIN_POSITION = 5; // Code stop
+    public static final double JOINT_MIN_POSITION = 0; // Code stop
     public static final double JOINT_MAX_POSITION = 47; // Code stop
 
     public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 6.262;
@@ -99,11 +99,11 @@ public final class Constants {
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 10;
+    public static final double JOINT_STOW_POSITION = 8;
     public static final double JOINT_AMP_POSITION = 26;
     public static final double JOINT_SPEAKER_POSITION = 16;
     public static final double JOINT_TRAP_POSITION = 45;
-    public static final double JOINT_INTAKE_POSITION = 2.5;
+    public static final double JOINT_INTAKE_POSITION = 2;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         JOINT_STOW_POSITION,

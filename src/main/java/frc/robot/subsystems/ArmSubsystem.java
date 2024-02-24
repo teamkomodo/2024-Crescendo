@@ -76,8 +76,8 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax jointSecondMotor;
 
   private double jointP = 0.05;
-  private double jointI = 0.0000005;
-  private double jointD = 1.3;
+  private double jointI = 0.00000005;
+  private double jointD = 2;
   private double jointMaxIAccum = 0;
 
   double jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
