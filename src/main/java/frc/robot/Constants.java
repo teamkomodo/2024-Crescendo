@@ -21,11 +21,23 @@ public final class Constants {
 // Controls
     public static final int DRIVER_XBOX_PORT = 0;
 
-// Drivetrain
-    public static final boolean FIELD_RELATIVE_DRIVE = true;
+// Turbotake
+    //Motors
+    public static final int LEFT_SHOOTER_MOTOR_ID = 36;
+    public static final int RIGHT_SHOOTER_MOTOR_ID = 37;
+    public static final int INDEXER_MOTOR_ID = 35;
+    //Beam Break Sensor
+    public static final int BEAM_BREAK_SENSOR_PORT = 1;
+    //Constants
+    public static final double INDEXER_SPEED = 0.7;
+    public static final double SHOOTER_SPEED = 1;
+
+    public static final double AMP_SPEED = 0.75;
+    public static final double SPEAKER_SPEED = 1;
+    public static final double SPIN_RATIO = 1.0;
+
     public static final double LINEAR_SLOW_MODE_MODIFIER = 0.5;
     public static final double ANGULAR_SLOW_MODE_MODIFIER = 0.2;
-
     public static final double DRIVETRAIN_WIDTH = 0.5271; // Distance between center of left and right swerve wheels in meters
     public static final double DRIVETRAIN_LENGTH = 0.5271; // Distance between center of front and back swerve wheels in meters
 
@@ -140,5 +152,7 @@ public final class Constants {
     // FRC Field
     public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
     public static final double FIELD_LENGTH = 1654;
+
+    public static final int LED_CHANNEL = 0;
 
 }

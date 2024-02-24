@@ -10,19 +10,29 @@ import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
 import frc.robot.commands.positions.TrapPositionCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.TurbotakeSubsystem;
 
-import static frc.robot.Constants.*;
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import static frc.robot.Constants.*;
+
 public class RobotContainer {
 
     // Subsystems
-
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
+    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
+    private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
@@ -36,11 +46,41 @@ public class RobotContainer {
     }
     
     private void configureBindings() {
+        //testing binds
 
-        Trigger aButton = driverController.a();
-        Trigger bButton = driverController.b();
-        Trigger xButton = driverController.x();
-        Trigger yButton = driverController.y();
+        //state buttons
+        Trigger aButton = driverController.a();//amp
+        Trigger bButton = driverController.b();//speaker
+
+        //SysID testing binds
+        Trigger rightTrigger = driverController.rightTrigger();
+
+        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+
+        Trigger startButton = driverController.start();
+        startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
+
+        // deadband and curves are applied in command
+        drivetrainSubsystem.setDefaultCommand(
+            drivetrainSubsystem.joystickDriveCommand(
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+            )
+        );
+
+        //motor buttons
+        Trigger rightBumper = driverController.rightBumper();
+        Trigger leftBumper = driverController.leftBumper();
+
+        //run duty cycles
+        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0), turbotakeSubsystem));
+        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShooterPercent(0), turbotakeSubsystem));
+        
+        //runs the motors directly
+        rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
+        leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
 
         Trigger rightTrigger = driverController.rightTrigger();
         Trigger leftTrigger = driverController.leftTrigger();
