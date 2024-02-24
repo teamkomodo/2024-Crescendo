@@ -90,7 +90,7 @@ public final class Constants {
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
-    public static final double JOINT_MIN_POSITION = 0; // Code stop
+    public static final double JOINT_MIN_POSITION = 5; // Code stop
     public static final double JOINT_MAX_POSITION = 47; // Code stop
 
     public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 6.262;
@@ -100,11 +100,11 @@ public final class Constants {
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 5.2;
+    public static final double JOINT_STOW_POSITION = 10;
     public static final double JOINT_AMP_POSITION = 26;
-    public static final double JOINT_SPEAKER_POSITION = 20;
+    public static final double JOINT_SPEAKER_POSITION = 16;
     public static final double JOINT_TRAP_POSITION = 45;
-    public static final double JOINT_INTAKE_POSITION = 35;
+    public static final double JOINT_INTAKE_POSITION = 2.5;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         JOINT_STOW_POSITION,
@@ -136,11 +136,11 @@ public final class Constants {
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
     public static final double ELEVATOR_MAX_POSITION = 65; // Code stop
 
-    public static final double ELEVATOR_STOW_POSITION = 31;
-    public static final double ELEVATOR_AMP_POSITION = 54;
-    public static final double ELEVATOR_SPEAKER_POSITION = 17;
+    public static final double ELEVATOR_STOW_POSITION = 0;
+    public static final double ELEVATOR_AMP_POSITION = 65;
+    public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
-    public static final double ELEVATOR_INTAKE_POSITION = 30;
+    public static final double ELEVATOR_INTAKE_POSITION = 65;
     public static final double ELEVATOR_BUFFER_DISTANCE = 0;
 
     public static final double[] ELEVATOR_POSITIONS_ORDERED = { // Order in array corresponds to selector position
@@ -154,6 +154,19 @@ public final class Constants {
     // FRC Field
     public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
     public static final double FIELD_LENGTH = 1654;
+
+    // Climber
+    public static final int CLIMBER_MOTOR_1_ID = 38;
+    public static final int CLIMBER_MOTOR_2_ID = 39;
+
+    public static final int CLIMBER_MOTOR_1_BEAM_BREAK_ID = 6;
+    public static final int CLIMBER_MOTOR_2_BEAM_BREAK_ID = 7;
+
+    public static final double CLIMBER_MIN_POSITION = 0;
+    public static final double CLIMBER_MAX_POSITION = 80; //FIXME: change later
+
+    public static final double CLIMBER_PRE_CLIMB_POSITION = 100; //FIXME: change later
+    public static final double CLIMBER_POST_CLIMB_POSITION = -20; //FIXME: change later
 
     public static final int LED_CHANNEL = 0;
 
