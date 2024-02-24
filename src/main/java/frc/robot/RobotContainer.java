@@ -9,6 +9,7 @@ import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
 import frc.robot.commands.positions.TrapPositionCommand;
+
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
@@ -48,9 +49,6 @@ public class RobotContainer {
     private void configureBindings() {
         //testing binds
 
-        //state buttons
-        Trigger aButton = driverController.a();//amp
-        Trigger bButton = driverController.b();//speaker
 
         //SysID testing binds
         Trigger rightTrigger = driverController.rightTrigger();
@@ -71,35 +69,23 @@ public class RobotContainer {
         );
 
         //motor buttons
-        Trigger rightBumper = driverController.rightBumper();
-        Trigger leftBumper = driverController.leftBumper();
+        Trigger rightBumper = driverController.rightBumper();//intake
+        Trigger leftBumper = driverController.leftBumper();//speaker
+        Trigger xbutton = driverController.x();//trap/amp button
+       
 
-        //run duty cycles
-        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0), turbotakeSubsystem));
-        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShooterPercent(0), turbotakeSubsystem));
-        
-        //runs the motors directly
-        rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
-        leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
+        //shooter velocity
+        leftBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(2500)));
+        leftBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffShooter()));
 
-        Trigger rightTrigger = driverController.rightTrigger();
-        Trigger leftTrigger = driverController.leftTrigger();
-        Trigger rightBumper = driverController.rightBumper();
-        Trigger leftBumper = driverController.leftBumper();
+
+        //indexer duty cycle
+        rightBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)));
+        rightBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
+        //trap/amp
+        xbutton.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-1)));
+        xbutton.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
         
-        // Elevator/joint position commands
-        aButton.onTrue(new AmpPositionCommand(armSubsystem));
-        bButton.onTrue(new IntakePositionCommand(armSubsystem));
-        xButton.onTrue(new SpeakerPositionCommand(armSubsystem));
-        yButton.onTrue(new StowPositionCommand(armSubsystem));
-        rightTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.5)));
-        rightTrigger.onFalse(Commands.runOnce(() -> {armSubsystem.setJointMotorPercent(0); armSubsystem.holdJointPosition();}));
-        leftTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.5)));
-        leftTrigger.onFalse(Commands.runOnce(() -> {armSubsystem.setJointMotorPercent(0); armSubsystem.holdJointPosition();}));
-        rightBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0.5)));
-        rightBumper.onFalse(Commands.runOnce(() -> {armSubsystem.setElevatorMotorPercent(0); armSubsystem.holdElevatorPosition();}));
-        leftBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(-0.5)));
-        leftBumper.onFalse(Commands.runOnce(() -> {armSubsystem.setElevatorMotorPercent(0); armSubsystem.holdElevatorPosition();}));
     }
     
     public Command getAutonomousCommand() {
