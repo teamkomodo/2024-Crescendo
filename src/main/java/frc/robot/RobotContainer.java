@@ -75,16 +75,23 @@ public class RobotContainer {
 
         //run duty cycles
        // aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0)));
-        bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShootPercent(0, 0.5)));
+        //bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShootPercent(0, 0.5)));
        // xButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1), () -> turbotakeSubsystem.setIndexerPercent(0)));//reverses indexer to score in trap
 
         
         //runs closed loop velocity
-       // rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
-        leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setShooterVelocity(0), turbotakeSubsystem));
+        // rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
+        // leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(2500), () -> turbotakeSubsystem.setShooterVelocity(0), turbotakeSubsystem));
+        // aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(2500), () -> turbotakeSubsystem.setShooterVelocity(0), turbotakeSubsystem));
+
+        //shooter velocity
+        leftBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(2500)));
+        leftBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(0)));
 
 
-        aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setShooterVelocity(0)));
+        //indexer velocity
+        rightBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(1000)));
+        rightBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(0)));
         
         //runs sysID routine to find indexer PID
         //rightBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.indexerRoutine()));
