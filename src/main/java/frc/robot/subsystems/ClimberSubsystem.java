@@ -22,80 +22,63 @@ import static frc.robot.Constants.*;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-    private final CANSparkMax motor1;
-    private final SparkPIDController motor1PidController;
-    private final RelativeEncoder motor1Encoder;
+    private final CANSparkMax leftMotor;
+    private final SparkPIDController leftMotorPidController;
+    private final RelativeEncoder leftMotorEncoder;
 
-    // private final DigitalInput motor1BeamBreak;
-    // private final DigitalInput motor2BeamBreak;
-
-    private final CANSparkMax motor2;
-    // private final SparkPIDController motor2PidController;
-    // private final RelativeEncoder motor2Encoder;
+    private final CANSparkMax rightMotor;
   
     private double p = 0.009;
     private double i = 0.000000001;
     private double d = 0.002;
     private double maxIAccum = 0;
-  
-    private double smoothCurrent = 0;
-    private double filterConstant = 0.8;
 
     private boolean atMinPosition = false;
     private boolean atMaxPosition = false;
 
-    private boolean motor1Zeroed = false;
-    private boolean motor2Zeroed = false;
+    private boolean leftMotorZeroed = false;
+    private boolean rightMotorZeroed = false;
 
-    private boolean atMotor1Limit = false;
-    private boolean atMotor2Limit = false;
+    private boolean atLeftSensor = false;
+    private boolean atRightSensor = false;
 
-    private final BooleanPublisher minPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("minposition").publish();
-    private final BooleanPublisher maxPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("maxposition").publish();
-    private final DoublePublisher motor1PositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getDoubleTopic("motor1position").publish();
+    private final BooleanPublisher minPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("atminposition").publish();
+    private final BooleanPublisher maxPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getBooleanTopic("atmaxposition").publish();
+    private final DoublePublisher leftMotorPositionPublisher = NetworkTableInstance.getDefault().getTable("climber").getDoubleTopic("leftmotorposition").publish();
 
     public ClimberSubsystem() {
-        motor1 = new CANSparkMax(CLIMBER_MOTOR_1_ID, MotorType.kBrushless); // CHANGE DEVICE ID
-        motor1.setInverted(false);
-        motor1.setSmartCurrentLimit(80);
+        leftMotor = new CANSparkMax(CLIMBER_MOTOR_1_ID, MotorType.kBrushless); // CHANGE DEVICE ID
+        leftMotor.setInverted(false);
+        leftMotor.setSmartCurrentLimit(80);
         
-        motor1Encoder = motor1.getEncoder();
-        motor1Encoder.setPosition(0);
+        leftMotorEncoder = leftMotor.getEncoder();
+        leftMotorEncoder.setPosition(0);
 
-        motor1PidController = motor1.getPIDController();
-        motor1PidController.setP(p);
-        motor1PidController.setI(i);
-        motor1PidController.setD(d);
-        motor1PidController.setIMaxAccum(maxIAccum, 0);
-        motor1PidController.setReference(0, ControlType.kDutyCycle);
+        leftMotorPidController = leftMotor.getPIDController();
+        leftMotorPidController.setP(p);
+        leftMotorPidController.setI(i);
+        leftMotorPidController.setD(d);
+        leftMotorPidController.setIMaxAccum(maxIAccum, 0);
+        leftMotorPidController.setReference(0, ControlType.kDutyCycle);
 
         // motor1BeamBreak = new DigitalInput(CLIMBER_MOTOR_1_BEAM_BREAK_ID);
         // motor2BeamBreak = new DigitalInput(CLIMBER_MOTOR_2_BEAM_BREAK_ID);
         
-        motor2 = new CANSparkMax(CLIMBER_MOTOR_2_ID, MotorType.kBrushless);
-        motor2.follow(motor1, true);
+        rightMotor = new CANSparkMax(CLIMBER_MOTOR_2_ID, MotorType.kBrushless);
+        rightMotor.follow(leftMotor, true);
 
-        // motor2Encoder = motor2.getEncoder();
-        // motor2Encoder.setPosition(0);
-
-        // motor2PidController = motor1.getPIDController();
-        // motor2PidController.setP(p);
-        // motor2PidController.setI(i);
-        // motor2PidController.setD(d);
-        // motor2PidController.setIMaxAccum(maxIAccum, 0);
-        // motor2PidController.setReference(0, ControlType.kDutyCycle);
       }
   
     @Override
     public void periodic() {
-        //checkMinPosition();
-        //checkMaxPosition();
+        checkMinPosition();
+        checkMaxPosition();
         updateTelemetry();
     }
   
     public void teleopInit() {
-        motor1Encoder.setPosition(0);
-        motor1PidController.setReference(0, ControlType.kDutyCycle);
+        leftMotorEncoder.setPosition(0);
+        leftMotorPidController.setReference(0, ControlType.kDutyCycle);
     } 
 
     // public void checkSensor() {
@@ -118,19 +101,19 @@ public class ClimberSubsystem extends SubsystemBase {
     // }
 
     public void checkMinPosition() {
-        if(!atMinPosition && motor1Encoder.getPosition() < CLIMBER_MIN_POSITION) {
+        if(!atMinPosition && leftMotorEncoder.getPosition() < CLIMBER_MIN_POSITION) {
             atMinPosition = true;
             setMotorPosition(CLIMBER_MIN_POSITION);
-        } else if (motor1Encoder.getPosition() > CLIMBER_MIN_POSITION) {
+        } else if (leftMotorEncoder.getPosition() > CLIMBER_MIN_POSITION) {
             atMinPosition = false;
         }
     }
 
     public void checkMaxPosition() {
-        if(!atMaxPosition && motor1Encoder.getPosition() > CLIMBER_MAX_POSITION) {
+        if(!atMaxPosition && leftMotorEncoder.getPosition() > CLIMBER_MAX_POSITION) {
             atMaxPosition = true;
             setMotorPosition(CLIMBER_MAX_POSITION);
-        } else if(motor1Encoder.getPosition() < CLIMBER_MAX_POSITION) {
+        } else if(leftMotorEncoder.getPosition() < CLIMBER_MAX_POSITION) {
             atMaxPosition = false;
         }
     }
@@ -146,45 +129,41 @@ public class ClimberSubsystem extends SubsystemBase {
     public void updateTelemetry() {
         minPositionPublisher.set(atMinPosition);
         maxPositionPublisher.set(atMaxPosition);
-        motor1PositionPublisher.set(motor1Encoder.getPosition());
+        leftMotorPositionPublisher.set(leftMotorEncoder.getPosition());
 
     }
 
     public Command climberZeroCommand() {
         return Commands.sequence(
             Commands.runOnce(() -> setMotorDutyCycle(-0.3), this),
-            Commands.waitUntil(() -> (motor1Zeroed))
+            Commands.waitUntil(() -> (leftMotorZeroed))
         );
     }
   
     public void setMotorDutyCycle(double dutyCycle) {
-        // if ((atMaxPosition && dutyCycle > 0) || (atMinPosition && dutyCycle < 0))
-        //     return;
-        motor1.set(dutyCycle);
+        if ((atMaxPosition && dutyCycle > 0) || (atMinPosition && dutyCycle < 0))
+            return;
+        leftMotor.set(dutyCycle);
     }
 
   
     public void setMotorVelocity(double velocity) {
         if ((atMaxPosition && velocity > 0) || (atMinPosition && velocity < 0))
             return;
-        motor1PidController.setReference(velocity, ControlType.kVelocity);
+        leftMotorPidController.setReference(velocity, ControlType.kVelocity);
     }
 
     public void setMotorPosition(Double position) {
-        if (position < CLIMBER_MIN_POSITION || position > CLIMBER_MAX_POSITION)
-            return;
-        motor1PidController.setReference(position, ControlType.kPosition);
+        double clampedPosition = Math.max(Math.min(position, CLIMBER_MAX_POSITION), CLIMBER_MIN_POSITION);
+        leftMotorPidController.setReference(clampedPosition, ControlType.kPosition);
     }
   
     public void holdMotorPosition() {
-        motor1PidController.setReference(motor1Encoder.getPosition(), ControlType.kPosition);
+        setMotorPosition(leftMotorEncoder.getPosition());
     }
   
     public double getCurrent() {
-        return (motor1.getOutputCurrent());
+        return (leftMotor.getOutputCurrent());
     }
   
-    public double getSmoothCurrent() {
-        return smoothCurrent;
-    }
 }
