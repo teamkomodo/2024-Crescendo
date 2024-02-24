@@ -50,9 +50,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getBooleanTopic("piecedetected").publish();
     
     //PID values for indexer
-    private double indexerP, indexerI, indexerD, indexerIAccumulator, indexerFF, indexerMinOutput, indexerMaxOutput;
+    private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
     //PID values for shooter motors
-    private double shooterP, shooterI, shooterD, shooterIAccumulator, shooterFF, shooterMinOutput, shooterMaxOutput;
+    private double shooterP, shooterI, shooterD, shooterIZone, shooterFF, shooterMinOutput, shooterMaxOutput;
     
     public final SysIdRoutine indexerRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(), 
@@ -76,7 +76,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerP = 1;
         indexerI = 0;
         indexerD = 0;
-        indexerIAccumulator = 0;
+        indexerIZone = 0;
         indexerFF = 0;
         indexerMinOutput = -1;
         indexerMaxOutput = 1;
@@ -85,7 +85,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         shooterP = 3.78e-04;
         shooterI = 0;
         shooterD = 0;
-        shooterIAccumulator = 0;
+        shooterIZone = 0;
         shooterFF = 0.0023097;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
@@ -119,7 +119,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerPidController.setP(indexerP);
         indexerPidController.setI(indexerI);
         indexerPidController.setD(indexerD);
-        indexerPidController.setIAccum(indexerIAccumulator);
+        indexerPidController.setIZone(indexerIZone);
         indexerPidController.setFF(indexerFF);
         indexerPidController.setOutputRange(indexerMinOutput, indexerMaxOutput);
         
@@ -131,7 +131,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterPidController.setP(shooterP);
         leftShooterPidController.setI(shooterI);
         leftShooterPidController.setD(shooterD);
-        leftShooterPidController.setIAccum(shooterIAccumulator);
+        leftShooterPidController.setIZone(shooterIZone);
         leftShooterPidController.setFF(shooterFF);
         leftShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
@@ -139,7 +139,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         rightShooterPidController.setP(shooterP);
         rightShooterPidController.setI(shooterI);
         rightShooterPidController.setD(shooterD);
-        rightShooterPidController.setIAccum(shooterIAccumulator);
+        rightShooterPidController.setIZone(shooterIZone);
         rightShooterPidController.setFF(shooterFF);
         rightShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
@@ -173,8 +173,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
     
     // commands the shooter to a target velocity
     public void setShooterVelocity(double velocity){
+        System.out.println("shooter ran");
         leftShooterPidController.setReference(velocity * SPIN_RATIO, CANSparkMax.ControlType.kVelocity);
         rightShooterPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+
     }
     
     // commands the indexer to a target velocity
@@ -182,6 +184,17 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
     }
     
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
     public void setShooterPercent(double percent){
         setShootPercent(percent, 1.0);
     }
@@ -189,6 +202,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public void setShootPercent(double percent, double spinRatio) {
         leftShooterPidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
         rightShooterPidController.setReference(percent, ControlType.kDutyCycle);
+        
     }
     
     public void setIndexerPercent(double percent){
