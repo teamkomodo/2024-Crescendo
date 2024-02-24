@@ -6,8 +6,6 @@ package frc.robot;
 
 import frc.robot.subsystems.DrivetrainSubsystem;
 
-import frc.robot.subsystems.ArmSubsystem;
-
 import frc.robot.subsystems.TurbotakeSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -45,10 +43,6 @@ public class RobotContainer {
     private void configureBindings() {
         //testing binds
 
-        //duty cycle buttons
-        Trigger aButton = driverController.a();//amp
-        Trigger bButton = driverController.b();//speaker
-        Trigger xButton = driverController.x();//trap
 
         //SysID testing binds
         Trigger rightTrigger = driverController.rightTrigger();
@@ -60,41 +54,32 @@ public class RobotContainer {
         startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
         // deadband and curves are applied in command
-        // drivetrainSubsystem.setDefaultCommand(
-        //     drivetrainSubsystem.joystickDriveCommand(
-        //         () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
-        //         () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
-        //         () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
-        //     )
-        // );
+        drivetrainSubsystem.setDefaultCommand(
+            drivetrainSubsystem.joystickDriveCommand(
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+            )
+        );
 
         //motor buttons
-        Trigger rightBumper = driverController.rightBumper();
-        Trigger leftBumper = driverController.leftBumper();
-        Trigger yButton = driverController.y();
-
-        //run duty cycles
-       // aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1), () -> turbotakeSubsystem.setIndexerPercent(0)));
-        //bButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1), () -> turbotakeSubsystem.setShootPercent(0, 0.5)));
-       // xButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1), () -> turbotakeSubsystem.setIndexerPercent(0)));//reverses indexer to score in trap
-
-        
-        //runs closed loop velocity
-        // rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
-        // leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(2500), () -> turbotakeSubsystem.setShooterVelocity(0), turbotakeSubsystem));
-        // aButton.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(2500), () -> turbotakeSubsystem.setShooterVelocity(0), turbotakeSubsystem));
+        Trigger rightBumper = driverController.rightBumper();//intake
+        Trigger leftBumper = driverController.leftBumper();//speaker
+        Trigger xbutton = driverController.x();//trap/amp button
+       
 
         //shooter velocity
         leftBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(2500)));
-        leftBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(0)));
+        leftBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffShooter()));
 
 
-        //indexer velocity
-        rightBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(1000)));
-        rightBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.setIndexerVelocity(0)));
-        
-        //runs sysID routine to find indexer PID
-        //rightBumper.whileTrue(Commands.runOnce(() -> turbotakeSubsystem.indexerRoutine()));
+        //indexer duty cycle
+        rightBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)));
+        rightBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
+        //trap/amp
+        xbutton.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-1)));
+        xbutton.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
+
 
     }
     

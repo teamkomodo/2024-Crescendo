@@ -54,13 +54,6 @@ public class TurbotakeSubsystem extends SubsystemBase{
     //PID values for shooter motors
     private double shooterP, shooterI, shooterD, shooterIZone, shooterFF, shooterMinOutput, shooterMaxOutput;
     
-    public final SysIdRoutine indexerRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(), 
-            new SysIdRoutine.Mechanism(
-            (voltage) -> setIndexerVelocity(voltage.in(Units.Volts)),
-            null,
-            this
-    ));
     
     public final SysIdRoutine shooterRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(), 
@@ -82,13 +75,16 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerMaxOutput = 1;
         
         // PID coefficients for shooter motors
-        shooterP = 3.78e-04;
-        shooterI = 0;
+        shooterP = 3e-4;
+        shooterI = 1e-8;
         shooterD = 0;
         shooterIZone = 0;
-        shooterFF = 0.0023097;
+        shooterFF = 2.2e-4;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
+
+       
+        
         
         //Initialize the motors
         leftShooterMotor = new CANSparkMax(LEFT_SHOOTER_MOTOR_ID, MotorType.kBrushless);
@@ -173,16 +169,17 @@ public class TurbotakeSubsystem extends SubsystemBase{
     
     // commands the shooter to a target velocity
     public void setShooterVelocity(double velocity){
-        System.out.println("shooter ran");
+        System.out.println("RUNNING SHOOTERS");
         leftShooterPidController.setReference(velocity * SPIN_RATIO, CANSparkMax.ControlType.kVelocity);
         rightShooterPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
 
     }
     
     // commands the indexer to a target velocity
-    public void setIndexerVelocity(double velocity){
-        indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
-    }
+    // public void setIndexerVelocity(double velocity){
+    //     System.out.println("RUNNING INDEXER");
+    //     indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+    // }
     
    
    
@@ -206,23 +203,25 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
     
     public void setIndexerPercent(double percent){
+        System.out.println("RUNNING INDEXER");
         indexerPidController.setReference(percent, ControlType.kDutyCycle);
     }
-    
-    // Commands
 
-    public Command indexerSysIdCommand(){
-        return Commands.sequence(
-                indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5), 
-                indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(5),
-                indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5),
-                indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-        );
+    //turns off shooter and sets Iaccum to 0 to reset I term
+    public void turnoffShooter(){
+        setShooterPercent(0);
+        leftShooterPidController.setIAccum(0);
+        rightShooterPidController.setIAccum(0);
+    }
+
+    //turn off indexer and sets Iaccum to 0 to reset I term
+    public void turnoffIndexer(){
+        setIndexerPercent(0);
+        indexerPidController.setIAccum(0);
+
     }
     
+    // Command 
     public Command shooterSysIdCommand(){
         return Commands.sequence(
                 shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),
