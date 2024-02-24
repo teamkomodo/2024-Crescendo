@@ -29,10 +29,11 @@ public class RobotContainer {
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT); 
+    private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_XBOX_PORT);
 
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
-    public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
+    private final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
     private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();    
 
@@ -42,14 +43,14 @@ public class RobotContainer {
     
     private void configureBindings() {
 
-        //SysID testing binds
-        Trigger rightTrigger = driverController.rightTrigger();
+    // Driver Controls
 
-        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+        Trigger driverRT = driverController.rightTrigger();
+        driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
-        Trigger startButton = driverController.start();
-        startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
+        Trigger driverStart = driverController.start();
+        driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
         // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
@@ -60,24 +61,47 @@ public class RobotContainer {
             )
         );
 
-        //motor buttons
-        Trigger rightBumper = driverController.rightBumper();//intake
-        Trigger leftBumper = driverController.leftBumper();//speaker
-        Trigger xbutton = driverController.x();//trap/amp button
-       
-
-        //shooter velocity
-        leftBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(2500)));
-        leftBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffShooter()));
-
-
-        //indexer duty cycle
-        rightBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)));
-        rightBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
-        //trap/amp
-        xbutton.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-1)));
-        xbutton.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
+    // Operator Controls
         
+        double shooterVelocity = 2000;
+        double climberVelocity = 50;
+
+        Trigger operatorA = operatorController.a();
+        operatorA.onTrue(new StowPositionCommand(armSubsystem));
+
+        Trigger operatorB = operatorController.b();
+        operatorB.onTrue(new IntakePositionCommand(armSubsystem));
+
+        Trigger operatorX = operatorController.x();
+        operatorX.onTrue(new AmpPositionCommand(armSubsystem));
+
+        Trigger operatorY = operatorController.y();
+        operatorY.onTrue(new SpeakerPositionCommand(armSubsystem));
+
+        Trigger operatorRB = operatorController.rightBumper();
+        operatorRB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+
+        Trigger operatorLB = operatorController.leftBumper();
+        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        
+        Trigger operatorRT = operatorController.rightTrigger();
+        operatorRT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(shooterVelocity), () -> turbotakeSubsystem.setShooterPercent(0)));
+
+        Trigger operatorLT = operatorController.leftTrigger();
+        operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
+        
+        Trigger operatorRS = operatorController.rightStick();
+        operatorRS.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getRightX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
+
+        Trigger operatorLS = operatorController.leftStick();
+        operatorLS.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightX()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
+        
+        Trigger operatorStart = operatorController.start();
+        operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+
+        Trigger operatorBack = operatorController.back();
+        operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+
     }
     
     public Command getAutonomousCommand() {

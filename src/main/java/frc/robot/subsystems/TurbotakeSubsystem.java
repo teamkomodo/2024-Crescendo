@@ -181,22 +181,11 @@ public class TurbotakeSubsystem extends SubsystemBase{
     //     indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
     // }
     
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
     public void setShooterPercent(double percent){
-        setShootPercent(percent, 1.0);
+        setShooterPercent(percent, 1.0);
     }
     
-    public void setShootPercent(double percent, double spinRatio) {
+    public void setShooterPercent(double percent, double spinRatio) {
         leftShooterPidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
         rightShooterPidController.setReference(percent, ControlType.kDutyCycle);
         
