@@ -20,7 +20,7 @@ public final class Constants {
 
 // Controls
     public static final int DRIVER_XBOX_PORT = 0;
-    public static final int OPERATOR_XBOX_PORT = 0;
+    public static final int OPERATOR_XBOX_PORT = 1;
 
 // Turbotake
     //Motors

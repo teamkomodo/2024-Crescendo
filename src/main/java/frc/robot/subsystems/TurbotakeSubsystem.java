@@ -149,6 +149,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     @Override
     public void periodic(){
         updateShooterTelemetry();
+        checkNoteIndexer();
     }
     
 
@@ -211,17 +212,17 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
 
     //turn off indexer and sets Iaccum to 0 to reset I term
-    public void turnoffIndexer(){
+    public void turnOffIndexer(){
         setIndexerPercent(0);
         indexerPidController.setIAccum(0);
 
     }
 
-    public void stopIndexer(){
+    public void checkNoteIndexer(){
         pieceLoadedAtLastCheck = pieceLoaded;
         pieceLoaded = isPieceDetected();
         if(!pieceLoadedAtLastCheck && pieceLoaded){
-            turnoffIndexer();
+            turnOffIndexer();
         }
     }
     
