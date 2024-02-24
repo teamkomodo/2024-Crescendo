@@ -153,6 +153,19 @@ public final class Constants {
     public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
     public static final double FIELD_LENGTH = 1654;
 
+    // Climber
+    public static final int CLIMBER_MOTOR_1_ID = 38;
+    public static final int CLIMBER_MOTOR_2_ID = 39;
+
+    public static final int CLIMBER_MOTOR_1_BEAM_BREAK_ID = 6;
+    public static final int CLIMBER_MOTOR_2_BEAM_BREAK_ID = 7;
+
+    public static final double CLIMBER_MIN_POSITION = 0;
+    public static final double CLIMBER_MAX_POSITION = 80; //FIXME: change later
+
+    public static final double CLIMBER_PRE_CLIMB_POSITION = 100; //FIXME: change later
+    public static final double CLIMBER_POST_CLIMB_POSITION = -20; //FIXME: change later
+
     public static final int LED_CHANNEL = 0;
 
 }

@@ -14,11 +14,9 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurbotakeSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,28 +25,22 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.Constants.*;
 
-public class RobotContainer {
+public class RobotContainer {    
 
-    // Subsystems
+    //Inputs Devices
+    private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT); 
+
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
-
-    //Inputs Devices
-    private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
-    
+    private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();    
 
     public RobotContainer() {
-        //NamedCommands.registerCommand("ExampleCommand", null);
-
         configureBindings();
-
     }
     
     private void configureBindings() {
-        //testing binds
-
 
         //SysID testing binds
         Trigger rightTrigger = driverController.rightTrigger();
@@ -91,4 +83,5 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return null;
     }
+
 }
