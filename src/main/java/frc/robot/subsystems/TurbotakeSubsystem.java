@@ -35,6 +35,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final SparkPIDController indexerPidController;
     private final SparkPIDController leftShooterPidController;
     private final SparkPIDController rightShooterPidController;
+    
     //defines beam break sensor
     private final DigitalInput beamBreakSensor;
     
@@ -50,17 +51,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getBooleanTopic("piecedetected").publish();
     
     //PID values for indexer
-    private double indexerP, indexerI, indexerD, indexerIAccumulator, indexerFF, indexerMinOutput, indexerMaxOutput;
+    private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
     //PID values for shooter motors
-    private double shooterP, shooterI, shooterD, shooterIAccumulator, shooterFF, shooterMinOutput, shooterMaxOutput;
+    private double shooterP, shooterI, shooterD, shooterIZone, shooterFF, shooterMinOutput, shooterMaxOutput;
     
-    public final SysIdRoutine indexerRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(), 
-            new SysIdRoutine.Mechanism(
-            (voltage) -> setIndexerVelocity(voltage.in(Units.Volts)),
-            null,
-            this
-    ));
     
     public final SysIdRoutine shooterRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(), 
@@ -79,25 +73,29 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerP = 1;
         indexerI = 0;
         indexerD = 0;
-        indexerIAccumulator = 0;
+        indexerIZone = 0;
         indexerFF = 0;
         indexerMinOutput = -1;
         indexerMaxOutput = 1;
         
         // PID coefficients for shooter motors
-        shooterP = 3.78e-04;
-        shooterI = 0;
+        shooterP = 3e-4;
+        shooterI = 1e-8;
         shooterD = 0;
-        shooterIAccumulator = 0;
-        shooterFF = 0/*0.0023097*/;
+        shooterIZone = 0;
+        shooterFF = 2.2e-4;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
+
+       
+        
         
         //Initialize the motors
         leftShooterMotor = new CANSparkMax(LEFT_SHOOTER_MOTOR_ID, MotorType.kBrushless);
         rightShooterMotor = new CANSparkMax(RIGHT_SHOOTER_MOTOR_ID, MotorType.kBrushless);
         indexerMotor = new CANSparkMax(INDEXER_MOTOR_ID, MotorType.kBrushless);
         
+        //inverts motors to correct orientation
         leftShooterMotor.setInverted(false);
         rightShooterMotor.setInverted(true);
         indexerMotor.setInverted(true);
@@ -121,7 +119,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerPidController.setP(indexerP);
         indexerPidController.setI(indexerI);
         indexerPidController.setD(indexerD);
-        indexerPidController.setIAccum(indexerIAccumulator);
+        indexerPidController.setIZone(indexerIZone);
         indexerPidController.setFF(indexerFF);
         indexerPidController.setOutputRange(indexerMinOutput, indexerMaxOutput);
         
@@ -129,19 +127,19 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterPidController = leftShooterMotor.getPIDController();
         rightShooterPidController = rightShooterMotor.getPIDController();
         
-        //sets PID values for shooter1
+        //sets PID values for left shooter
         leftShooterPidController.setP(shooterP);
-        leftShooterPidController.setP(shooterI);
-        leftShooterPidController.setP(shooterD);
-        leftShooterPidController.setIAccum(shooterIAccumulator);
+        leftShooterPidController.setI(shooterI);
+        leftShooterPidController.setD(shooterD);
+        leftShooterPidController.setIZone(shooterIZone);
         leftShooterPidController.setFF(shooterFF);
         leftShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
-        //sets PID values for shooter2
+        //sets PID values for right shooter
         rightShooterPidController.setP(shooterP);
-        rightShooterPidController.setP(shooterI);
-        rightShooterPidController.setP(shooterD);
-        rightShooterPidController.setIAccum(shooterIAccumulator);
+        rightShooterPidController.setI(shooterI);
+        rightShooterPidController.setD(shooterD);
+        rightShooterPidController.setIZone(shooterIZone);
         rightShooterPidController.setFF(shooterFF);
         rightShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
@@ -185,14 +183,17 @@ public class TurbotakeSubsystem extends SubsystemBase{
     
     // commands the shooter to a target velocity
     public void setShooterVelocity(double velocity){
+        System.out.println("RUNNING SHOOTERS");
         leftShooterPidController.setReference(velocity * SPIN_RATIO, CANSparkMax.ControlType.kVelocity);
         rightShooterPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+
     }
     
     // commands the indexer to a target velocity
-    public void setIndexerVelocity(double velocity){
-        indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
-    }
+    // public void setIndexerVelocity(double velocity){
+    //     System.out.println("RUNNING INDEXER");
+    //     indexerPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+    // }
     
     public void setShooterPercent(double percent){
         setShooterPercent(percent, 1.0);
@@ -201,26 +202,29 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public void setShooterPercent(double percent, double spinRatio) {
         leftShooterPidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
         rightShooterPidController.setReference(percent, ControlType.kDutyCycle);
+        
     }
     
     public void setIndexerPercent(double percent){
+        System.out.println("RUNNING INDEXER");
         indexerPidController.setReference(percent, ControlType.kDutyCycle);
     }
-    
-    // Commands
 
-    public Command indexerSysIdCommand(){
-        return Commands.sequence(
-                indexerRoutine.quasistatic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5), 
-                indexerRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
-                new WaitCommand(5),
-                indexerRoutine.dynamic(SysIdRoutine.Direction.kForward),
-                new WaitCommand(5),
-                indexerRoutine.dynamic(SysIdRoutine.Direction.kReverse)
-        );
+    //turns off shooter and sets Iaccum to 0 to reset I term
+    public void turnoffShooter(){
+        setShooterPercent(0);
+        leftShooterPidController.setIAccum(0);
+        rightShooterPidController.setIAccum(0);
+    }
+
+    //turn off indexer and sets Iaccum to 0 to reset I term
+    public void turnoffIndexer(){
+        setIndexerPercent(0);
+        indexerPidController.setIAccum(0);
+
     }
     
+    // Command 
     public Command shooterSysIdCommand(){
         return Commands.sequence(
                 shooterRoutine.quasistatic(SysIdRoutine.Direction.kForward),

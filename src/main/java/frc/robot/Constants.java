@@ -29,6 +29,7 @@ public final class Constants {
     public static final int INDEXER_MOTOR_ID = 35;
     //Beam Break Sensor
     public static final int INTAKE_BEAM_BREAK_PORT = 3;
+
     //Constants
     public static final double INDEXER_SPEED = 0.7;
     public static final double SHOOTER_MAX_VELOCITY = 2900;

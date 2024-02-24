@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.ArmSubsystem;
-
 import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
@@ -33,7 +30,7 @@ public class RobotContainer {
     // Subsystems
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
-    public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
+    private final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
     private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem);
