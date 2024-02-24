@@ -37,15 +37,12 @@ public class RobotContainer {
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT);    
     
-    private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
         //NamedCommands.registerCommand("ExampleCommand", null);
 
         configureBindings();
 
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser",autoChooser);
     }
     
     private void configureBindings() {
@@ -85,9 +82,27 @@ public class RobotContainer {
         rightBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
         leftBumper.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(1), () -> turbotakeSubsystem.setIndexerVelocity(0), turbotakeSubsystem));
 
+        Trigger rightTrigger = driverController.rightTrigger();
+        Trigger leftTrigger = driverController.leftTrigger();
+        Trigger rightBumper = driverController.rightBumper();
+        Trigger leftBumper = driverController.leftBumper();
+        
+        // Elevator/joint position commands
+        aButton.onTrue(new AmpPositionCommand(armSubsystem));
+        bButton.onTrue(new IntakePositionCommand(armSubsystem));
+        xButton.onTrue(new SpeakerPositionCommand(armSubsystem));
+        yButton.onTrue(new StowPositionCommand(armSubsystem));
+        rightTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.5)));
+        rightTrigger.onFalse(Commands.runOnce(() -> {armSubsystem.setJointMotorPercent(0); armSubsystem.holdJointPosition();}));
+        leftTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.5)));
+        leftTrigger.onFalse(Commands.runOnce(() -> {armSubsystem.setJointMotorPercent(0); armSubsystem.holdJointPosition();}));
+        rightBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(0.5)));
+        rightBumper.onFalse(Commands.runOnce(() -> {armSubsystem.setElevatorMotorPercent(0); armSubsystem.holdElevatorPosition();}));
+        leftBumper.onTrue(Commands.runOnce(() -> armSubsystem.setElevatorMotorPercent(-0.5)));
+        leftBumper.onFalse(Commands.runOnce(() -> {armSubsystem.setElevatorMotorPercent(0); armSubsystem.holdElevatorPosition();}));
     }
     
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return null;
     }
 }
