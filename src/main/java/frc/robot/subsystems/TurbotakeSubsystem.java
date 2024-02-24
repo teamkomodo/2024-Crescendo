@@ -156,7 +156,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     // Returns true if a piece has triggered the beambreak
     public boolean isPieceDetected(){
         // The sensor returns false when the beam is broken
-        return !turbotakeNoteSensor.get();
+        return turbotakeNoteSensor.get();
     }
 
     public double getShooterVelocity() {
