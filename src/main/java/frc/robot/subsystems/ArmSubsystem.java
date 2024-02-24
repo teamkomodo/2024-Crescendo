@@ -75,9 +75,9 @@ public class ArmSubsystem extends SubsystemBase {
 
   private final CANSparkMax jointSecondMotor;
 
-  private double jointP = 0.1;
-  private double jointI = 0.000005;
-  private double jointD = 0.5;
+  private double jointP = 0.05;
+  private double jointI = 0.0000005;
+  private double jointD = 1.3;
   private double jointMaxIAccum = 0;
 
   double jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
@@ -345,10 +345,11 @@ public void holdElevatorPosition() {
   }
 
   public Command jointSpeakerPositionCommand() {
-    jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
-    double targetAngle = Math.atan(JOINT_AVERAGE_SHOOT_HEIGHT / robotDistanceFromSpeaker);
-    double jointTargetAngle = targetAngle + TURBOTAKE_JOINT_RADIAN_OFFSET;
-    return this.runOnce(() -> setJointPosition(jointTargetAngle / JOINT_RADIAN_PER_REVOLUTION));
+    return this.runOnce(() -> setJointPosition(JOINT_SPEAKER_POSITION));
+    // jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
+    // double targetAngle = Math.atan(JOINT_AVERAGE_SHOOT_HEIGHT / robotDistanceFromSpeaker);
+    // double jointTargetAngle = targetAngle + TURBOTAKE_JOINT_RADIAN_OFFSET;
+    // return this.runOnce(() -> setJointPosition(jointTargetAngle / JOINT_RADIAN_PER_REVOLUTION));
   }
 
   public Command jointTrapPositionCommand( ) {

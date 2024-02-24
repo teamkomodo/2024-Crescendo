@@ -50,8 +50,8 @@ public class RobotContainer {
         // Elevator/joint position commands
         aButton.onTrue(new AmpPositionCommand(armSubsystem));
         bButton.onTrue(new IntakePositionCommand(armSubsystem));
-        xButton.onTrue(armSubsystem.elevatorAmpPositionCommand());
-        yButton.onTrue(armSubsystem.elevatorSpeakerPositionCommand());
+        xButton.onTrue(new SpeakerPositionCommand(armSubsystem));
+        yButton.onTrue(new StowPositionCommand(armSubsystem));
         rightTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0.5)));
         rightTrigger.onFalse(Commands.runOnce(() -> {armSubsystem.setJointMotorPercent(0); armSubsystem.holdJointPosition();}));
         leftTrigger.onTrue(Commands.runOnce(() -> armSubsystem.setJointMotorPercent(-0.5)));
