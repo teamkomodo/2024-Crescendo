@@ -4,22 +4,37 @@
 
 package frc.robot;
 
+import frc.robot.commands.positions.AmpPositionCommand;
+import frc.robot.commands.positions.IntakePositionCommand;
+import frc.robot.commands.positions.SpeakerPositionCommand;
+import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.commands.positions.TrapPositionCommand;
+
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.TurbotakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 
-import static frc.robot.Constants.*;
+import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class RobotContainer {
+import static frc.robot.Constants.*;
 
-    // Subsystems
-    private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+public class RobotContainer {    
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT); 
+
+    private final ArmSubsystem armSubsystem = new ArmSubsystem();
+    private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
+    public final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
+    private final LEDSubsystem ledSubsystem = new LEDSubsystem();
+    private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();    
 
     public RobotContainer() {
         configureBindings();
@@ -27,21 +42,46 @@ public class RobotContainer {
     
     private void configureBindings() {
 
-        Trigger leftTrigger = driverController.leftTrigger();
+        //SysID testing binds
         Trigger rightTrigger = driverController.rightTrigger();
-        Trigger xButton = driverController.x();
-        Trigger bButton = driverController.b();
-        
-        rightTrigger.onTrue(climberSubsystem.climbPositionCommand());
-        leftTrigger.onTrue(climberSubsystem.climb());
-        xButton.onTrue(Commands.run(() -> climberSubsystem.setMotorDutyCycle(-1.0)));
-        xButton.onFalse(Commands.run(() -> {climberSubsystem.setMotorDutyCycle(0); climberSubsystem.holdMotorPosition();}));
-        bButton.onTrue(Commands.run(() -> climberSubsystem.setMotorDutyCycle(1.0)));
-        bButton.onFalse(Commands.run(() -> {climberSubsystem.setMotorDutyCycle(0); climberSubsystem.holdMotorPosition();}));
-    }
 
+        rightTrigger.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        rightTrigger.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+
+        Trigger startButton = driverController.start();
+        startButton.onTrue(drivetrainSubsystem.zeroGyroCommand());
+
+        // deadband and curves are applied in command
+        drivetrainSubsystem.setDefaultCommand(
+            drivetrainSubsystem.joystickDriveCommand(
+                () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
+                () -> ( -driverController.getLeftX() ), // -X on left joystick is +Y for robot
+                () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
+            )
+        );
+
+        //motor buttons
+        Trigger rightBumper = driverController.rightBumper();//intake
+        Trigger leftBumper = driverController.leftBumper();//speaker
+        Trigger xbutton = driverController.x();//trap/amp button
+       
+
+        //shooter velocity
+        leftBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(2500)));
+        leftBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffShooter()));
+
+
+        //indexer duty cycle
+        rightBumper.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)));
+        rightBumper.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
+        //trap/amp
+        xbutton.onTrue(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-1)));
+        xbutton.onFalse(Commands.runOnce(() -> turbotakeSubsystem.turnoffIndexer()));
+        
+    }
+    
     public Command getAutonomousCommand() {
         return null;
     }
-    
+
 }
