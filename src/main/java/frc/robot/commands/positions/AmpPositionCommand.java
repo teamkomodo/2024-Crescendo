@@ -25,6 +25,11 @@ public class AmpPositionCommand extends DynamicCommand{
                 armSubsystem.elevatorZeroCommand()
             );
         }
+
+        if (armSubsystem.getCommandedPosition() == "amp") {
+            return null;
+        }
+
         if (armSubsystem.getJointPosition() < 2.5) {
             return new SequentialCommandGroup(
                 armSubsystem.jointAmpPositionCommand(),

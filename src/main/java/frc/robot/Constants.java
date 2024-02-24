@@ -20,7 +20,7 @@ public final class Constants {
 
 // Controls
     public static final int DRIVER_XBOX_PORT = 0;
-    public static final int OPERATOR_XBOX_PORT = 1;
+    public static final int OPERATOR_XBOX_PORT = 0;
 
 // Turbotake
     //Motors
@@ -102,8 +102,9 @@ public final class Constants {
     public static final double JOINT_STOW_POSITION = 8;
     public static final double JOINT_AMP_POSITION = 26;
     public static final double JOINT_SPEAKER_POSITION = 16;
+    public static final double JOINT_PRE_INTAKE_POSITION = 4;
     public static final double JOINT_TRAP_POSITION = 45;
-    public static final double JOINT_INTAKE_POSITION = 2;
+    public static final double JOINT_INTAKE_POSITION = 1.5;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         JOINT_STOW_POSITION,
@@ -133,13 +134,13 @@ public final class Constants {
 
     // Position in rotations of the motor shaft before gearbox
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
-    public static final double ELEVATOR_MAX_POSITION = 65; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 63; // Code stop
 
     public static final double ELEVATOR_STOW_POSITION = 0;
-    public static final double ELEVATOR_AMP_POSITION = 65;
+    public static final double ELEVATOR_AMP_POSITION = 63;
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
-    public static final double ELEVATOR_INTAKE_POSITION = 65;
+    public static final double ELEVATOR_INTAKE_POSITION = 63;
     public static final double ELEVATOR_BUFFER_DISTANCE = 0;
 
     public static final double[] ELEVATOR_POSITIONS_ORDERED = { // Order in array corresponds to selector position

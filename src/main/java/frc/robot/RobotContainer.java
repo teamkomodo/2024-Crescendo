@@ -67,22 +67,22 @@ public class RobotContainer {
         double climberVelocity = 50;
 
         Trigger operatorA = operatorController.a();
-        operatorA.onTrue(new StowPositionCommand(armSubsystem));
+        operatorA.onTrue(new IntakePositionCommand(armSubsystem));
 
         Trigger operatorB = operatorController.b();
-        operatorB.onTrue(new IntakePositionCommand(armSubsystem));
+        operatorB.onTrue(new StowPositionCommand(armSubsystem));
 
         Trigger operatorX = operatorController.x();
-        operatorX.onTrue(new AmpPositionCommand(armSubsystem));
+        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem));
 
         Trigger operatorY = operatorController.y();
-        operatorY.onTrue(new SpeakerPositionCommand(armSubsystem));
+        operatorY.onTrue(new AmpPositionCommand(armSubsystem));
 
         Trigger operatorRB = operatorController.rightBumper();
-        operatorRB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorRB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
 
         Trigger operatorLB = operatorController.leftBumper();
-        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
         
         Trigger operatorRT = operatorController.rightTrigger();
         operatorRT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(shooterVelocity), () -> turbotakeSubsystem.setShooterPercent(0)));

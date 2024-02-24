@@ -28,13 +28,19 @@ public class IntakePositionCommand extends DynamicCommand{
                 armSubsystem.elevatorZeroCommand()
             );
         }
+
+        if (armSubsystem.getCommandedPosition() == "intake") {
+            return null;
+        }
         
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),
+            armSubsystem.jointSpeakerPositionCommand(),
             new WaitCommand(0.3),
-            armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorIntakePositionCommand(),
             new WaitCommand(0.3),
+            armSubsystem.jointPreIntakePositionCommand(),
+            new WaitCommand(0.1),
             armSubsystem.jointIntakePositionCommand()
         );
     }

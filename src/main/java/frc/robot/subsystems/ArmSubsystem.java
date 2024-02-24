@@ -76,8 +76,8 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax jointSecondMotor;
 
   private double jointP = 0.05;
-  private double jointI = 0.00000005;
-  private double jointD = 2;
+  private double jointI = 0.000000005;
+  private double jointD = 3;
   private double jointMaxIAccum = 0;
 
   double jointVerticalPosition = elevatorExtension * Math.sin(jointAngleRadians);
@@ -93,6 +93,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   private boolean atJointMaxLimit = false;
   private boolean atJointMinLimit = false;
+
+  private String commandedPosition = "stow";
 
   private final BooleanPublisher jointZeroedPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("jointzeroed").publish();
   private final DoublePublisher jointPositionPublisher = NetworkTableInstance.getDefault().getTable("arm").getDoubleTopic("jointposition").publish();
@@ -341,14 +343,17 @@ public void holdElevatorPosition() {
   }
 
   public Command jointStowPositionCommand() {
+    commandedPosition = "stow";
     return this.runOnce(() -> setJointPosition(JOINT_STOW_POSITION));
   }
 
   public Command jointAmpPositionCommand() {
+    commandedPosition = "amp";
     return this.runOnce(() -> setJointPosition(JOINT_AMP_POSITION));
   }
 
   public Command jointSpeakerPositionCommand() {
+    commandedPosition = "speaker";
     return this.runOnce(() -> setJointPosition(JOINT_SPEAKER_POSITION));
     // jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
     // double targetAngle = Math.atan(JOINT_AVERAGE_SHOOT_HEIGHT / robotDistanceFromSpeaker);
@@ -361,7 +366,12 @@ public void holdElevatorPosition() {
   }
 
   public Command jointIntakePositionCommand() {
+    commandedPosition = "intake";
     return this.runOnce(() -> setJointPosition(JOINT_INTAKE_POSITION));
+  }
+
+  public Command jointPreIntakePositionCommand() {
+    return this.runOnce(() -> setJointPosition(JOINT_PRE_INTAKE_POSITION));
   }
 
   public Command elevatorZeroPositionCommand() {
@@ -494,5 +504,9 @@ public void holdElevatorPosition() {
 
   public boolean isElevatorZeroed() {
       return elevatorZeroed;
+  }
+
+  public String getCommandedPosition() {
+    return commandedPosition;
   }
 }
