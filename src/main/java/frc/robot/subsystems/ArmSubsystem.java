@@ -319,10 +319,14 @@ public void setElevatorPosition(double position) {
 }
 
 public void holdJointPosition() {
+  if (atJointMaxLimit || atJointMinLimit)
+    return;
   setJointPosition(jointEncoder.getPosition());
 }
 
 public void holdElevatorPosition() {
+  if (atElevatorMaxLimit || atElevatorMinLimit)
+    return;
   setElevatorPosition(elevatorEncoder.getPosition());
 }
 
