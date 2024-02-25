@@ -147,8 +147,6 @@ public class DrivetrainSubsystem implements Subsystem {
             this
         );
 
-        ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,
                 FRONT_LEFT_STEER_MOTOR_ID,
@@ -188,8 +186,6 @@ public class DrivetrainSubsystem implements Subsystem {
                 new PIDGains(2 * 0, 0, 0),
                 new FFGains(0.1751, 3.1887, 0.31847),
                 drivetrainNT.getSubTable("backright"));
-
-        tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
         poseEstimator = new SwerveDrivePoseEstimator(
             kinematics,
@@ -363,7 +359,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Rotation2d getAdjustedRotation() {
-        return navX.getRotation2d().plus(Rotation2d.fromRadians(rotationOffsetRadians));
+        return navX.getRotation2d().plus(Rotation2d.fromRadians(rotationOffsetRadians)).rotateBy(Rotation2d.fromDegrees(180));
     }
 
     public ChassisSpeeds getChassisSpeeds() {

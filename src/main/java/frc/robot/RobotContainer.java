@@ -17,7 +17,10 @@ import frc.robot.subsystems.TurbotakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -26,6 +29,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.*;
 
 public class RobotContainer {    
+
+    private final SendableChooser<Command> autoChooser;
 
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT); 
@@ -38,7 +43,21 @@ public class RobotContainer {
     private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();    
 
     public RobotContainer() {
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData(autoChooser);
         configureBindings();
+    }
+
+    private void configureNamedCommands() {
+        NamedCommands.registerCommand("speakerposition", new SpeakerPositionCommand(armSubsystem));
+        NamedCommands.registerCommand("shoot", Commands.sequence(
+            turbotakeSubsystem.spinUpFlywheelCommand(1500, 50),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.5)),
+            Commands.waitSeconds(1),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0)),
+            Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0))
+        ));
+        NamedCommands.registerCommand("stowposition", new StowPositionCommand(armSubsystem));
     }
     
     private void configureBindings() {
@@ -73,22 +92,27 @@ public class RobotContainer {
         operatorB.onTrue(new StowPositionCommand(armSubsystem));
 
         Trigger operatorX = operatorController.x();
-        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem));
+        operatorX.onTrue(new AmpPositionCommand(armSubsystem));
 
         Trigger operatorY = operatorController.y();
-        operatorY.onTrue(new AmpPositionCommand(armSubsystem));
+        operatorY.onTrue(new SpeakerPositionCommand(armSubsystem));
 
         Trigger operatorRB = operatorController.rightBumper();
-        operatorRB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        // operatorRB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorRB.whileTrue(Commands.either( Commands.run(() -> turbotakeSubsystem.setIndexerPercent(1.0)), Commands.sequence(
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.5)),
+            Commands.waitUntil(() -> (turbotakeSubsystem.isPieceDetected())),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
+        ), () -> turbotakeSubsystem.isPieceDetected() ).finallyDo(() -> turbotakeSubsystem.setIndexerPercent(0)));
 
         Trigger operatorLB = operatorController.leftBumper();
-        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
         
         Trigger operatorRT = operatorController.rightTrigger();
         operatorRT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(shooterVelocity), () -> turbotakeSubsystem.setShooterPercent(0)));
 
         Trigger operatorLT = operatorController.leftTrigger();
-        operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
+        operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-0.2), () -> turbotakeSubsystem.setShooterPercent(0)));
         
         Trigger operatorRS = operatorController.rightStick();
         operatorRS.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getRightX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
@@ -105,7 +129,7 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
-        return null;
+        return autoChooser.getSelected();
     }
 
 }

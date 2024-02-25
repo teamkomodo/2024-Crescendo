@@ -1,10 +1,7 @@
 package frc.robot.commands.positions;
 
-import static frc.robot.Constants.ELEVATOR_INTAKE_POSITION;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.DynamicCommand;
@@ -36,7 +33,7 @@ public class IntakePositionCommand extends DynamicCommand{
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),
             armSubsystem.jointSpeakerPositionCommand(),
-            new WaitCommand(0.3),
+            new WaitCommand(0.1),
             armSubsystem.elevatorIntakePositionCommand(),
             new WaitCommand(0.3),
             armSubsystem.jointPreIntakePositionCommand(),

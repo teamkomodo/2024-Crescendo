@@ -47,7 +47,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final DoublePublisher indexerVelocityPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("indexervelocity").publish();
     
     //beam break sensor telemetry
-    private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getBooleanTopic("piecedetected").publish();
+    private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getBooleanTopic("piecedetected").publish();
     
     //PID values for indexer
     private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
@@ -164,7 +164,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     // Returns true if a piece has triggered the beambreak
     public boolean isPieceDetected(){
         // The sensor returns false when the beam is broken
-        return turbotakeNoteSensor.get();
+        return !turbotakeNoteSensor.get();
     }
 
     public double getShooterVelocity() {

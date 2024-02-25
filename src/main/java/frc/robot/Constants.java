@@ -99,7 +99,7 @@ public final class Constants {
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 8;
+    public static final double JOINT_STOW_POSITION = 7;
     public static final double JOINT_AMP_POSITION = 26;
     public static final double JOINT_SPEAKER_POSITION = 16;
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
