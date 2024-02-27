@@ -33,8 +33,10 @@ public final class Constants {
     public static final double INDEXER_SPEED = 0.7;
     public static final double SHOOTER_SPEED = 1;
 
+    //duty cycle
     public static final double AMP_SPEED = 0.75;
-    public static final double SPEAKER_SPEED = 1;
+    //rpm
+    public static final double SPEAKER_SPEED = 2500;
     public static final double SPIN_RATIO = 1.0;
 
     public static final double LINEAR_SLOW_MODE_MODIFIER = 0.5;
@@ -99,7 +101,7 @@ public final class Constants {
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 8;
+    public static final double JOINT_STOW_POSITION = 8.3;
     public static final double JOINT_AMP_POSITION = 26;
     public static final double JOINT_SPEAKER_POSITION = 16;
     public static final double JOINT_PRE_INTAKE_POSITION = 4;

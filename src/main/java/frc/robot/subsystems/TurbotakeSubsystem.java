@@ -254,7 +254,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
 
     public Command shootForSpeaker(){
         return Commands.sequence(
-            Commands.runOnce(() -> setShooterVelocity(2500)),
+            Commands.runOnce(() -> setShooterVelocity(SPEAKER_SPEED)),
             Commands.waitUntil(() -> (checkShooterSpeed())),
             Commands.runOnce(() -> setIndexerPercent(1)),
             Commands.waitUntil(() -> (!isPieceDetected())),
