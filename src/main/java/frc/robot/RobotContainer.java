@@ -78,17 +78,17 @@ public class RobotContainer {
         Trigger operatorY = operatorController.y();
         operatorY.onTrue(new AmpPositionCommand(armSubsystem));
 
-        //outtake indexer
+        //amp
         Trigger operatorRB = operatorController.rightBumper();
-        operatorRB.whileTrue(Commands.runEnd(() ->  turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorRB.whileTrue(turbotakeSubsystem.shootForAmp());
 
         //intake indexer
         Trigger operatorLB = operatorController.leftBumper();
         operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
         
-        //outtake shooter
+        //speaker
         Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(shooterVelocity), () -> turbotakeSubsystem.setShooterPercent(0)));
+        operatorRT.whileTrue(turbotakeSubsystem.shootForSpeaker());
 
         //intake shooter
         Trigger operatorLT = operatorController.leftTrigger();

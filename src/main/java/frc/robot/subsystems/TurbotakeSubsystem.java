@@ -225,6 +225,14 @@ public class TurbotakeSubsystem extends SubsystemBase{
             turnOffIndexer();
         }
     }
+
+    public boolean checkShooterSpeed(){
+        if(leftShooterEncoder.getVelocity() == 2500){
+            return true;
+        } else{
+            return false;
+        }
+    }
     
     // Command 
     public Command shooterSysIdCommand(){
@@ -243,5 +251,32 @@ public class TurbotakeSubsystem extends SubsystemBase{
         // Command will run until the flywheel has spun up
         return Commands.run(() -> setShooterVelocity(speed), this).until(() -> (rightShooterEncoder.getVelocity() - speed < threshold));
     }
+
+    public Command shootForSpeaker(){
+        return Commands.sequence(
+            Commands.runOnce(() -> setShooterVelocity(2500)),
+            Commands.waitUntil(() -> (checkShooterSpeed())),
+            Commands.runOnce(() -> setIndexerPercent(1)),
+            Commands.waitUntil(() -> (!isPieceDetected())),
+            Commands.runOnce(() -> turnOffIndexer()),
+            Commands.runOnce(() -> turnoffShooter())
+        ).finallyDo(() -> {
+            turnOffIndexer();
+            turnoffShooter();
+        });
+    }
+
+    public Command shootForAmp(){
+        return Commands.sequence(
+            Commands.waitUntil(() -> !isPieceDetected()),
+            Commands.runOnce(() -> setIndexerPercent(-1)),
+            Commands.waitUntil(() -> isPieceDetected()),
+            Commands.runOnce(() -> turnOffIndexer())
+        ).finallyDo(() -> {
+            turnOffIndexer();
+        });
+    }
+
+
     
 }
