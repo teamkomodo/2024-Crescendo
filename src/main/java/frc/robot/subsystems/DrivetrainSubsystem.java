@@ -137,13 +137,7 @@ public class DrivetrainSubsystem implements Subsystem {
             this::getChassisSpeeds,
             this::robotRelativeDrive,
             HOLONOMIC_PATH_FOLLOWER_CONFIG,
-            () -> {
-                Optional<Alliance> alliance = DriverStation.getAlliance();
-                if(alliance.isPresent()) {
-                    return alliance.get() == DriverStation.Alliance.Red;
-                }
-                return false;
-            },
+            ON_RED_ALLIANCE,
             this
         );
 

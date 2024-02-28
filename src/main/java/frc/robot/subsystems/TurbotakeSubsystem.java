@@ -66,6 +66,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
 
     private double filteredCurrent = 0;
     private double currentFilterConstant = 0.1;
+
+    private boolean pieceDetected = false;
+    private double beambreakPasses = 0;
     
     public TurbotakeSubsystem(){
         
@@ -149,10 +152,18 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public void periodic() {
         updateShooterTelemetry();
         filterCurrent();
+        countBeambreakPasses();
     }
 
     private void filterCurrent() {
         filteredCurrent = filteredCurrent * (1 - currentFilterConstant) + indexerMotor.getOutputCurrent() * currentFilterConstant;
+    }
+
+    private void countBeambreakPasses() {        
+        if (pieceDetected != isPieceDetected()) {
+            pieceDetected = isPieceDetected();
+            beambreakPasses += 1 * Math.signum(indexerEncoder.getVelocity());
+        }
     }
     
     public void updateShooterTelemetry(){
@@ -163,10 +174,22 @@ public class TurbotakeSubsystem extends SubsystemBase{
         filteredCurrentPublisher.set(filteredCurrent);
     }
     
-    // Returns true if a piece has triggered the beambreak
+    
+    /**
+     * @return If the beambreak sensor is triggered
+     */
     public boolean isPieceDetected(){
         // The sensor returns false when the beam is broken
         return !beamBreakSensor.get();
+    }
+
+    /**
+     * By counting the number of times the beam break sensor is triggered, we can determine if the turbotake has a piece even if the beam break is not currently triggered.
+     * 
+     * @return If the turbotake thinks it has a piece
+     */
+    public boolean hasPiece() {
+        return beambreakPasses % 2 == 1 || isPieceDetected();
     }
 
     public double getShooterVelocity() {
