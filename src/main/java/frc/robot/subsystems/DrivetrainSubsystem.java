@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -48,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -122,10 +124,11 @@ public class DrivetrainSubsystem implements Subsystem {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftPosition, frontRightPosition, backLeftPosition, backRightPosition);
     private final SwerveDrivePoseEstimator poseEstimator;
+    private final ProfiledPIDController rotationController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT));
     private final HolonomicDriveController driveController = new HolonomicDriveController(
         new PIDController(1, 0, 0),
         new PIDController(1, 0, 0),
-        new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT)));
+        rotationController);
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
@@ -395,6 +398,33 @@ public class DrivetrainSubsystem implements Subsystem {
         rotationOffsetRadians = -navX.getRotation2d().getRadians() + rotation.getRadians();
     }
 
+
+    /**
+     * Converts raw joystick values to speeds for the drivetrain
+     * <p>
+     * This method applies deadbands and curves to the joystick values and clamps the resultant speed to the linear velocity constraint
+     * 
+     * @param xAxis value from -1 to 1 representing the x-axis of the joystick
+     * @param yAxis value from -1 to 1 representing the y-axis of the joystick
+     * @param rotAxis value from -1 to 1 representing the rotation axis of the joystick
+     * @return a ChassisSpeeds object representing the speeds to be passed to the drivetrain
+     */
+    public ChassisSpeeds joystickAxesToChassisSpeeds(double xAxis, double yAxis, double rotAxis) {
+
+        double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis, XBOX_DEADBAND)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+        double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis, XBOX_DEADBAND)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+        double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis, XBOX_DEADBAND)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
+        
+        double totalVelocity = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
+
+        if (totalVelocity > LINEAR_VELOCITY_CONSTRAINT){
+            xVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+            yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+        }
+
+        return new ChassisSpeeds(xVelocity, yVelocity, rotVelocity);
+    }
+
     // Commands
 
     public Command enableSlowModeCommand() {
@@ -410,21 +440,10 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
-        double deadband = 0.06;
         return Commands.run(() -> {
 
-            double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis.getAsDouble(), deadband)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
-            
-            double totalVelocity = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
-
-            if (totalVelocity > LINEAR_VELOCITY_CONSTRAINT){
-                xVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
-                yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
-            }
-
-            drive(xVelocity, yVelocity, rotVelocity, true, true);
+            ChassisSpeeds speeds = joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), rotAxis.getAsDouble());
+            drive(speeds, true, true);
 
         }, this);
     }
@@ -466,37 +485,29 @@ public class DrivetrainSubsystem implements Subsystem {
         );    
     }
 
-    public Command pointToSpeakerCommand(){
-        return Commands.run(() ->{
-        double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.2f;
-        double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.55f;
+    public Command driveAndPointToSpeakerCommand(DoubleSupplier xAxis, DoubleSupplier yAxis) {
+        return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), 0)));
+    }
 
-        //improve this math eventually
-        //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
-        double actualAngle = Math.signum(yDistance) //above speaker means +1, below means -1
-        * (((Math.signum(xDistance) - 1) * -90) //in front of speaker (right) means 180, behind (left) means 0
-        - (Math.signum(xDistance) * (Math.atan(Math.abs(yDistance)/Math.abs(xDistance))))); //in front means neg, behind means pos
+    public Command pointToSpeakerCommand() {
+        return pointToSpeakerWithSpeedsCommand(() -> (new ChassisSpeeds()));
+    }
 
+    public Command pointToSpeakerWithSpeedsCommand(Supplier<ChassisSpeeds> speedsSupplier) {
+        return Commands.run(() -> {
 
-        //beyond this point is "idk how this works but im guessing this is how"
-        
-        //make a trajectory, start point current, end point same position but pointing at, those are only 2 waypoints, max vel and accel are the constraint constants
-        //may need to change
-        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-        poseEstimator.getEstimatedPosition(),
-        null,
-        new Pose2d(poseEstimator.getEstimatedPosition().getX(), poseEstimator.getEstimatedPosition().getY(), Rotation2d.fromDegrees(actualAngle)),
-        new TrajectoryConfig(LINEAR_VELOCITY_CONSTRAINT, LINEAR_ACCEL_CONSTRAINT));
+            double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.2f;
+            double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.55f;
 
-        //get the end position at time: end of the trajectory. may need to increase or decrease
-        Trajectory.State goal = trajectory.sample(trajectory.getTotalTimeSeconds());
-        
-        //Calculate what kind of speeds (x and y for all 4 motors) are required
-        //given the current position, goal position, and which way we want to face
-        ChassisSpeeds adjustedSpeeds = driveController.calculate(poseEstimator.getEstimatedPosition(), goal, Rotation2d.fromDegrees(actualAngle));
-        
-        //send the speeds to the motors
-        setModuleStates(kinematics.toSwerveModuleStates(adjustedSpeeds));
-    });
+            // TODO: Account for alliance
+            //improve this math eventually
+            //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
+            double actualAngle = Math.signum(yDistance) //above speaker means +1, below means -1
+            * (((Math.signum(xDistance) - 1) * -0.5 * Math.PI) //in front of speaker (right) means 180, behind (left) means 0
+            - (Math.signum(xDistance) * (Math.atan(Math.abs(yDistance)/Math.abs(xDistance))))); //in front means neg, behind means pos
+            
+            drive(speedsSupplier.get().vxMetersPerSecond, speedsSupplier.get().vyMetersPerSecond, rotationController.calculate(getAdjustedRotation().getRadians(), actualAngle), true, true);
+
+        }, this);
     }
 }

@@ -19,6 +19,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 public final class Constants {
 
 // Controls
+    public static final double XBOX_DEADBAND = 0.06;
     public static final int DRIVER_XBOX_PORT = 0;
     public static final int OPERATOR_XBOX_PORT = 1;
 
