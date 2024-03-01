@@ -277,6 +277,17 @@ public class TurbotakeSubsystem extends SubsystemBase{
         });
     }
 
+    public Command IntakePiece(){
+        return Commands.sequence(
+            Commands.waitUntil(() -> !isPieceDetected()),
+            Commands.runOnce(() -> setIndexerPercent(-1)),
+            Commands.waitUntil(() -> isPieceDetected()),
+            Commands.runOnce(() -> turnOffIndexer())
+        ).finallyDo(() -> {
+            turnOffIndexer();
+        });
+    }
+
 
     
 }

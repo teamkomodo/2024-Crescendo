@@ -17,6 +17,7 @@ import frc.robot.subsystems.TurbotakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -40,10 +41,25 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
     }
+
+    private String armToSpeaker;
+    private String armToStow;
+    private String armToIntake;
+    private String intakePiece;
+    private String shootpiece;
+
+    
+    
     
     private void configureBindings() {
-
+    //Auto
+        NamedCommands.registerCommand(armToIntake, new IntakePositionCommand(armSubsystem));
+        NamedCommands.registerCommand(armToStow, new StowPositionCommand(armSubsystem));
+        NamedCommands.registerCommand(armToSpeaker, new SpeakerPositionCommand(armSubsystem));
+        NamedCommands.registerCommand(intakePiece, turbotakeSubsystem.IntakePiece());
+        NamedCommands.registerCommand(shootpiece, turbotakeSubsystem.shootForSpeaker());
     // Driver Controls
+    
 
         Trigger driverRT = driverController.rightTrigger();
         driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
