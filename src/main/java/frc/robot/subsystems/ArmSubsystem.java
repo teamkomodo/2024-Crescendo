@@ -10,6 +10,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -335,6 +336,15 @@ public void holdElevatorPosition() {
   public void gotoSetPosition(int positionId) {
     setJointPosition(JOINT_POSITIONS_ORDERED[positionId]);
     setElevatorPosition(ELEVATOR_POSITIONS_ORDERED[positionId]);
+  }
+
+  public void setTurbotakeAngle(Rotation2d angle) {
+    final double conversionFactor = (1.0 / 100.0) * (18.0 / 30.0) * 2.0 * Math.PI;
+    final double zeroAngle = -Math.toRadians(10);
+
+    double armAngle = Math.toRadians(65) - angle.getRadians();
+
+    setJointPosition( (armAngle + zeroAngle) * conversionFactor );
   }
 
 //set motor positions
