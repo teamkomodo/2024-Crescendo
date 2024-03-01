@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.units.Units;
 
 import static frc.robot.Constants.*;
@@ -49,7 +50,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
 
     //beam break sensor telemetry
     private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getBooleanTopic("piecedetected").publish();
-    
+    private final BooleanPublisher hasPiecePublisher = NetworkTableInstance.getDefault().getTable("turbotake").getBooleanTopic("haspiece").publish();
+
+    private final StringPublisher currentCommandPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getStringTopic("currentcommand").publish();
+
     //PID values for indexer
     private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
     //PID values for shooter motors
@@ -172,6 +176,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
         rightShooterVelocityPublisher.set(rightShooterEncoder.getVelocity());
         indexerVelocityPublisher.set(indexerEncoder.getVelocity());
         filteredCurrentPublisher.set(filteredCurrent);
+        hasPiecePublisher.set(hasPiece());
+        currentCommandPublisher.set(getCurrentCommand().getName());
     }
     
     

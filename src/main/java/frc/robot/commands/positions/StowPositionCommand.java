@@ -1,7 +1,5 @@
 package frc.robot.commands.positions;
 
-import static frc.robot.Constants.JOINT_STOW_POSITION;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -23,9 +21,12 @@ public class StowPositionCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
-            return Commands.parallel(
-                armSubsystem.jointZeroCommand(),
-                armSubsystem.elevatorZeroCommand()
+            return Commands.sequence(
+                Commands.parallel(
+                    armSubsystem.jointZeroCommand(),
+                    armSubsystem.elevatorZeroCommand()
+                ),
+                new StowPositionCommand(armSubsystem)
             );
         }
         

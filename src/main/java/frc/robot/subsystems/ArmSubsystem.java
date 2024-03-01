@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -65,6 +66,7 @@ public class ArmSubsystem extends SubsystemBase {
   private final BooleanPublisher elevatorSwitchPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("elevatorswitch").publish();
   private final BooleanPublisher atElevatorMinPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("atelevatormin").publish();
   private final BooleanPublisher atElevatorMaxPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("atelevatormax").publish();
+  private final StringPublisher currentCommandPublisher = NetworkTableInstance.getDefault().getTable("arm").getStringTopic("currentCommand").publish();
 
   //var
   private final CANSparkMax jointMotor;
@@ -403,14 +405,14 @@ public void holdElevatorPosition() {
 
   public Command elevatorZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setElevatorMotorPercent(-0.3), this),
+        Commands.runOnce(() -> setElevatorMotorPercent(-0.3)),
         Commands.waitUntil(() -> (atElevatorLimitSwitch))
     );
   }
 
   public Command jointZeroCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> setJointMotorPercent(-0.3), this),
+        Commands.runOnce(() -> setJointMotorPercent(-0.3)),
         Commands.waitUntil(() -> (atJointBottomLimitSwitch || atJointMiddleLimitSwitch))
     );
   }
@@ -446,6 +448,8 @@ public void holdElevatorPosition() {
       elevatorSwitchPublisher.set(isElevatorLimitSwitchTriggered());
       atElevatorMinPublisher.set(atElevatorMinLimit);
       atElevatorMaxPublisher.set(atElevatorMaxLimit);
+
+      currentCommandPublisher.set(getCurrentCommand().getName());
   }
 
   public void setJointPID(double p, double i, double d) {

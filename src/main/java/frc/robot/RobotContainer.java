@@ -51,28 +51,28 @@ public class RobotContainer {
     // Driver Controls
 
         // For State Machine
-        // Trigger driverA = driverController.a();
-        // driverA.whileTrue(teleopStateMachine.alignSpeakerCommand());
+        Trigger driverA = driverController.a();
+        driverA.whileTrue(teleopStateMachine.alignSpeakerCommand());
 
-        // Trigger driverB = driverController.b();
-        // driverB.whileTrue(teleopStateMachine.scoreAmpCommand());
-
-        // Trigger driverRT = driverController.rightTrigger();
-        // driverRT.whileTrue(teleopStateMachine.shootSpeakerCommand());
-
-        // Trigger driverRB = driverController.rightBumper();
-        // driverRB.whileTrue(teleopStateMachine.pickupGroundCommand());
-
-        // // Drivetrain
-
-        // Trigger driverLB = driverController.leftBumper();
-
-        // driverLB.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-        // driverLB.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+        Trigger driverB = driverController.b();
+        driverB.whileTrue(teleopStateMachine.scoreAmpCommand());
 
         Trigger driverRT = driverController.rightTrigger();
-        driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-        driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+        driverRT.whileTrue(teleopStateMachine.shootSpeakerCommand());
+
+        Trigger driverRB = driverController.rightBumper();
+        driverRB.whileTrue(teleopStateMachine.pickupGroundCommand());
+
+        // Drivetrain
+
+        Trigger driverLB = driverController.leftBumper();
+
+        driverLB.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        driverLB.onFalse(drivetrainSubsystem.disableSlowModeCommand());
+
+        // Trigger driverRT = driverController.rightTrigger();
+        // driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
+        // driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
         Trigger driverStart = driverController.start();
         driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
@@ -138,6 +138,10 @@ public class RobotContainer {
     
     public Command getAutonomousCommand() {
         return null;
+    }
+
+    public TeleopStateMachine getTeleopStateMachine() {
+        return teleopStateMachine;
     }
 
 }

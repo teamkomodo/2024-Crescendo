@@ -6,6 +6,8 @@ import static frc.robot.Constants.SHOOTER_MAX_VELOCITY;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -47,9 +49,10 @@ public class TeleopStateMachine {
         PartialAcquisition
     }
 
-    private final StringPublisher statePublisher = NetworkTableInstance.getDefault().getStringTopic("teleopstate").publish();
-    private final StringPublisher shootingStatePublisher = NetworkTableInstance.getDefault().getStringTopic("shootingstate").publish();
-    private final StringPublisher pickupStatePublisher = NetworkTableInstance.getDefault().getStringTopic("pickupstate").publish();
+    private final NetworkTable table = NetworkTableInstance.getDefault().getTable("teleopstatemachine");
+    private final StringPublisher statePublisher = table.getStringTopic("teleopstate").publish();
+    private final StringPublisher shootingStatePublisher = table.getStringTopic("shootingstate").publish();
+    private final StringPublisher pickupStatePublisher = table.getStringTopic("pickupstate").publish();
 
     // Store a reference to the Command Scheduler so it's easier to schedule commands
     private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
@@ -87,20 +90,31 @@ public class TeleopStateMachine {
         this.ledSubsystem = ledSubsystem;
 
         scoreAmpCommand = Commands.sequence(
-            AutoBuilder.pathfindToPoseFlipped(new Pose2d(0, 0, null), null),
+            AutoBuilder.pathfindToPoseFlipped(new Pose2d(0, 0, Rotation2d.fromDegrees(90)), null),
             new AmpPositionCommand(armSubsystem),
             Commands.waitSeconds(0.1),
             Commands.runOnce( () -> turbotakeSubsystem.setIndexerPercent(-1) )
         );
 
-        // Run the periodic method every iteration by wrapping it in a command and scheduling it
-        // This is the same way we can schedule other commands in the periodic method
-        // this::periodic passes the periodic() method itself as the argument for Commands.run(), which will later invoke it once each iteration
-        commandScheduler.schedule(Commands.run(this::periodic));
-
     }
 
-    private void periodic() {
+    public void init() {
+        currentState = State.START;
+        stateSwitched = true;
+
+        currentShootingState = ShootingState.PREPARE_SHOOT;
+        shootingStateSwitched = true;
+
+        currentPickupStateSwitched = true;
+        currentPickupState = PickupState.NoPiece;
+
+        commandingPickupGround = false;
+        commandingAlignSpeaker = false;
+        commandingShootSpeaker = false;
+        commandingScoreAmp = false;
+    }
+
+    public void periodic() {
 
         updateTelemetry();
 
@@ -138,6 +152,11 @@ public class TeleopStateMachine {
                     currentState = State.SCORE_SPEAKER;
                 }
 
+                if(!turbotakeSubsystem.hasPiece()) {
+                    stateSwitched = true;
+                    currentState = State.DRIVE_WITHOUT_PIECE;
+                }
+
                 if(commandingScoreAmp) {
                     stateSwitched = true;
                     currentState = State.SCORE_AMP;
@@ -155,8 +174,8 @@ public class TeleopStateMachine {
 
                 // Internal State Machine
 
-                final double indexerRampUpTime = 0.5;
-                final double intakeCurrentThreshold = 5;
+                final double indexerRampUpTime = 2.0;
+                final double intakeCurrentThreshold = 15;
 
                 switch (currentPickupState) {
                     case NoPiece:
@@ -180,6 +199,7 @@ public class TeleopStateMachine {
                         if(currentPickupStateSwitched) {
                             currentPickupStateSwitched = false;
                             commandScheduler.schedule(new StowPositionCommand(armSubsystem));
+                            turbotakeSubsystem.setIndexerPercent(0.3);
                         }
 
                         if(turbotakeSubsystem.isPieceDetected()) {
@@ -249,6 +269,14 @@ public class TeleopStateMachine {
                             shootingStateSwitched = false;
                             commandScheduler.schedule(
                                 new SpeakerPositionCommand(armSubsystem),
+                                Commands.runOnce(() -> {
+                                    double distFromWall = Math.sqrt(Math.pow(drivetrainSubsystem.getPose().getX() - (ON_RED_ALLIANCE.getAsBoolean() ? 16.46 : 0), 2));
+                                    double distFromShooterFront = distFromWall - .46;
+                                    double vertical = 2.11 - 0.30; // 2.11 is height from ground. 0.30 is average height of turbotake
+
+                                    double shooterAngle = Math.atan(vertical / distFromShooterFront);
+
+                                }, armSubsystem),
                                 ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_1_PATTERN_BREATH_FAST));
                         }
 

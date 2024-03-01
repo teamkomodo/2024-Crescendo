@@ -21,9 +21,12 @@ public class SpeakerPositionCommand extends DynamicCommand {
     @Override
     protected Command getCommand() {
         if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
-            return Commands.parallel(
-                armSubsystem.jointZeroCommand(),
-                armSubsystem.elevatorZeroCommand()
+            return Commands.sequence(
+                Commands.parallel(
+                    armSubsystem.jointZeroCommand(),
+                    armSubsystem.elevatorZeroCommand()
+                ),
+                new SpeakerPositionCommand(armSubsystem)
             );
         }
         if (armSubsystem.getJointPosition() < 2.5) {
