@@ -114,7 +114,7 @@ public class ArmSubsystem extends SubsystemBase {
     jointBottomReverseSwitch = new DigitalInput(JOINT_BOTTOM_ZERO_SWITCH_CHANNEL);
     
     jointEncoder = jointMotor.getEncoder();
-    jointEncoder.setPosition(2.6);
+    jointEncoder.setPosition(JOINT_STARTING_POSITION);
 
     jointPidController = jointMotor.getPIDController();
     jointPidController.setP(jointP);
@@ -149,7 +149,8 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
   public void teleopInit() {
-
+    elevatorMotor.set(0);
+    jointMotor.set(0);
   } 
 
   public void checkLimitSwitch() {
@@ -404,16 +405,20 @@ public void holdElevatorPosition() {
   }
 
   public Command elevatorZeroCommand() {
+    // use .set instead of setElevatorPercent so that the limit don't apply
     return Commands.sequence(
-        Commands.runOnce(() -> setElevatorMotorPercent(-0.3)),
-        Commands.waitUntil(() -> (atElevatorLimitSwitch))
+        Commands.runOnce(() -> elevatorMotor.set(-0.3)),
+        Commands.waitUntil(() -> (atElevatorLimitSwitch)),
+        Commands.runOnce(() -> elevatorMotor.set(0))
     );
   }
 
   public Command jointZeroCommand() {
+    // use .set instead of setJointPercent so that the limit don't apply
     return Commands.sequence(
-        Commands.runOnce(() -> setJointMotorPercent(-0.3)),
-        Commands.waitUntil(() -> (atJointBottomLimitSwitch || atJointMiddleLimitSwitch))
+        Commands.runOnce(() -> jointMotor.set(-0.3)),
+        Commands.waitUntil(() -> (atJointBottomLimitSwitch || atJointMiddleLimitSwitch)),
+        Commands.runOnce(() -> jointMotor.set(0))
     );
   }
 
@@ -449,7 +454,7 @@ public void holdElevatorPosition() {
       atElevatorMinPublisher.set(atElevatorMinLimit);
       atElevatorMaxPublisher.set(atElevatorMaxLimit);
 
-      currentCommandPublisher.set(getCurrentCommand().getName());
+      currentCommandPublisher.set(getCurrentCommand() != null? getCurrentCommand().getName() : "null");
   }
 
   public void setJointPID(double p, double i, double d) {

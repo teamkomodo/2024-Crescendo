@@ -104,7 +104,7 @@ public final class Constants {
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
-    public static final double JOINT_MIN_POSITION = 0.5; // Code stop
+    public static final double JOINT_MIN_POSITION = 2; // Code stop
     public static final double JOINT_MAX_POSITION = 47; // Code stop
 
     public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 7.5;

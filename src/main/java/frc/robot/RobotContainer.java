@@ -40,7 +40,7 @@ public class RobotContainer {
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
     private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
-    private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem);
+    private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, driverController.getHID());
 
     public RobotContainer() {
         configureBindings();
@@ -53,6 +53,9 @@ public class RobotContainer {
         // For State Machine
         Trigger driverA = driverController.a();
         driverA.whileTrue(teleopStateMachine.alignSpeakerCommand());
+
+        // driverController.a().whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.0, 0.0, 0.0, true, true), drivetrainSubsystem));
+        // driverController.b().whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.0, 0.0, 0.0, true, true), drivetrainSubsystem));
 
         Trigger driverB = driverController.b();
         driverB.whileTrue(teleopStateMachine.scoreAmpCommand());
@@ -100,9 +103,11 @@ public class RobotContainer {
 
         Trigger operatorA = operatorController.a();
         operatorA.onTrue(new StowPositionCommand(armSubsystem));
+        //operatorA.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(0.8), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
 
         Trigger operatorB = operatorController.b();
         operatorB.onTrue(new IntakePositionCommand(armSubsystem));
+        //operatorB.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-0.2), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
 
         Trigger operatorX = operatorController.x();
         operatorX.onTrue(new AmpPositionCommand(armSubsystem));
@@ -134,6 +139,11 @@ public class RobotContainer {
         Trigger operatorBack = operatorController.back();
         operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
 
+    }
+
+    public void teleopInit() {
+        armSubsystem.teleopInit();
+        turbotakeSubsystem.teleopInit();
     }
     
     public Command getAutonomousCommand() {

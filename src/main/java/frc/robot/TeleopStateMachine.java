@@ -12,6 +12,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -45,8 +47,9 @@ public class TeleopStateMachine {
     }
 
     public static enum PickupState {
-        NoPiece,
-        PartialAcquisition
+        NO_PIECE,
+        PARTIAL_AQUISITION,
+        ALIGN_PIECE
     }
 
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("teleopstatemachine");
@@ -66,10 +69,12 @@ public class TeleopStateMachine {
     private final TurbotakeSubsystem turbotakeSubsystem;
     private final LEDSubsystem ledSubsystem;
 
+    private final XboxController driverController;
+
     // Store the current state
     private State currentState = State.START;
     private ShootingState currentShootingState = ShootingState.PREPARE_SHOOT;
-    private PickupState currentPickupState = PickupState.NoPiece;
+    private PickupState currentPickupState = PickupState.NO_PIECE;
 
     // This will turn to true when the current state's exit condition is met, and will signal the next state to run its entrance code
     private boolean stateSwitched = true;
@@ -81,13 +86,15 @@ public class TeleopStateMachine {
     private boolean commandingShootSpeaker = false;
     private boolean commandingScoreAmp = false;
 
-    public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem, ArmSubsystem armSubsystem, TurbotakeSubsystem turbotakeSubsystem, LEDSubsystem ledSubsystem) {
+    public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem, ArmSubsystem armSubsystem, TurbotakeSubsystem turbotakeSubsystem, LEDSubsystem ledSubsystem, XboxController driverController) {
 
         // Set our references
         this.drivetrainSubsystem = drivetrainSubsystem;
         this.armSubsystem = armSubsystem;
         this.turbotakeSubsystem = turbotakeSubsystem;
         this.ledSubsystem = ledSubsystem;
+
+        this.driverController = driverController;
 
         scoreAmpCommand = Commands.sequence(
             AutoBuilder.pathfindToPoseFlipped(new Pose2d(0, 0, Rotation2d.fromDegrees(90)), null),
@@ -106,7 +113,7 @@ public class TeleopStateMachine {
         shootingStateSwitched = true;
 
         currentPickupStateSwitched = true;
-        currentPickupState = PickupState.NoPiece;
+        currentPickupState = PickupState.NO_PIECE;
 
         commandingPickupGround = false;
         commandingAlignSpeaker = false;
@@ -152,10 +159,10 @@ public class TeleopStateMachine {
                     currentState = State.SCORE_SPEAKER;
                 }
 
-                if(!turbotakeSubsystem.hasPiece()) {
-                    stateSwitched = true;
-                    currentState = State.DRIVE_WITHOUT_PIECE;
-                }
+                // if(!turbotakeSubsystem.hasPiece() && turbotakeSubsystem.getIndexerVelocity() < -1000) {
+                //     stateSwitched = true;
+                //     currentState = State.DRIVE_WITHOUT_PIECE;
+                // }
 
                 if(commandingScoreAmp) {
                     stateSwitched = true;
@@ -167,7 +174,7 @@ public class TeleopStateMachine {
 
                 if(stateSwitched) {
                     stateSwitched = false;
-                    currentPickupState = PickupState.NoPiece;
+                    currentPickupState = PickupState.NO_PIECE;
                     currentPickupStateSwitched = true;
                     commandScheduler.schedule(ledSubsystem.setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_COLOR_WAVES_FOREST_PALETTE));
                 }
@@ -178,40 +185,61 @@ public class TeleopStateMachine {
                 final double intakeCurrentThreshold = 15;
 
                 switch (currentPickupState) {
-                    case NoPiece:
+                    case NO_PIECE:
 
                         if(currentPickupStateSwitched) {
                             currentPickupStateSwitched = false;
                             timer.reset();
                             timer.start();
-                            commandScheduler.schedule(new IntakePositionCommand(armSubsystem));
-                            turbotakeSubsystem.setIndexerPercent(0.8);
+                            commandScheduler.schedule(
+                                new IntakePositionCommand(armSubsystem),
+                                Commands.sequence(
+                                    Commands.waitUntil(() -> (armSubsystem.isJointZeroed() && armSubsystem.isElevatorZeroed())),
+                                    Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.8))
+                                )                                
+                            );
+                            
+                        }
+
+                        if(!commandingPickupGround) {
+                            stateSwitched = true;
+                            currentState = State.DRIVE_WITHOUT_PIECE;
                         }
 
                         if(timer.hasElapsed(indexerRampUpTime) && turbotakeSubsystem.getFilteredCurrent() - intakeCurrentThreshold > 0) {
                             currentPickupStateSwitched = true;
-                            currentPickupState = PickupState.PartialAcquisition;
+                            currentPickupState = PickupState.PARTIAL_AQUISITION;
                         }
 
                         break;
-                    case PartialAcquisition:
+                    case PARTIAL_AQUISITION:
                         
                         if(currentPickupStateSwitched) {
                             currentPickupStateSwitched = false;
                             commandScheduler.schedule(new StowPositionCommand(armSubsystem));
-                            turbotakeSubsystem.setIndexerPercent(0.3);
+                            turbotakeSubsystem.setIndexerPercent(0.2);
                         }
 
                         if(turbotakeSubsystem.isPieceDetected()) {
-                            currentState = State.DRIVE_WITH_PIECE;
-                            stateSwitched = true;
+                            currentPickupStateSwitched = true;
+                            currentPickupState = PickupState.ALIGN_PIECE;
+                            timer.stop();
                         }
-                        break;
-                }
 
-                if(!commandingPickupGround) {
-                    stateSwitched = true;
-                    currentState = State.DRIVE_WITHOUT_PIECE;
+                        break;
+                    case ALIGN_PIECE:
+                        
+                        if(currentPickupStateSwitched) {
+                            currentPickupStateSwitched = false;
+                            turbotakeSubsystem.setIndexerPercent(-0.05);
+                        }
+
+                        if(!turbotakeSubsystem.isPieceDetected()) {
+                            stateSwitched = true;
+                            currentState = State.DRIVE_WITH_PIECE;
+                        }
+
+                        break;
                 }
 
                 if(stateSwitched) {
@@ -245,19 +273,18 @@ public class TeleopStateMachine {
                             currentShootingState = ShootingState.READY_SHOOT;
                         }
 
-                        if(shootingStateSwitched) {
-                            turbotakeSubsystem.setShooterPercent(0);
-                        }
-
                         break;
                     case READY_SHOOT:
                         
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
-                            commandScheduler.schedule(ledSubsystem.setPatternCommand(BlinkinPattern.SOLID_COLORS_GREEN));
+                            commandScheduler.schedule(
+                                ledSubsystem.setPatternCommand(BlinkinPattern.SOLID_COLORS_GREEN),
+                                Commands.runEnd(() -> driverController.setRumble(RumbleType.kBothRumble, 1), () -> driverController.setRumble(RumbleType.kBothRumble, 0)).withTimeout(0.5)
+                            );
                         }
 
-                        if(commandingAlignSpeaker) {
+                        if(commandingShootSpeaker) {
                             shootingStateSwitched = true;
                             currentShootingState = ShootingState.ALIGN_SPEAKER;
                         }
@@ -269,20 +296,26 @@ public class TeleopStateMachine {
                             shootingStateSwitched = false;
                             commandScheduler.schedule(
                                 new SpeakerPositionCommand(armSubsystem),
-                                Commands.runOnce(() -> {
-                                    double distFromWall = Math.sqrt(Math.pow(drivetrainSubsystem.getPose().getX() - (ON_RED_ALLIANCE.getAsBoolean() ? 16.46 : 0), 2));
-                                    double distFromShooterFront = distFromWall - .46;
-                                    double vertical = 2.11 - 0.30; // 2.11 is height from ground. 0.30 is average height of turbotake
+                                // Commands.runOnce(() -> {
+                                //     double distFromWall = Math.sqrt(Math.pow(drivetrainSubsystem.getPose().getX() - (ON_RED_ALLIANCE.getAsBoolean() ? 16.46 : 0), 2));
+                                //     double distFromShooterFront = distFromWall - .46;
+                                //     double vertical = 2.11 - 0.30; // 2.11 is height from ground. 0.30 is average height of turbotake
 
-                                    double shooterAngle = Math.atan(vertical / distFromShooterFront);
+                                //     double shooterAngle = Math.atan(vertical / distFromShooterFront);
 
-                                }, armSubsystem),
+                                // }, armSubsystem),
                                 ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_1_PATTERN_BREATH_FAST));
+                            timer.reset();
+                            timer.start();
                         }
 
-                        if(commandingShootSpeaker) {
+                        if(commandingShootSpeaker && timer.hasElapsed(0.3)) {
                             shootingStateSwitched = true;
                             currentShootingState = ShootingState.SHOOT_SPEAKER;
+                        }
+
+                        if(shootingStateSwitched) {
+                            timer.stop();
                         }
 
                         break;
@@ -295,14 +328,13 @@ public class TeleopStateMachine {
                         }
 
                         double minLaunchSeconds = 0.5;
-                        if(!turbotakeSubsystem.hasPiece() && timer.hasElapsed(minLaunchSeconds)) {
+                        if(timer.hasElapsed(minLaunchSeconds)) {
                             shootingStateSwitched = true;
+                            stateSwitched = true;
                             currentState = State.DRIVE_WITHOUT_PIECE;
                         }
 
                         if(shootingStateSwitched) {
-                            turbotakeSubsystem.setIndexerPercent(0);
-                            turbotakeSubsystem.setShooterPercent(0);
                             timer.stop();
                         }
                         break;
@@ -313,8 +345,15 @@ public class TeleopStateMachine {
                     stateSwitched = true;
                 }
 
+                // if(!turbotakeSubsystem.isPieceDetected() && turbotakeSubsystem.getIndexerVelocity() < 0) {
+                //     stateSwitched = true;
+                //     currentState = State.DRIVE_WITHOUT_PIECE;
+                // }
+
                 if(stateSwitched) {
                     commandScheduler.schedule(new StowPositionCommand(armSubsystem));
+                    turbotakeSubsystem.setIndexerPercent(0);
+                    turbotakeSubsystem.setShooterPercent(0);
                 }
 
                 break;
@@ -333,7 +372,7 @@ public class TeleopStateMachine {
                     currentState = State.DRIVE_WITH_PIECE;
                 }
 
-                if(!turbotakeSubsystem.hasPiece()) {
+                if(!turbotakeSubsystem.isPieceDetected() && turbotakeSubsystem.getIndexerVelocity() < 0) {
                     stateSwitched = true;
                     currentState = State.DRIVE_WITHOUT_PIECE;
                 }

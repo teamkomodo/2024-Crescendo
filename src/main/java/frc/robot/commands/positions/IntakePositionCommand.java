@@ -25,16 +25,23 @@ public class IntakePositionCommand extends DynamicCommand{
                 Commands.parallel(
                     armSubsystem.jointZeroCommand(),
                     armSubsystem.elevatorZeroCommand()),
-                new IntakePositionCommand(armSubsystem)
+                new SequentialCommandGroup(
+                    armSubsystem.elevatorZeroPositionCommand(),
+                    new WaitCommand(0.3),
+                    armSubsystem.jointStowPositionCommand(),
+                    armSubsystem.elevatorIntakePositionCommand(),
+                    new WaitCommand(0.5),
+                    armSubsystem.jointIntakePositionCommand()
+                )
             );
         }
         
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),
-            new WaitCommand(0.3),
+            new WaitCommand(0.1),
             armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorIntakePositionCommand(),
-            new WaitCommand(0.3),
+            new WaitCommand(0.4),
             armSubsystem.jointIntakePositionCommand()
         );
     }

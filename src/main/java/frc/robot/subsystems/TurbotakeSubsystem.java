@@ -152,6 +152,12 @@ public class TurbotakeSubsystem extends SubsystemBase{
         
     }
 
+    public void teleopInit() {
+        leftShooterMotor.set(0);
+        rightShooterMotor.set(0);
+        indexerMotor.set(0);
+    }
+
     @Override
     public void periodic() {
         updateShooterTelemetry();
@@ -177,9 +183,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerVelocityPublisher.set(indexerEncoder.getVelocity());
         filteredCurrentPublisher.set(filteredCurrent);
         hasPiecePublisher.set(hasPiece());
-        currentCommandPublisher.set(getCurrentCommand().getName());
+        currentCommandPublisher.set(getCurrentCommand() != null? getCurrentCommand().getName() : "null");
     }
-    
     
     /**
      * @return If the beambreak sensor is triggered
