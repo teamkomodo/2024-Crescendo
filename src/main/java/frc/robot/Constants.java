@@ -49,25 +49,25 @@ public final class Constants {
     public static final double DRIVETRAIN_WIDTH = 0.5271; // Distance between center of left and right swerve wheels in meters
     public static final double DRIVETRAIN_LENGTH = 0.5271; // Distance between center of front and back swerve wheels in meters
 
-    public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 16;
-    public static final int FRONT_LEFT_STEER_MOTOR_ID = 17;
-    public static final int FRONT_LEFT_STEER_ENCODER_ID = 23;
-    public static final double FRONT_LEFT_STEER_OFFSET = -Math.toRadians(24.697);
+    public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 16;
+    public static final int BACK_RIGHT_STEER_MOTOR_ID = 17;
+    public static final int BACK_RIGHT_STEER_ENCODER_ID = 23;
+    public static final double BACK_RIGHT_STEER_OFFSET = -Math.toRadians(24.697 + 180);
 
-    public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 12;
-    public static final int FRONT_RIGHT_STEER_MOTOR_ID = 13;
-    public static final int FRONT_RIGHT_STEER_ENCODER_ID = 21;
-    public static final double FRONT_RIGHT_STEER_OFFSET = -Math.toRadians(-72.510);
+    public static final int BACK_LEFT_DRIVE_MOTOR_ID = 12;
+    public static final int BACK_LEFT_STEER_MOTOR_ID = 13;
+    public static final int BACK_LEFT_STEER_ENCODER_ID = 21;
+    public static final double BACK_LEFT_STEER_OFFSET = -Math.toRadians(-72.510 + 180);
 
-    public static final int BACK_LEFT_DRIVE_MOTOR_ID = 14;
-    public static final int BACK_LEFT_STEER_MOTOR_ID = 15;
-    public static final int BACK_LEFT_STEER_ENCODER_ID = 22;
-    public static final double BACK_LEFT_STEER_OFFSET = -Math.toRadians(174.841);
+    public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 14;
+    public static final int FRONT_RIGHT_STEER_MOTOR_ID = 15;
+    public static final int FRONT_RIGHT_STEER_ENCODER_ID = 22;
+    public static final double FRONT_RIGHT_STEER_OFFSET = -Math.toRadians(174.841 + 180);
 
-    public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 10;
-    public static final int BACK_RIGHT_STEER_MOTOR_ID = 11;
-    public static final int BACK_RIGHT_STEER_ENCODER_ID = 20;
-    public static final double BACK_RIGHT_STEER_OFFSET = -Math.toRadians(57.920);
+    public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 10;
+    public static final int FRONT_LEFT_STEER_MOTOR_ID = 11;
+    public static final int FONT_LEFT_STEER_ENCODER_ID = 20;
+    public static final double FRONT_LEFT_STEER_OFFSET = -Math.toRadians(57.920 + 180);
 
     public static final double WHEEL_DIAMETER = 0.1016;
 
@@ -116,7 +116,7 @@ public final class Constants {
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
     public static final double JOINT_STOW_POSITION = 10;
-    public static final double JOINT_AMP_POSITION = 26;
+    public static final double JOINT_AMP_POSITION = 30;
     public static final double JOINT_SPEAKER_POSITION = 16;
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 2.5;
@@ -152,7 +152,7 @@ public final class Constants {
     public static final double ELEVATOR_MAX_POSITION = 64.5; // Code stop
 
     public static final double ELEVATOR_STOW_POSITION = 0;
-    public static final double ELEVATOR_AMP_POSITION = 65;
+    public static final double ELEVATOR_AMP_POSITION = 55;
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 65;

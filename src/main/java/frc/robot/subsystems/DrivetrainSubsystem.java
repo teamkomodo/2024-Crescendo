@@ -57,7 +57,7 @@ public class DrivetrainSubsystem implements Subsystem {
      */
 
     // Limelight
-    private static boolean useVision = true;
+    private static boolean useVision = false;
 
     private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
@@ -76,12 +76,17 @@ public class DrivetrainSubsystem implements Subsystem {
         SwerveModuleState.struct
         ).publish();
     
-        private final StructPublisher<Pose2d> robotPosePublisher = drivetrainNT.getStructTopic("robotPose", Pose2d.struct).publish();
+    private final StructPublisher<Pose2d> robotPosePublisher = drivetrainNT.getStructTopic("robotPose", Pose2d.struct).publish();
 
-        private final StructPublisher<Rotation2d> robotRotationPublisher = drivetrainNT.getStructTopic(
-            "robotRotation",
-            Rotation2d.struct
-        ).publish();
+    private final StructPublisher<Rotation2d> adjustedRotationPublisher = drivetrainNT.getStructTopic(
+        "adjustedRotation",
+        Rotation2d.struct
+    ).publish();
+
+    private final StructPublisher<Rotation2d> rotationPublisher = drivetrainNT.getStructTopic(
+        "rotation",
+        Rotation2d.struct
+    ).publish();
 
     // SysID
     private final SysIdRoutine driveSysIdRoutine = new SysIdRoutine(
@@ -143,51 +148,51 @@ public class DrivetrainSubsystem implements Subsystem {
 
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-        frontLeft = new NeoSwerveModule(
-                FRONT_LEFT_DRIVE_MOTOR_ID,
-                FRONT_LEFT_STEER_MOTOR_ID,
-                FRONT_LEFT_STEER_ENCODER_ID,
-                FRONT_LEFT_STEER_OFFSET,
-                new PIDGains(1.0, 0, 0),
-                new PIDGains(2*0, 0, 0),
-                new FFGains(0.15263, 3.158, 0.53993),
-                drivetrainNT.getSubTable("frontleft"));
-        
-        frontRight = new NeoSwerveModule(
-                FRONT_RIGHT_DRIVE_MOTOR_ID,
-                FRONT_RIGHT_STEER_MOTOR_ID,
-                FRONT_RIGHT_STEER_ENCODER_ID,
-                FRONT_RIGHT_STEER_OFFSET,
-                new PIDGains(1.0, 0, 0),
-                new PIDGains(1*0, 0, 0),
-                new FFGains(0.17645, 3.1584, 0.30427),
-                drivetrainNT.getSubTable("frontright"));
-
-        backLeft = new NeoSwerveModule(
-                BACK_LEFT_DRIVE_MOTOR_ID,
-                BACK_LEFT_STEER_MOTOR_ID,
-                BACK_LEFT_STEER_ENCODER_ID,
-                BACK_LEFT_STEER_OFFSET,
-                new PIDGains(1.0, 0, 0),
-                new PIDGains(0.45027 * 0, 0, 0),
-                new FFGains(0.1464, 3.206, 0.44254),
-                drivetrainNT.getSubTable("backleft"));
-        
         backRight = new NeoSwerveModule(
                 BACK_RIGHT_DRIVE_MOTOR_ID,
                 BACK_RIGHT_STEER_MOTOR_ID,
                 BACK_RIGHT_STEER_ENCODER_ID,
                 BACK_RIGHT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
+                new PIDGains(2*0, 0, 0),
+                new FFGains(0.15263, 3.158, 0.53993),
+                drivetrainNT.getSubTable("backright"));
+        
+        backLeft = new NeoSwerveModule(
+                BACK_LEFT_DRIVE_MOTOR_ID,
+                BACK_LEFT_STEER_MOTOR_ID,
+                BACK_LEFT_STEER_ENCODER_ID,
+                BACK_LEFT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
+                new PIDGains(1*0, 0, 0),
+                new FFGains(0.17645, 3.1584, 0.30427),
+                drivetrainNT.getSubTable("backleft"));
+
+        frontRight = new NeoSwerveModule(
+                FRONT_RIGHT_DRIVE_MOTOR_ID,
+                FRONT_RIGHT_STEER_MOTOR_ID,
+                FRONT_RIGHT_STEER_ENCODER_ID,
+                FRONT_RIGHT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
+                new PIDGains(0.45027 * 0, 0, 0),
+                new FFGains(0.1464, 3.206, 0.44254),
+                drivetrainNT.getSubTable("frontright"));
+        
+        frontLeft = new NeoSwerveModule(
+                FRONT_LEFT_DRIVE_MOTOR_ID,
+                FRONT_LEFT_STEER_MOTOR_ID,
+                FONT_LEFT_STEER_ENCODER_ID,
+                FRONT_LEFT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
                 new PIDGains(2 * 0, 0, 0),
                 new FFGains(0.1751, 3.1887, 0.31847),
-                drivetrainNT.getSubTable("backright"));
+                drivetrainNT.getSubTable("frontleft"));
 
         tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
         poseEstimator = new SwerveDrivePoseEstimator(
             kinematics,
-                navX.getRotation2d(),
+                getRotation(),
                 new SwerveModulePosition[] {
                         frontLeft.getPosition(),
                         frontRight.getPosition(),
@@ -196,7 +201,8 @@ public class DrivetrainSubsystem implements Subsystem {
                 }, 
                 new Pose2d());
 
-        resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
+        resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(0)));
+        //zeroGyro();
     }
 
 
@@ -204,7 +210,7 @@ public class DrivetrainSubsystem implements Subsystem {
     public void periodic() {
         // does not need to use adjusted rotation, odometry handles it.
         //updates pose with rotation and swerve positions
-        poseEstimator.update(navX.getRotation2d(), getSwervePositions());
+        poseEstimator.update(getRotation(), getSwervePositions());
 
         if(useVision)
             visionPosePeriodic();
@@ -232,7 +238,8 @@ public class DrivetrainSubsystem implements Subsystem {
             backRight.getState()
         });
 
-        robotRotationPublisher.set(getAdjustedRotation());
+        adjustedRotationPublisher.set(getAdjustedRotation());
+        rotationPublisher.set(getRotation());
 
         frontLeft.updateTelemetry();
         frontRight.updateTelemetry();
@@ -312,7 +319,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void zeroGyro() {
-        rotationOffsetRadians = -navX.getRotation2d().getRadians();
+        rotationOffsetRadians = -getRotation().getRadians();
     }
 
     public void runDriveVolts(double voltage) {
@@ -356,8 +363,18 @@ public class DrivetrainSubsystem implements Subsystem {
         return driveController;
     }
 
+    /**
+     * @return a rotation2d object representing the robot's zeored heading, with 0 degrees being the direction the robot will drive forward in
+     */
     public Rotation2d getAdjustedRotation() {
-        return navX.getRotation2d().plus(Rotation2d.fromRadians(rotationOffsetRadians));
+        return getRotation().plus(Rotation2d.fromRadians(rotationOffsetRadians));
+    }
+
+    /**
+     * @return a rotation2d object representing the robot's current heading, with 0 degrees being the direction the robot was facing at startup
+     */
+    public Rotation2d getRotation() {
+        return navX.getRotation2d().plus(Rotation2d.fromRadians(Math.PI));
     }
 
     public ChassisSpeeds getChassisSpeeds() {
@@ -375,11 +392,11 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void resetPose(Pose2d pose) {
-        poseEstimator.resetPosition(navX.getRotation2d(), getSwervePositions(), pose);
+        poseEstimator.resetPosition(getRotation(), getSwervePositions(), pose);
     }
 
     public void setGyro(Rotation2d rotation) {
-        rotationOffsetRadians = -navX.getRotation2d().getRadians() + rotation.getRadians();
+        rotationOffsetRadians = -getRotation().getRadians() + rotation.getRadians();
     }
 
     // Commands
