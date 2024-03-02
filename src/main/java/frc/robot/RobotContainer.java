@@ -18,6 +18,8 @@ import frc.robot.subsystems.ClimberSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,6 +32,9 @@ public class RobotContainer {
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT); 
     private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_XBOX_PORT);
+
+    private final XboxController driverRumbleController = new XboxController(DRIVER_XBOX_PORT); 
+    private final XboxController operatorRumbleController = new XboxController(DRIVER_XBOX_PORT); 
 
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
@@ -100,11 +105,11 @@ public class RobotContainer {
         Trigger operatorLS = operatorController.leftStick();
         operatorLS.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightX()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
         
-        // Trigger operatorStart = operatorController.start();
-        // operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+        Trigger operatorStart = operatorController.start();
+        operatorStart.whileTrue(Commands.runEnd(() -> {climberSubsystem.setMotorVelocity(climberVelocity); operatorRumbleController.setRumble(GenericHID.RumbleType.kRightRumble, 1);}, () -> {climberSubsystem.holdMotorPosition(); operatorRumbleController.setRumble(GenericHID.RumbleType.kRightRumble, 0);}));
 
-        // Trigger operatorBack = operatorController.back();
-        // operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+        Trigger operatorBack = operatorController.back();
+        operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
 
     }
     
