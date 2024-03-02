@@ -104,12 +104,13 @@ public final class Constants {
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
-    public static final double JOINT_MIN_POSITION = 5; // Code stop
+    public static final double JOINT_MIN_POSITION = 0.5; // Code stop
     public static final double JOINT_MAX_POSITION = 47; // Code stop
 
-    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 6.262;
-    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 2.738;
-    public static final double JOINT_BOTTOM_SWITCH_POSITION = JOINT_MIN_POSITION;
+    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 7.5;
+    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 4.4;
+    public static final double JOINT_BOTTOM_SWITCH_POSITION = 2;
+    public static final double JOINT_STARTING_POSITION = 4.4;
 
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
@@ -148,7 +149,7 @@ public final class Constants {
 
     // Position in rotations of the motor shaft before gearbox
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
-    public static final double ELEVATOR_MAX_POSITION = 65; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 64.5; // Code stop
 
     public static final double ELEVATOR_STOW_POSITION = 0;
     public static final double ELEVATOR_AMP_POSITION = 65;
