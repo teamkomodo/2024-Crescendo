@@ -19,6 +19,7 @@ import frc.robot.subsystems.ClimberSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -40,6 +41,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        autoChooser = AutoBuilder.buildAutoChooser();
     }
 
     private String armToSpeaker;
@@ -48,7 +50,7 @@ public class RobotContainer {
     private String intakePiece;
     private String shootpiece;
 
-    
+      private final SendableChooser<Command> autoChooser;
     
     
     private void configureBindings() {
@@ -125,7 +127,7 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
-        return null;
+        return autoChooser.getSelected();
     }
 
 }
