@@ -339,12 +339,12 @@ public void holdElevatorPosition() {
   }
 
   public void setTurbotakeAngle(Rotation2d angle) {
-    final double conversionFactor = (1.0 / 100.0) * (18.0 / 30.0) * 2.0 * Math.PI;
-    final double zeroAngle = -Math.toRadians(10);
+    final double conversionFactor = 1.0 / (JOINT_REDUTION * 2.0 * Math.PI); // joint radians -> motor rotations
+    final double zeroAngle = -Math.toRadians(30); // angle of joint when the encoder reads zero
 
     double armAngle = Math.toRadians(65) - angle.getRadians();
 
-    setJointPosition( (armAngle + zeroAngle) * conversionFactor );
+    setJointPosition( (armAngle - zeroAngle) * conversionFactor );
   }
 
 //set motor positions
