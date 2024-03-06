@@ -8,18 +8,12 @@ import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
-import frc.robot.commands.positions.TrapPositionCommand;
 
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurbotakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -105,7 +99,7 @@ public class RobotContainer {
         //operatorB.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-0.2), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
 
         Trigger operatorX = operatorController.x();
-        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem));
+        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem, drivetrainSubsystem));
 
         Trigger operatorY = operatorController.y();
         operatorY.onTrue(new AmpPositionCommand(armSubsystem));

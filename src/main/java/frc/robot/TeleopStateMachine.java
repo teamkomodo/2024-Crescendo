@@ -295,7 +295,7 @@ public class TeleopStateMachine {
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
                             commandScheduler.schedule(
-                                new SpeakerPositionCommand(armSubsystem),
+                                new SpeakerPositionCommand(armSubsystem, drivetrainSubsystem),
                                 // Commands.runOnce(() -> {
                                 //     double distFromWall = Math.sqrt(Math.pow(drivetrainSubsystem.getPose().getX() - (ON_RED_ALLIANCE.getAsBoolean() ? 16.46 : 0), 2));
                                 //     double distFromShooterFront = distFromWall - .46;

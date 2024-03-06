@@ -10,6 +10,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -340,6 +341,15 @@ public void holdElevatorPosition() {
     setElevatorPosition(ELEVATOR_POSITIONS_ORDERED[positionId]);
   }
 
+  public void setTurbotakeAngle(Rotation2d angle) {
+    final double conversionFactor = 1.0 / (JOINT_REDUTION * 2.0 * Math.PI); // joint radians -> motor rotations
+    final double zeroAngle = -Math.toRadians(15); // angle of joint when the encoder reads zero
+
+    double armAngle = Math.toRadians(65) - angle.getRadians();
+
+    setJointPosition( (armAngle - zeroAngle) * conversionFactor );
+  }
+
 //set motor positions
   public Command jointZeroPositionCommand() {
     return this.runOnce(() -> setJointPosition(0));
@@ -357,11 +367,10 @@ public void holdElevatorPosition() {
 
   public Command jointSpeakerPositionCommand() {
     commandedPosition = "speaker";
-    return this.runOnce(() -> setJointPosition(JOINT_SPEAKER_POSITION));
-    // jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
-    // double targetAngle = Math.atan(JOINT_AVERAGE_SHOOT_HEIGHT / robotDistanceFromSpeaker);
-    // double jointTargetAngle = targetAngle + TURBOTAKE_JOINT_RADIAN_OFFSET;
-    // return this.runOnce(() -> setJointPosition(jointTargetAngle / JOINT_RADIAN_PER_REVOLUTION));
+    jointAngleRadians = getJointPosition() * JOINT_RADIAN_PER_REVOLUTION;
+    double targetAngle = Math.atan(JOINT_AVERAGE_SHOOT_HEIGHT / robotDistanceFromSpeaker);
+    double jointTargetAngle = targetAngle + TURBOTAKE_JOINT_RADIAN_OFFSET;
+    return this.runOnce(() -> setJointPosition(jointTargetAngle / JOINT_RADIAN_PER_REVOLUTION));
   }
 
   public Command jointTrapPositionCommand( ) {
