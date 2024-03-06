@@ -53,7 +53,6 @@ public class RobotContainer {
         Trigger driverStart = driverController.start();
         driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        driverController.a().onTrue(Commands.runOnce(() -> armSubsystem.setTurbotakeAngle(Rotation2d.fromDegrees(30))));
         driverController.b().onTrue(Commands.runOnce(() -> armSubsystem.setTurbotakeAngle(Rotation2d.fromDegrees(40))));
 
         // // deadband and curves are applied in command
@@ -77,7 +76,7 @@ public class RobotContainer {
         operatorB.onTrue(new StowPositionCommand(armSubsystem));
 
         Trigger operatorX = operatorController.x();
-        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem));
+        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem, drivetrainSubsystem));
 
         Trigger operatorY = operatorController.y();
         operatorY.onTrue(new AmpPositionCommand(armSubsystem));
