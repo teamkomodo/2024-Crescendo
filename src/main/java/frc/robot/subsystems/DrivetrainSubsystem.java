@@ -7,11 +7,15 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
@@ -24,6 +28,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -40,12 +45,16 @@ import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 public class DrivetrainSubsystem implements Subsystem {
@@ -120,10 +129,11 @@ public class DrivetrainSubsystem implements Subsystem {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftPosition, frontRightPosition, backLeftPosition, backRightPosition);
     private final SwerveDrivePoseEstimator poseEstimator;
+    private final ProfiledPIDController rotationController = new ProfiledPIDController(3, 1.0e-5, 1.0e-1, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT));
     private final HolonomicDriveController driveController = new HolonomicDriveController(
         new PIDController(1, 0, 0),
         new PIDController(1, 0, 0),
-        new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT)));
+        rotationController);
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
@@ -399,6 +409,33 @@ public class DrivetrainSubsystem implements Subsystem {
         rotationOffsetRadians = -getRotation().getRadians() + rotation.getRadians();
     }
 
+
+    /**
+     * Converts raw joystick values to speeds for the drivetrain
+     * <p>
+     * This method applies deadbands and curves to the joystick values and clamps the resultant speed to the linear velocity constraint
+     * 
+     * @param xAxis value from -1 to 1 representing the x-axis of the joystick
+     * @param yAxis value from -1 to 1 representing the y-axis of the joystick
+     * @param rotAxis value from -1 to 1 representing the rotation axis of the joystick
+     * @return a ChassisSpeeds object representing the speeds to be passed to the drivetrain
+     */
+    public ChassisSpeeds joystickAxesToChassisSpeeds(double xAxis, double yAxis, double rotAxis) {
+
+        double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis, XBOX_DEADBAND)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+        double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis, XBOX_DEADBAND)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+        double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis, XBOX_DEADBAND)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
+        
+        double totalVelocity = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
+
+        if (totalVelocity > LINEAR_VELOCITY_CONSTRAINT){
+            xVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+            yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+        }
+
+        return new ChassisSpeeds(xVelocity, yVelocity, rotVelocity);
+    }
+
     // Commands
 
     public Command enableSlowModeCommand() {
@@ -414,21 +451,10 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
-        double deadband = 0.06;
         return Commands.run(() -> {
 
-            double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis.getAsDouble(), deadband)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
-            
-            double totalVelocity = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
-
-            if (totalVelocity > LINEAR_VELOCITY_CONSTRAINT){
-                xVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
-                yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
-            }
-
-            drive(xVelocity, yVelocity, rotVelocity, true, true);
+            ChassisSpeeds speeds = joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), rotAxis.getAsDouble());
+            drive(speeds, true, true);
 
         }, this);
     }
@@ -478,5 +504,29 @@ public class DrivetrainSubsystem implements Subsystem {
             },
             this
         );    
+    }
+
+    public Command driveAndPointToSpeakerCommand(DoubleSupplier xAxis, DoubleSupplier yAxis) {
+        return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), 0)));
+    }
+
+    public Command pointToSpeakerCommand() {
+        return pointToSpeakerWithSpeedsCommand(() -> (new ChassisSpeeds()));
+    }
+
+    public Command pointToSpeakerWithSpeedsCommand(Supplier<ChassisSpeeds> speedsSupplier) {
+        return Commands.run(() -> {
+
+            double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.0f;
+            double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.2f;
+
+            // TODO: Account for alliance
+            //improve this math eventually
+            //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
+            double desiredAngle = Math.atan(yDistance/xDistance);
+            
+            drive(speedsSupplier.get().vxMetersPerSecond, speedsSupplier.get().vyMetersPerSecond, rotationController.calculate(getPose().getRotation().getRadians(), desiredAngle), true, true);
+
+        }, this);
     }
 }

@@ -58,6 +58,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
     //PID values for shooter motors
     private double shooterP, shooterI, shooterD, shooterIZone, shooterFF, shooterMinOutput, shooterMaxOutput;
+
+    private boolean pieceLoaded = false;
+    private boolean pieceLoadedAtLastCheck = false;
     
     
     public final SysIdRoutine shooterRoutine = new SysIdRoutine(
@@ -76,6 +79,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
     
     public TurbotakeSubsystem(){
         
+       
+
         // PID coefficients for indexer
         indexerP = 1;
         indexerI = 0;
@@ -176,6 +181,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
         }
     }
     
+
+
     public void updateShooterTelemetry(){
         pieceDetectedPublisher.set(isPieceDetected());
         leftShooterVelocityPublisher.set(leftShooterEncoder.getVelocity());
@@ -252,10 +259,26 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
 
     //turn off indexer and sets Iaccum to 0 to reset I term
-    public void turnoffIndexer(){
+    public void turnOffIndexer(){
         setIndexerPercent(0);
         indexerPidController.setIAccum(0);
 
+    }
+
+    public void checkNoteIndexer(){
+        pieceLoadedAtLastCheck = pieceLoaded;
+        pieceLoaded = isPieceDetected();
+        if(!pieceLoadedAtLastCheck && pieceLoaded){
+            turnOffIndexer();
+        }
+    }
+
+    public boolean checkShooterSpeed(){
+        if(leftShooterEncoder.getVelocity() == 2500){
+            return true;
+        } else{
+            return false;
+        }
     }
     
     // Command 
@@ -275,5 +298,32 @@ public class TurbotakeSubsystem extends SubsystemBase{
         // Command will run until the flywheel has spun up
         return Commands.run(() -> setShooterVelocity(speed), this).until(() -> (rightShooterEncoder.getVelocity() - speed < threshold));
     }
+
+    public Command shootForSpeaker(){
+        return Commands.sequence(
+            Commands.runOnce(() -> setShooterVelocity(SPEAKER_SPEED)),
+            Commands.waitUntil(() -> (checkShooterSpeed())),
+            Commands.runOnce(() -> setIndexerPercent(1)),
+            Commands.waitUntil(() -> (!isPieceDetected())),
+            Commands.runOnce(() -> turnOffIndexer()),
+            Commands.runOnce(() -> turnoffShooter())
+        ).finallyDo(() -> {
+            turnOffIndexer();
+            turnoffShooter();
+        });
+    }
+
+    public Command shootForAmp(){
+        return Commands.sequence(
+            Commands.waitUntil(() -> !isPieceDetected()),
+            Commands.runOnce(() -> setIndexerPercent(-1)),
+            Commands.waitUntil(() -> isPieceDetected()),
+            Commands.runOnce(() -> turnOffIndexer())
+        ).finallyDo(() -> {
+            turnOffIndexer();
+        });
+    }
+
+
     
 }

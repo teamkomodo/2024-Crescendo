@@ -54,9 +54,6 @@ public class RobotContainer {
         Trigger driverA = driverController.a();
         driverA.whileTrue(teleopStateMachine.alignSpeakerCommand());
 
-        // driverController.a().whileTrue(Commands.run(() -> drivetrainSubsystem.drive(1.0, 0.0, 0.0, true, true), drivetrainSubsystem));
-        // driverController.b().whileTrue(Commands.run(() -> drivetrainSubsystem.drive(-1.0, 0.0, 0.0, true, true), drivetrainSubsystem));
-
         Trigger driverB = driverController.b();
         driverB.whileTrue(teleopStateMachine.scoreAmpCommand());
 
@@ -73,14 +70,10 @@ public class RobotContainer {
         driverLB.onTrue(drivetrainSubsystem.enableSlowModeCommand());
         driverLB.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
-        // Trigger driverRT = driverController.rightTrigger();
-        // driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
-        // driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
-
         Trigger driverStart = driverController.start();
         driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        // deadband and curves are applied in command
+        // // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
                 () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
@@ -88,6 +81,8 @@ public class RobotContainer {
                 () -> ( -driverController.getRightX() ) // -X on right joystick is +Z for robot
             )
         );
+
+        driverController.a().whileTrue(drivetrainSubsystem.pointToSpeakerCommand());
 
     // Operator Controls
 
@@ -110,20 +105,24 @@ public class RobotContainer {
         //operatorB.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-0.2), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
 
         Trigger operatorX = operatorController.x();
-        operatorX.onTrue(new AmpPositionCommand(armSubsystem));
+        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem));
 
         Trigger operatorY = operatorController.y();
-        operatorY.onTrue(new SpeakerPositionCommand(armSubsystem));
+        operatorY.onTrue(new AmpPositionCommand(armSubsystem));
 
+        //amp
         Trigger operatorRB = operatorController.rightBumper();
-        operatorRB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorRB.whileTrue(turbotakeSubsystem.shootForAmp());
 
+        //intake indexer
         Trigger operatorLB = operatorController.leftBumper();
-        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
         
+        //speaker
         Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(shooterVelocity), () -> turbotakeSubsystem.setShooterPercent(0)));
+        operatorRT.whileTrue(turbotakeSubsystem.shootForSpeaker());
 
+        //intake shooter
         Trigger operatorLT = operatorController.leftTrigger();
         operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
         

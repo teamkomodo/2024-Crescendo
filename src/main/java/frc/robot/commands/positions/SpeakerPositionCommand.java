@@ -29,6 +29,11 @@ public class SpeakerPositionCommand extends DynamicCommand {
                 new SpeakerPositionCommand(armSubsystem)
             );
         }
+
+        if (armSubsystem.getCommandedPosition() == "speaker") {
+            return null;
+        }
+
         if (armSubsystem.getJointPosition() < 2.5) {
             return new SequentialCommandGroup(
                 armSubsystem.jointSpeakerPositionCommand(),

@@ -35,6 +35,10 @@ public class IntakePositionCommand extends DynamicCommand{
                 )
             );
         }
+
+        if (armSubsystem.getCommandedPosition() == "intake") {
+            return null;
+        }
         
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),

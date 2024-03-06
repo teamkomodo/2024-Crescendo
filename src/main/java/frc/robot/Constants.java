@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public final class Constants {
 
 // Controls
+    public static final double XBOX_DEADBAND = 0.06;
     public static final int DRIVER_XBOX_PORT = 0;
     public static final int OPERATOR_XBOX_PORT = 1;
 
@@ -40,8 +41,10 @@ public final class Constants {
     public static final double INDEXER_SPEED = 0.7;
     public static final double SHOOTER_MAX_VELOCITY = 2900;
 
+    //duty cycle
     public static final double AMP_SPEED = 0.75;
-    public static final double SPEAKER_SPEED = 1;
+    //rpm
+    public static final double SPEAKER_SPEED = 2500;
     public static final double SPIN_RATIO = 1.0;
 
     public static final double LINEAR_SLOW_MODE_MODIFIER = 0.5;
@@ -118,8 +121,9 @@ public final class Constants {
     public static final double JOINT_STOW_POSITION = 10;
     public static final double JOINT_AMP_POSITION = 30;
     public static final double JOINT_SPEAKER_POSITION = 16;
+    public static final double JOINT_PRE_INTAKE_POSITION = 4;
     public static final double JOINT_TRAP_POSITION = 45;
-    public static final double JOINT_INTAKE_POSITION = 2.5;
+    public static final double JOINT_INTAKE_POSITION = 1.5;
 
     public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         JOINT_STOW_POSITION,
@@ -155,7 +159,7 @@ public final class Constants {
     public static final double ELEVATOR_AMP_POSITION = 55;
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
-    public static final double ELEVATOR_INTAKE_POSITION = 65;
+    public static final double ELEVATOR_INTAKE_POSITION = 63;
     public static final double ELEVATOR_BUFFER_DISTANCE = 0;
 
     public static final double[] ELEVATOR_POSITIONS_ORDERED = { // Order in array corresponds to selector position
