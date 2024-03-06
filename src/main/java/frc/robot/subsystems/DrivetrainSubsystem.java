@@ -124,7 +124,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftPosition, frontRightPosition, backLeftPosition, backRightPosition);
     private final SwerveDrivePoseEstimator poseEstimator;
-    private final ProfiledPIDController rotationController = new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT));
+    private final ProfiledPIDController rotationController = new ProfiledPIDController(3, 1.0e-5, 1.0e-1, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT));
     private final HolonomicDriveController driveController = new HolonomicDriveController(
         new PIDController(1, 0, 0),
         new PIDController(1, 0, 0),
@@ -496,17 +496,15 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command pointToSpeakerWithSpeedsCommand(Supplier<ChassisSpeeds> speedsSupplier) {
         return Commands.run(() -> {
 
-            double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.2f;
-            double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.55f;
+            double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.0f;
+            double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.2f;
 
             // TODO: Account for alliance
             //improve this math eventually
             //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
-            double actualAngle = Math.signum(yDistance) //above speaker means +1, below means -1
-            * (((Math.signum(xDistance) - 1) * -0.5 * Math.PI) //in front of speaker (right) means 180, behind (left) means 0
-            - (Math.signum(xDistance) * (Math.atan(Math.abs(yDistance)/Math.abs(xDistance))))); //in front means neg, behind means pos
+            double desiredAngle = Math.atan(yDistance/xDistance);
             
-            drive(speedsSupplier.get().vxMetersPerSecond, speedsSupplier.get().vyMetersPerSecond, rotationController.calculate(getAdjustedRotation().getRadians(), actualAngle), true, true);
+            drive(speedsSupplier.get().vxMetersPerSecond, speedsSupplier.get().vyMetersPerSecond, rotationController.calculate(getPose().getRotation().getRadians(), desiredAngle), true, true);
 
         }, this);
     }
