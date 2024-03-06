@@ -69,19 +69,19 @@ public class RobotContainer {
     // Operator Controls
         
         double shooterVelocity = 2000;
-        double climberVelocity = 50;
+        double climberVelocity = 0.1;
 
-        Trigger operatorA = operatorController.a();
-        operatorA.onTrue(new IntakePositionCommand(armSubsystem));
+        // Trigger operatorA = operatorController.a();
+        // operatorA.onTrue(new IntakePositionCommand(armSubsystem));
 
-        Trigger operatorB = operatorController.b();
-        operatorB.onTrue(new StowPositionCommand(armSubsystem));
+        // Trigger operatorB = operatorController.b();
+        // operatorB.onTrue(new StowPositionCommand(armSubsystem));
 
-        Trigger operatorX = operatorController.x();
-        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem));
+        // Trigger operatorX = operatorController.x();
+        // operatorX.onTrue(new SpeakerPositionCommand(armSubsystem));
 
-        Trigger operatorY = operatorController.y();
-        operatorY.onTrue(new AmpPositionCommand(armSubsystem));
+        // Trigger operatorY = operatorController.y();
+        // operatorY.onTrue(new AmpPositionCommand(armSubsystem));
 
         //amp
         Trigger operatorRB = operatorController.rightBumper();
@@ -105,11 +105,19 @@ public class RobotContainer {
         Trigger operatorLS = operatorController.leftStick();
         operatorLS.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightX()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
         
-        Trigger operatorStart = operatorController.start();
-        operatorStart.whileTrue(Commands.runEnd(() -> {climberSubsystem.setMotorVelocity(climberVelocity); operatorRumbleController.setRumble(GenericHID.RumbleType.kRightRumble, 1);}, () -> {climberSubsystem.holdMotorPosition(); operatorRumbleController.setRumble(GenericHID.RumbleType.kRightRumble, 0);}));
+        Trigger a = operatorController.a();
+        a.whileTrue(Commands.runEnd(() -> {climberSubsystem.setMotorVelocity(climberVelocity);}, () -> {climberSubsystem.holdMotorPosition();}));
 
-        Trigger operatorBack = operatorController.back();
-        operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+        Trigger b = operatorController.b();
+        b.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+
+        Trigger x = operatorController.x();
+        x.onTrue(climberSubsystem.climbPositionCommand());
+
+        Trigger y = operatorController.y();
+        y.onTrue(climberSubsystem.climberZeroCommand());
+
+        armSubsystem.setJointMotorPercent(0);
 
     }
     
