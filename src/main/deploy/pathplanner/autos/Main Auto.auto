@@ -1,0 +1,73 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3725738150477713,
+      "y": 6.487803446362955
+    },
+    "rotation": -146.1209584403734
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeMid"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Top Middle Note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Score"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "2024 Crescendo Autos",
+  "choreoAuto": false
+}

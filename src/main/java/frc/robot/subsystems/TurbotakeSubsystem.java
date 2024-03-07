@@ -194,13 +194,14 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
     
     public void setShooterPercent(double percent, double spinRatio) {
+        System.out.println("RUNNING SHOOTERS, SPIN RATIO " + " " + spinRatio);
         leftShooterPidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
         rightShooterPidController.setReference(percent, ControlType.kDutyCycle);
         
     }
     
     public void setIndexerPercent(double percent){
-        System.out.println("RUNNING INDEXER");
+        System.out.println("RUNNING INDEXER, SPEED " + " " + percent);
         indexerPidController.setReference(percent, ControlType.kDutyCycle);
     }
 
@@ -257,7 +258,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
             Commands.runOnce(() -> setShooterVelocity(SPEAKER_SPEED)),
             Commands.waitUntil(() -> (checkShooterSpeed())),
             Commands.runOnce(() -> setIndexerPercent(1)),
-            Commands.waitUntil(() -> (!isPieceDetected())),
+            Commands.waitSeconds(1),
             Commands.runOnce(() -> turnOffIndexer()),
             Commands.runOnce(() -> turnoffShooter())
         ).finallyDo(() -> {
@@ -270,7 +271,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         return Commands.sequence(
             Commands.waitUntil(() -> !isPieceDetected()),
             Commands.runOnce(() -> setIndexerPercent(-1)),
-            Commands.waitUntil(() -> isPieceDetected()),
+            Commands.waitSeconds(1),
             Commands.runOnce(() -> turnOffIndexer())
         ).finallyDo(() -> {
             turnOffIndexer();

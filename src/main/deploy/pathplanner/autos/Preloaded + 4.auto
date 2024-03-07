@@ -1,0 +1,91 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.4194171612308972,
+      "y": 5.539225686154654
+    },
+    "rotation": -177.95459151111265
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "armToSpeaker"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSpeaker"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeMid"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Top Middle Note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeBottom"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Score"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "2024 Crescendo Autos",
+  "choreoAuto": false
+}

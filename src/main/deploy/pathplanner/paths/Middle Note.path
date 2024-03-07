@@ -1,0 +1,88 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.2450311377084944,
+        "y": 6.628333484912334
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.5041102519599527,
+        "y": 6.791092082660384
+      },
+      "isLocked": false,
+      "linkedName": "Speaker"
+    },
+    {
+      "anchor": {
+        "x": 2.976958421819838,
+        "y": 4.883418839590889
+      },
+      "prevControl": {
+        "x": 1.976958421819838,
+        "y": 4.883418839590889
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "IntakePiece",
+      "waypointRelativePos": 1.0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "armToIntake"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.5
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "intakePiece"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "armToStow"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 92.29061004263852,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "2024 Crescendo Paths",
+  "previewStartingState": {
+    "rotation": 177.87890360333856,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

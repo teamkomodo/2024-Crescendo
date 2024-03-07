@@ -52,7 +52,7 @@ public class RobotContainer {
     private String armToStow;
     private String armToIntake;
     private String intakePiece;
-    private String shootpiece;
+    private String shootSpeaker;
 
       private final SendableChooser<Command> autoChooser;
     
@@ -63,7 +63,10 @@ public class RobotContainer {
         NamedCommands.registerCommand(armToStow, new StowPositionCommand(armSubsystem));
         NamedCommands.registerCommand(armToSpeaker, new SpeakerPositionCommand(armSubsystem));
         NamedCommands.registerCommand(intakePiece, turbotakeSubsystem.IntakePiece());
-        NamedCommands.registerCommand(shootpiece, turbotakeSubsystem.shootForSpeaker());
+        NamedCommands.registerCommand(shootSpeaker, turbotakeSubsystem.shootForSpeaker());
+
+        
+        
     // Driver Controls
     
 
@@ -106,7 +109,7 @@ public class RobotContainer {
 
         //intake indexer
         Trigger operatorLB = operatorController.leftBumper();
-        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorLB.whileTrue(turbotakeSubsystem.IntakePiece());
         
         //speaker
         Trigger operatorRT = operatorController.rightTrigger();
@@ -132,6 +135,24 @@ public class RobotContainer {
     
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    public Command intakeCommand(){
+        return Commands.sequence(
+            Commands.runOnce(() -> new IntakePositionCommand(armSubsystem)),
+            Commands.waitSeconds(0.5),
+            Commands.runOnce(() -> turbotakeSubsystem.IntakePiece()),
+            Commands.runOnce(() -> new StowPositionCommand(armSubsystem))
+        );
+    }
+
+    public Command shootCommand(){
+        return Commands.sequence(
+            Commands.runOnce(() -> new SpeakerPositionCommand(armSubsystem)),
+            Commands.waitSeconds(0.5),
+            Commands.runOnce(() -> turbotakeSubsystem.shootForSpeaker()),
+            Commands.runOnce(() -> new StowPositionCommand(armSubsystem))
+        );
     }
 
 }

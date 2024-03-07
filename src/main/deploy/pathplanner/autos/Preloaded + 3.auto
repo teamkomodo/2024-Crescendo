@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2337167531477924,
-      "y": 5.702529119343954
+      "x": 1.36086297850199,
+      "y": 5.609490705429342
     },
     "rotation": 0.0
   },
@@ -12,56 +12,68 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "align-c2-top"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "align-speaker-top"
+            "name": "armToSpeaker"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.5
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "align-c1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "align-speaker-top"
+            "name": "shootSpeaker"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 4.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "align-c3"
+            "pathName": "IntakeMid"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "align-speaker-bottom"
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Top Middle Note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Shoot"
           }
         }
       ]
     }
   },
-  "folder": null,
+  "folder": "2024 Crescendo Autos",
   "choreoAuto": false
 }

@@ -1,0 +1,92 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.8761397865163765,
+        "y": 7.014791090923124
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.8761397865163794,
+        "y": 7.014791090923124
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.2450311377084944,
+        "y": 6.628333484912334
+      },
+      "prevControl": {
+        "x": 1.961802524835159,
+        "y": 6.628333484912334
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Speaker"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "shootSpeaker",
+      "waypointRelativePos": 1.0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "armToSpeaker"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "shootSpeaker"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "armToStow"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": []
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 179.2790999912683,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "2024 Crescendo Paths",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

@@ -1,0 +1,76 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.4148382676223257,
+        "y": 4.239322829572906
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.5975273177365166,
+        "y": 4.049607277531247
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.2040432097982583,
+        "y": 4.66091294522104
+      },
+      "prevControl": {
+        "x": 2.41050533305659,
+        "y": 4.517455876479106
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "armToSpeaker"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "shootSpeaker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 161.9958383940866,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "2024 Crescendo Paths",
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

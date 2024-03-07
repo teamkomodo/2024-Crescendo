@@ -31,7 +31,7 @@ public final class Constants {
     public static final int TURBOTAKE_NOTE_SENSOR_PORT = 3;
     //Constants
     public static final double INDEXER_SPEED = 0.7;
-    public static final double SHOOTER_SPEED = 1;
+    public static final double SHOOTER_SPEED = 2500;
 
     //duty cycle
     public static final double AMP_SPEED = 0.75;

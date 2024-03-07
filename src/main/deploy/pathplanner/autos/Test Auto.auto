@@ -1,0 +1,25 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3023087957770472,
+      "y": 2.8106007709875613
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Test Path"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "2024 Crescendo Autos",
+  "choreoAuto": false
+}
