@@ -126,13 +126,10 @@ public final class Constants {
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 1.5;
 
-    public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
-        JOINT_STOW_POSITION,
-        JOINT_AMP_POSITION,
-        JOINT_SPEAKER_POSITION,
-        JOINT_TRAP_POSITION,
-        JOINT_INTAKE_POSITION
-    };
+    /**
+     * motor rotations -> joint radians
+     */
+    public static final double JOINT_ANGLE_CONVERSION_FACTOR = JOINT_REDUTION * 2.0 * Math.PI;
 
     public static double JOINT_POSITION_FROM_ROBOT_FRONT = 22.0; // Change later
     public static double JOINT_POSITION_FROM_ROBOT_BACK = 4.0;

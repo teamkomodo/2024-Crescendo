@@ -14,7 +14,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurbotakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
-
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,9 +42,18 @@ public class RobotContainer {
     
     private void configureBindings() {
 
-    // Driver Controls
+        /*
+         * Driver Controls
+         * 
+         * A - Align Speaker
+         * B - Score Amp
+         * 
+         * RT - Shoot Speaker
+         * 
+         * RB - Pickup Ground
+         * LB - Slow Mode
+         */
 
-        // For State Machine
         Trigger driverA = driverController.a();
         driverA.whileTrue(teleopStateMachine.alignSpeakerCommand());
 
@@ -57,8 +66,6 @@ public class RobotContainer {
         Trigger driverRB = driverController.rightBumper();
         driverRB.whileTrue(teleopStateMachine.pickupGroundCommand());
 
-        // Drivetrain
-
         Trigger driverLB = driverController.leftBumper();
 
         driverLB.onTrue(drivetrainSubsystem.enableSlowModeCommand());
@@ -67,7 +74,7 @@ public class RobotContainer {
         Trigger driverStart = driverController.start();
         driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
-        // // deadband and curves are applied in command
+        // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
                 () -> ( -driverController.getLeftY() ), // -Y on left joystick is +X for robot
@@ -78,16 +85,24 @@ public class RobotContainer {
 
         driverController.a().whileTrue(drivetrainSubsystem.pointToSpeakerCommand());
 
-    // Operator Controls
-
-        // For State Machine
-        // Trigger operatorA = operatorController.a();
-        // operatorA.whileTrue(teleopStateMachine.alignSpeakerCommand());
-
-        // Trigger operatorB = operatorController.b();
-        // operatorB.whileTrue(teleopStateMachine.scoreAmpCommand());
+        /*
+         * Operator Controls
+         * 
+         * A - Stow
+         * B - Intake
+         * X - Amp
+         * Y - Speaker
+         * 
+         * Left Stick X - Elevator
+         * Right Stick Y - Joint
+         * 
+         * Right Trigger - Shoot
+         * Left Trigger - Indexer
+         * 
+         * Right Bumper - Reverse Shooter
+         * Left Bumper - Reverse Indexer
+         */
         
-        double shooterVelocity = 2000;
         double climberVelocity = 50;
 
         Trigger operatorA = operatorController.a();
@@ -99,32 +114,28 @@ public class RobotContainer {
         //operatorB.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-0.2), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
 
         Trigger operatorX = operatorController.x();
-        operatorX.onTrue(new SpeakerPositionCommand(armSubsystem, drivetrainSubsystem));
+        operatorX.onTrue(new AmpPositionCommand(armSubsystem));
 
         Trigger operatorY = operatorController.y();
-        operatorY.onTrue(new AmpPositionCommand(armSubsystem));
+        operatorY.onTrue(new SpeakerPositionCommand(armSubsystem));
 
-        //amp
         Trigger operatorRB = operatorController.rightBumper();
-        operatorRB.whileTrue(turbotakeSubsystem.shootForAmp());
+        operatorRB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-1), () -> turbotakeSubsystem.setShooterPercent(0)));
 
-        //intake indexer
         Trigger operatorLB = operatorController.leftBumper();
-        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-0.5), () -> turbotakeSubsystem.setIndexerPercent(0)));
         
-        //speaker
         Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(turbotakeSubsystem.shootForSpeaker());
+        operatorRT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1, 0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
 
-        //intake shooter
         Trigger operatorLT = operatorController.leftTrigger();
-        operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
+        operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
         
-        Trigger operatorRS = operatorController.rightStick();
-        operatorRS.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getRightX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
+        Trigger operatorRSY = operatorController.axisGreaterThan(XboxController.Axis.kRightY.value, XBOX_DEADBAND);
+        operatorRSY.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightY()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
 
-        Trigger operatorLS = operatorController.leftStick();
-        operatorLS.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightX()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
+        Trigger operatorLSX = operatorController.axisGreaterThan(XboxController.Axis.kLeftX.value, XBOX_DEADBAND);
+        operatorLSX.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getLeftX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
         
         Trigger operatorStart = operatorController.start();
         operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(climberVelocity), () -> climberSubsystem.holdMotorPosition()));

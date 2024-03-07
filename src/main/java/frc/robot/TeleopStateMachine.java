@@ -36,7 +36,8 @@ public class TeleopStateMachine {
         DRIVE_WITH_PIECE,
         PICKUP_GROUND,
         SCORE_SPEAKER,
-        SCORE_AMP
+        SCORE_AMP,
+        END
     }
 
     public static enum ShootingState {
@@ -51,6 +52,8 @@ public class TeleopStateMachine {
         PARTIAL_AQUISITION,
         ALIGN_PIECE
     }
+
+    private static final boolean smartShooting = true;
 
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("teleopstatemachine");
     private final StringPublisher statePublisher = table.getStringTopic("teleopstate").publish();
@@ -294,22 +297,27 @@ public class TeleopStateMachine {
                         
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
-                            commandScheduler.schedule(
-                                new SpeakerPositionCommand(armSubsystem, drivetrainSubsystem),
-                                // Commands.runOnce(() -> {
-                                //     double distFromWall = Math.sqrt(Math.pow(drivetrainSubsystem.getPose().getX() - (ON_RED_ALLIANCE.getAsBoolean() ? 16.46 : 0), 2));
-                                //     double distFromShooterFront = distFromWall - .46;
-                                //     double vertical = 2.11 - 0.30; // 2.11 is height from ground. 0.30 is average height of turbotake
 
-                                //     double shooterAngle = Math.atan(vertical / distFromShooterFront);
+                            commandScheduler.schedule(ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_1_PATTERN_BREATH_FAST));
 
-                                // }, armSubsystem),
-                                ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_1_PATTERN_BREATH_FAST));
+                            if(smartShooting) {
+                                commandScheduler.schedule(
+                                    Commands.sequence(
+                                        Commands.runOnce(() -> armSubsystem.setElevatorPosition(1)),
+                                        Commands.run(() -> armSubsystem.setTurbotakeAngle(calculateShooterAngle()), armSubsystem).until(() -> shootingStateSwitched)
+                                    ),
+                                    drivetrainSubsystem.pointToSpeakerCommand()
+                                );
+                            }else {
+                                commandScheduler.schedule(
+                                    new SpeakerPositionCommand(armSubsystem)
+                                );
+                            }
                             timer.reset();
                             timer.start();
                         }
 
-                        if(commandingShootSpeaker && timer.hasElapsed(0.3)) {
+                        if(armSubsystem.isTurbotakeAtAngle(calculateShooterAngle(), 0.5)) {
                             shootingStateSwitched = true;
                             currentShootingState = ShootingState.SHOOT_SPEAKER;
                         }
@@ -386,6 +394,9 @@ public class TeleopStateMachine {
                 }
 
                 break;
+            case END:
+                
+                break;
             default:
                 // The default case will only run if the currentState doesn't have a corresponding case in the switch statement. This is an error
                 ledSubsystem.setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LARSON_SCANNER_RED);
@@ -398,6 +409,16 @@ public class TeleopStateMachine {
         statePublisher.set(currentState.toString());
         shootingStatePublisher.set(currentShootingState.toString());
         pickupStatePublisher.set(currentPickupState.toString());
+    }
+
+    private Rotation2d calculateShooterAngle() {
+        double distFromWall = Math.sqrt(Math.pow(drivetrainSubsystem.getPose().getX() - (ON_RED_ALLIANCE.getAsBoolean() ? 16.46 : 0), 2));
+        double distFromShooterFront = distFromWall - .46;
+        double vertical = 2.11 - 0.30; // 2.11 is height from ground. 0.30 is average height of turbotake
+
+        double shooterAngle = Math.atan(vertical / distFromShooterFront);
+
+        return Rotation2d.fromRadians(shooterAngle);
     }
 
     public Command pickupGroundCommand() {

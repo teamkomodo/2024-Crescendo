@@ -36,7 +36,7 @@ public class StowPositionCommand extends DynamicCommand {
         
         if (armSubsystem.getJointPosition() < 2.5) {
             return new SequentialCommandGroup(
-                armSubsystem.jointSpeakerPositionCommand(),
+                armSubsystem.jointPositionCommand(16),
                 new WaitCommand(0.2),
                 armSubsystem.elevatorZeroPositionCommand(),
                 new WaitCommand(0.1),
@@ -45,7 +45,7 @@ public class StowPositionCommand extends DynamicCommand {
             );
         }
         return new SequentialCommandGroup(
-            armSubsystem.elevatorZeroPositionCommand(),
+            armSubsystem.jointPositionCommand(16),
             new WaitCommand(0.1),
             armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorStowPositionCommand()

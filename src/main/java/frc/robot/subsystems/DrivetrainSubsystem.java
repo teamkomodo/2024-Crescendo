@@ -7,15 +7,11 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
@@ -28,7 +24,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -45,8 +40,6 @@ import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -54,7 +47,6 @@ import java.util.function.Supplier;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 public class DrivetrainSubsystem implements Subsystem {
@@ -158,25 +150,17 @@ public class DrivetrainSubsystem implements Subsystem {
 
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-        backRight = new NeoSwerveModule(
-                BACK_RIGHT_DRIVE_MOTOR_ID,
-                BACK_RIGHT_STEER_MOTOR_ID,
-                BACK_RIGHT_STEER_ENCODER_ID,
-                BACK_RIGHT_STEER_OFFSET,
+        // Drive FFGain updated AM 03/07
+
+        frontLeft = new NeoSwerveModule(
+                FRONT_LEFT_DRIVE_MOTOR_ID,
+                FRONT_LEFT_STEER_MOTOR_ID,
+                FONT_LEFT_STEER_ENCODER_ID,
+                FRONT_LEFT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(2*0, 0, 0),
-                new FFGains(0.15263, 3.158, 0.53993),
-                drivetrainNT.getSubTable("backright"));
-        
-        backLeft = new NeoSwerveModule(
-                BACK_LEFT_DRIVE_MOTOR_ID,
-                BACK_LEFT_STEER_MOTOR_ID,
-                BACK_LEFT_STEER_ENCODER_ID,
-                BACK_LEFT_STEER_OFFSET,
-                new PIDGains(1.0, 0, 0),
-                new PIDGains(1*0, 0, 0),
-                new FFGains(0.17645, 3.1584, 0.30427),
-                drivetrainNT.getSubTable("backleft"));
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.19861, 3.2379, 0.562),
+                drivetrainNT.getSubTable("frontleft"));
 
         frontRight = new NeoSwerveModule(
                 FRONT_RIGHT_DRIVE_MOTOR_ID,
@@ -184,19 +168,29 @@ public class DrivetrainSubsystem implements Subsystem {
                 FRONT_RIGHT_STEER_ENCODER_ID,
                 FRONT_RIGHT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(0.45027 * 0, 0, 0),
-                new FFGains(0.1464, 3.206, 0.44254),
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.18406, 3.2722, 0.40914),
                 drivetrainNT.getSubTable("frontright"));
-        
-        frontLeft = new NeoSwerveModule(
-                FRONT_LEFT_DRIVE_MOTOR_ID,
-                FRONT_LEFT_STEER_MOTOR_ID,
-                FONT_LEFT_STEER_ENCODER_ID,
-                FRONT_LEFT_STEER_OFFSET,
+
+        backLeft = new NeoSwerveModule(
+                BACK_LEFT_DRIVE_MOTOR_ID,
+                BACK_LEFT_STEER_MOTOR_ID,
+                BACK_LEFT_STEER_ENCODER_ID,
+                BACK_LEFT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(2 * 0, 0, 0),
-                new FFGains(0.1751, 3.1887, 0.31847),
-                drivetrainNT.getSubTable("frontleft"));
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.17395, 3.286, 0.51328),
+                drivetrainNT.getSubTable("backleft"));
+
+        backRight = new NeoSwerveModule(
+                BACK_RIGHT_DRIVE_MOTOR_ID,
+                BACK_RIGHT_STEER_MOTOR_ID,
+                BACK_RIGHT_STEER_ENCODER_ID,
+                BACK_RIGHT_STEER_OFFSET,
+                new PIDGains(1.0, 0, 0),
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.17731, 3.2446, 0.41604),
+                drivetrainNT.getSubTable("backright"));
 
         tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
@@ -529,4 +523,5 @@ public class DrivetrainSubsystem implements Subsystem {
 
         }, this);
     }
+    
 }
