@@ -29,10 +29,6 @@ public class StowPositionCommand extends DynamicCommand {
                 new StowPositionCommand(armSubsystem)
             );
         }
-
-        if (armSubsystem.getCommandedPosition() == "stow") {
-            return null;
-        }
         
         if (armSubsystem.getJointPosition() < 2.5) {
             return new SequentialCommandGroup(

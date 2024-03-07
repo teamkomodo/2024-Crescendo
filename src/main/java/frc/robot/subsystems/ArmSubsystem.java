@@ -89,9 +89,7 @@ public class ArmSubsystem extends SubsystemBase {
 	
 	private boolean atJointMaxLimit = false;
 	private boolean atJointMinLimit = false;
-	
-	private String commandedPosition = "stow";
-	
+		
 	private final BooleanPublisher jointZeroedPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("jointzeroed").publish();
 	private final DoublePublisher jointPositionPublisher = NetworkTableInstance.getDefault().getTable("arm").getDoubleTopic("jointposition").publish();
 	private final BooleanPublisher jointMiddleSwitchPublisher = NetworkTableInstance.getDefault().getTable("arm").getBooleanTopic("jointmiddleswitch").publish();
@@ -342,6 +340,10 @@ public class ArmSubsystem extends SubsystemBase {
 	public boolean isTurbotakeAtAngle(Rotation2d angle, double tolerance) {
 		return isJointAtPosition(angle.getRadians() * 1.0 / JOINT_ANGLE_CONVERSION_FACTOR, tolerance);
 	}
+
+	public boolean isElevatorAtPosition(double position, double tolerance) {
+		return Math.abs(elevatorEncoder.getPosition() - position) < tolerance;
+	}
 	
 	//set motor positions
 	public Command jointZeroPositionCommand() {
@@ -349,12 +351,10 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 	
 	public Command jointStowPositionCommand() {
-		commandedPosition = "stow";
 		return this.runOnce(() -> setJointPosition(JOINT_STOW_POSITION));
 	}
 	
 	public Command jointAmpPositionCommand() {
-		commandedPosition = "amp";
 		return this.runOnce(() -> setJointPosition(JOINT_AMP_POSITION));
 	}
 
@@ -371,12 +371,15 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 	
 	public Command jointIntakePositionCommand() {
-		commandedPosition = "intake";
 		return this.runOnce(() -> setJointPosition(JOINT_INTAKE_POSITION));
 	}
 	
 	public Command jointPreIntakePositionCommand() {
 		return this.runOnce(() -> setJointPosition(JOINT_PRE_INTAKE_POSITION));
+	}
+
+	public Command elevatorPositionCommand(double position) {
+		return this.runOnce(() -> setElevatorPosition(position));
 	}
 	
 	public Command elevatorZeroPositionCommand() {
@@ -406,7 +409,7 @@ public class ArmSubsystem extends SubsystemBase {
 	public Command elevatorZeroCommand() {
 		// use .set instead of setElevatorPercent so that the limit don't apply
 		return Commands.sequence(
-			jointStowPositionCommand(),
+			Commands.runOnce(() -> setJointPosition(JOINT_STOW_POSITION)),
 			Commands.waitUntil(() -> isJointAtPosition(JOINT_STOW_POSITION, 0.5)),
 			Commands.runEnd(() -> elevatorMotor.set(-0.3), () -> elevatorMotor.set(0), this).until(() -> (atElevatorLimitSwitch))
 		);
@@ -494,7 +497,4 @@ public class ArmSubsystem extends SubsystemBase {
 		return elevatorZeroed;
 	}
 	
-	public String getCommandedPosition() {
-		return commandedPosition;
-	}
 }

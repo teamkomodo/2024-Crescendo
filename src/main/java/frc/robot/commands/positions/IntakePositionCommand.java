@@ -20,26 +20,16 @@ public class IntakePositionCommand extends DynamicCommand{
 
     @Override
     protected Command getCommand() {
-        if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
-            return Commands.sequence(
-                Commands.parallel(
-                    armSubsystem.jointZeroCommand(),
-                    armSubsystem.elevatorZeroCommand()),
-                new SequentialCommandGroup(
-                    armSubsystem.elevatorZeroPositionCommand(),
-                    new WaitCommand(0.3),
-                    armSubsystem.jointStowPositionCommand(),
-                    armSubsystem.elevatorIntakePositionCommand(),
-                    new WaitCommand(0.5),
-                    armSubsystem.jointIntakePositionCommand()
-                )
-            );
-        }
+        // if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
+        //     return Commands.sequence(
+        //         Commands.sequence(
+        //             armSubsystem.jointZeroCommand(),
+        //             armSubsystem.elevatorZeroCommand()
+        //         ),
+        //         new IntakePositionCommand(armSubsystem)
+        //     );
+        // }
 
-        if (armSubsystem.getCommandedPosition() == "intake") {
-            return null;
-        }
-        
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),
             new WaitCommand(0.1),

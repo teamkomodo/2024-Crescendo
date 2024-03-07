@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static frc.robot.Constants.ELEVATOR_MAX_POSITION;
+import static frc.robot.Constants.JOINT_AMP_POSITION;
 import static frc.robot.Constants.ON_RED_ALLIANCE;
 import static frc.robot.Constants.SHOOTER_MAX_VELOCITY;
 
@@ -7,6 +9,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -37,6 +40,7 @@ public class TeleopStateMachine {
         PICKUP_GROUND,
         SCORE_SPEAKER,
         SCORE_AMP,
+        CLIMB,
         END
     }
 
@@ -53,12 +57,20 @@ public class TeleopStateMachine {
         ALIGN_PIECE
     }
 
-    private static final boolean smartShooting = true;
+    public static enum ClimbState {
+        EXTEND,
+        ASCEND,
+        SCORE_TRAP
+    }
+
+    private static final boolean smartShooting = false;
 
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("teleopstatemachine");
     private final StringPublisher statePublisher = table.getStringTopic("teleopstate").publish();
     private final StringPublisher shootingStatePublisher = table.getStringTopic("shootingstate").publish();
     private final StringPublisher pickupStatePublisher = table.getStringTopic("pickupstate").publish();
+
+    private final BooleanEntry enabledEntry = table.getBooleanTopic("statemachineenabled").getEntry(true);
 
     // Store a reference to the Command Scheduler so it's easier to schedule commands
     private final CommandScheduler commandScheduler = CommandScheduler.getInstance();
@@ -74,15 +86,19 @@ public class TeleopStateMachine {
 
     private final XboxController driverController;
 
+    private boolean enabled = true;
+
     // Store the current state
     private State currentState = State.START;
     private ShootingState currentShootingState = ShootingState.PREPARE_SHOOT;
     private PickupState currentPickupState = PickupState.NO_PIECE;
+    private ClimbState currentClimbState = ClimbState.EXTEND;
 
     // This will turn to true when the current state's exit condition is met, and will signal the next state to run its entrance code
     private boolean stateSwitched = true;
     private boolean shootingStateSwitched = true;
     private boolean currentPickupStateSwitched = true;
+    private boolean climbStateSwitched = true;
 
     private boolean commandingPickupGround = false;
     private boolean commandingAlignSpeaker = false;
@@ -106,6 +122,8 @@ public class TeleopStateMachine {
             Commands.runOnce( () -> turbotakeSubsystem.setIndexerPercent(-1) )
         );
 
+        enabledEntry.set(enabled);
+
     }
 
     public void init() {
@@ -128,6 +146,8 @@ public class TeleopStateMachine {
 
         updateTelemetry();
 
+        if(!enabled)
+            return;
         // Switch through all of all states to determine what code to execute this iteration
         switch (currentState) {
             case START:
@@ -157,12 +177,13 @@ public class TeleopStateMachine {
                     commandScheduler.schedule(ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_1_AND_2_PATTERN_SPARKLE_COLOR_2_ON_COLOR_1));
                 }
 
-                if( (drivetrainSubsystem.getPose().getX() < 8.5 && !ON_RED_ALLIANCE.getAsBoolean()) || (drivetrainSubsystem.getPose().getX() > 8.5 && ON_RED_ALLIANCE.getAsBoolean())) {
+                boolean pastMidline = (drivetrainSubsystem.getPose().getX() < 8.5 && !ON_RED_ALLIANCE.getAsBoolean()) || (drivetrainSubsystem.getPose().getX() > 8.5 && ON_RED_ALLIANCE.getAsBoolean());
+                if(pastMidline || commandingShootSpeaker) {
                     stateSwitched = true;
                     currentState = State.SCORE_SPEAKER;
                 }
 
-                // if(!turbotakeSubsystem.hasPiece() && turbotakeSubsystem.getIndexerVelocity() < -1000) {
+                // if(!turbotakeSubsystem.hasPiece()) {
                 //     stateSwitched = true;
                 //     currentState = State.DRIVE_WITHOUT_PIECE;
                 // }
@@ -196,10 +217,7 @@ public class TeleopStateMachine {
                             timer.start();
                             commandScheduler.schedule(
                                 new IntakePositionCommand(armSubsystem),
-                                Commands.sequence(
-                                    Commands.waitUntil(() -> (armSubsystem.isJointZeroed() && armSubsystem.isElevatorZeroed())),
-                                    Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.8))
-                                )                                
+                                Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.8))                          
                             );
                             
                         }
@@ -247,6 +265,7 @@ public class TeleopStateMachine {
 
                 if(stateSwitched) {
                     commandScheduler.schedule(new StowPositionCommand(armSubsystem));
+                    currentPickupState = PickupState.NO_PIECE;
                     turbotakeSubsystem.setIndexerPercent(0);
                 }
                 
@@ -339,6 +358,7 @@ public class TeleopStateMachine {
                         if(timer.hasElapsed(minLaunchSeconds)) {
                             shootingStateSwitched = true;
                             stateSwitched = true;
+                            //turbotakeSubsystem.setHasPiece(false);
                             currentState = State.DRIVE_WITHOUT_PIECE;
                         }
 
@@ -353,7 +373,7 @@ public class TeleopStateMachine {
                     stateSwitched = true;
                 }
 
-                // if(!turbotakeSubsystem.isPieceDetected() && turbotakeSubsystem.getIndexerVelocity() < 0) {
+                // if(!turbotakeSubsystem.hasPiece()) {
                 //     stateSwitched = true;
                 //     currentState = State.DRIVE_WITHOUT_PIECE;
                 // }
@@ -380,10 +400,10 @@ public class TeleopStateMachine {
                     currentState = State.DRIVE_WITH_PIECE;
                 }
 
-                if(!turbotakeSubsystem.isPieceDetected() && turbotakeSubsystem.getIndexerVelocity() < 0) {
-                    stateSwitched = true;
-                    currentState = State.DRIVE_WITHOUT_PIECE;
-                }
+                // if(!turbotakeSubsystem.isPieceDetected() && turbotakeSubsystem.getIndexerVelocity() < 0) {
+                //     stateSwitched = true;
+                //     currentState = State.DRIVE_WITHOUT_PIECE;
+                // }
 
                 if(stateSwitched) {
                     scoreAmpCommand.cancel();
@@ -391,6 +411,31 @@ public class TeleopStateMachine {
                         new StowPositionCommand(armSubsystem),
                         Commands.runOnce( () -> turbotakeSubsystem.setIndexerPercent(0))
                     );
+                }
+
+                break;
+            case CLIMB:
+                
+                if(stateSwitched) {
+                    
+                    commandScheduler.schedule(
+                        ledSubsystem.setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_BEATS_PER_MINUTE_PARTY_PALETTE)
+                    );
+                }
+
+                switch (currentClimbState) {
+                    case EXTEND:
+                        commandScheduler.schedule(
+                            Commands.sequence(
+                                armSubsystem.jointPositionCommand(JOINT_AMP_POSITION),
+                                Commands.waitUntil(() -> armSubsystem.isJointAtPosition(JOINT_AMP_POSITION, 1)),
+                                armSubsystem.elevatorPositionCommand(ELEVATOR_MAX_POSITION - 1)
+                            )
+                        );
+                        break;
+                
+                    default:
+                        break;
                 }
 
                 break;
@@ -409,6 +454,11 @@ public class TeleopStateMachine {
         statePublisher.set(currentState.toString());
         shootingStatePublisher.set(currentShootingState.toString());
         pickupStatePublisher.set(currentPickupState.toString());
+
+        boolean newEnabled = enabledEntry.get();
+        if(newEnabled != enabled) {
+            setEnabled(newEnabled);
+        }
     }
 
     private Rotation2d calculateShooterAngle() {
@@ -419,6 +469,13 @@ public class TeleopStateMachine {
         double shooterAngle = Math.atan(vertical / distFromShooterFront);
 
         return Rotation2d.fromRadians(shooterAngle);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        if(this.enabled = true) {
+            currentState = State.START;
+        }
     }
 
     public Command pickupGroundCommand() {

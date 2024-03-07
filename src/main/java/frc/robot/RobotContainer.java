@@ -51,7 +51,6 @@ public class RobotContainer {
          * 
          * RT - Shoot Speaker
          * 
-         * RB - Pickup Ground
          * LB - Slow Mode
          */
 
@@ -63,9 +62,6 @@ public class RobotContainer {
 
         Trigger driverRT = driverController.rightTrigger();
         driverRT.whileTrue(teleopStateMachine.shootSpeakerCommand());
-
-        Trigger driverRB = driverController.rightBumper();
-        driverRB.whileTrue(teleopStateMachine.pickupGroundCommand());
 
         Trigger driverLB = driverController.leftBumper();
 
@@ -98,7 +94,7 @@ public class RobotContainer {
          * Right Stick Y - Joint
          * 
          * Right Trigger - Shoot
-         * Left Trigger - Indexer
+         * Left Trigger - Command Intake State
          * 
          * Right Bumper - Reverse Shooter
          * Left Bumper - Reverse Indexer
@@ -130,20 +126,21 @@ public class RobotContainer {
         operatorRT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(1, 0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
 
         Trigger operatorLT = operatorController.leftTrigger();
-        operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        operatorLT.whileTrue(teleopStateMachine.pickupGroundCommand());
         
-        Trigger operatorRSY = operatorController.axisGreaterThan(XboxController.Axis.kRightY.value, XBOX_DEADBAND);
-        operatorRSY.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightY()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
+        Trigger operatorRSY = new Trigger(() -> (Math.abs(operatorController.getRightY()) > XBOX_DEADBAND));
+        operatorRSY.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-operatorController.getRightY()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
 
-        Trigger operatorLSX = operatorController.axisGreaterThan(XboxController.Axis.kLeftX.value, XBOX_DEADBAND);
+        Trigger operatorLSX = new Trigger(() -> (Math.abs(operatorController.getLeftX()) > XBOX_DEADBAND));
         operatorLSX.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getLeftX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
         
         Trigger operatorStart = operatorController.start();
-        operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberVelocity(climberVelocity), () -> climberSubsystem.holdClimberPosition()));
+        operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberDutyCycle(0.3), () -> climberSubsystem.holdClimberPosition()));
 
         Trigger operatorBack = operatorController.back();
-        operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberVelocity(-climberVelocity), () -> climberSubsystem.holdClimberPosition()));
+        operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberDutyCycle(-0.3), () -> climberSubsystem.holdClimberPosition()));
 
+        armSubsystem.setJointMotorPercent(0);
     }
 
     public void teleopInit() {
@@ -153,6 +150,11 @@ public class RobotContainer {
     
     public Command getAutonomousCommand() {
         return null;
+        // return Commands.sequence(
+        //     new SpeakerPositionCommand(armSubsystem),
+        //     Commands.waitSeconds(1),
+        //     turbotakeSubsystem.shootForSpeaker()
+        // );
     }
 
     public TeleopStateMachine getTeleopStateMachine() {

@@ -37,7 +37,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private double d = 0.002;
     private double maxIAccum = 0;
 
-    private boolean useSensors = true;
+    private boolean useSensors = false;
     private boolean useCodeStops = true;
 
     private boolean atLeftMinPosition = false;
@@ -57,8 +57,10 @@ public class ClimberSubsystem extends SubsystemBase {
     private final DigitalInput rightSensor;
 
     private final NetworkTable climberTable = NetworkTableInstance.getDefault().getTable("climber");
-    private final BooleanPublisher minPositionPublisher = climberTable.getBooleanTopic("atminposition").publish();
-    private final BooleanPublisher maxPositionPublisher = climberTable.getBooleanTopic("atmaxposition").publish();
+    private final BooleanPublisher leftMinPositionPublisher = climberTable.getBooleanTopic("atleftminposition").publish();
+    private final BooleanPublisher leftMaxPositionPublisher = climberTable.getBooleanTopic("atleftmaxposition").publish();
+    private final BooleanPublisher rightMinPositionPublisher = climberTable.getBooleanTopic("atrightminposition").publish();
+    private final BooleanPublisher rightMaxPositionPublisher = climberTable.getBooleanTopic("atrightmaxposition").publish();
     private final BooleanPublisher leftSensorPublisher = climberTable.getBooleanTopic("leftsensor").publish();
     private final BooleanPublisher rightSensorPublisher = climberTable.getBooleanTopic("rightsensor").publish();
     private final BooleanPublisher leftMotorZeroedPublisher = climberTable.getBooleanTopic("leftmotorzeroed").publish();
@@ -102,6 +104,9 @@ public class ClimberSubsystem extends SubsystemBase {
         rightMotorPidController.setD(d);
         rightMotorPidController.setIMaxAccum(maxIAccum, 0);
         rightMotorPidController.setReference(0, ControlType.kDutyCycle);
+
+        useCodeStopsEntry.set(useCodeStops);
+        useSensorsEntry.set(useSensors);
       }
   
     @Override
@@ -207,6 +212,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
         if(!useCodeStops) {
             atLeftMaxPosition = false;
+            atRightMaxPosition = false;
             return;
         }
 
@@ -238,8 +244,10 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void updateTelemetry() {
-        minPositionPublisher.set(atLeftMinPosition);
-        maxPositionPublisher.set(atLeftMaxPosition);
+        leftMinPositionPublisher.set(atLeftMinPosition);
+        leftMaxPositionPublisher.set(atLeftMaxPosition);
+        rightMinPositionPublisher.set(atRightMinPosition);
+        rightMaxPositionPublisher.set(atRightMaxPosition);
         leftSensorPublisher.set(isLeftSensorTriggered());
         rightSensorPublisher.set(isRightSensorTriggered());
         leftMotorZeroedPublisher.set(leftMotorZeroed);
