@@ -39,8 +39,11 @@ public class ClimberSubsystem extends SubsystemBase {
     private boolean useSensors = true;
     private boolean useCodeStops = true;
 
-    private boolean atMinPosition = false;
-    private boolean atMaxPosition = false;
+    private boolean atLeftMinPosition = false;
+    private boolean atLeftMaxPosition = false;
+
+    private boolean atRightMinPosition = false;
+    private boolean atRightMaxPosition = false;
 
     private boolean leftMotorZeroed = false;
     private boolean rightMotorZeroed = false;
@@ -59,10 +62,12 @@ public class ClimberSubsystem extends SubsystemBase {
     private final BooleanPublisher rightSensorPublisher = climberTable.getBooleanTopic("rightsensor").publish();
     private final BooleanPublisher leftMotorZeroedPublisher = climberTable.getBooleanTopic("leftmotorzeroed").publish();
     private final BooleanPublisher rightMotorZeroedPublisher = climberTable.getBooleanTopic("rightmotorzeroed").publish();
+    private final BooleanPublisher climberZeroedPublisher = climberTable.getBooleanTopic("climberzeroed").publish();
     private final DoublePublisher leftMotorPositionPublisher = climberTable.getDoubleTopic("leftmotorposition").publish();
+    private final DoublePublisher rightMotorPositionPublisher = climberTable.getDoubleTopic("rightmotorposition").publish();
 
     public ClimberSubsystem() {
-        leftMotor = new CANSparkMax(CLIMBER_MOTOR_RIGHT_ID, MotorType.kBrushless); // CHANGE DEVICE ID
+        leftMotor = new CANSparkMax(CLIMBER_MOTOR_LEFT_ID, MotorType.kBrushless); // CHANGE DEVICE ID
         leftMotor.setInverted(true);
         leftMotor.setSmartCurrentLimit(80);
         
@@ -79,7 +84,7 @@ public class ClimberSubsystem extends SubsystemBase {
         leftSensor = new DigitalInput(CLIMBER_MOTOR_RIGHT_BEAM_BREAK_ID);
         rightSensor = new DigitalInput(CLIMBER_MOTOR_LEFT_BEAM_BREAK_ID);
         
-        rightMotor = new CANSparkMax(CLIMBER_MOTOR_LEFT_ID, MotorType.kBrushless);
+        rightMotor = new CANSparkMax(CLIMBER_MOTOR_RIGHT_ID, MotorType.kBrushless);
         rightMotor.setInverted(false);
         rightMotor.setSmartCurrentLimit(80);
         
@@ -92,7 +97,6 @@ public class ClimberSubsystem extends SubsystemBase {
         rightMotorPidController.setD(d);
         rightMotorPidController.setIMaxAccum(maxIAccum, 0);
         rightMotorPidController.setReference(0, ControlType.kDutyCycle);
-
       }
   
     @Override
@@ -113,6 +117,7 @@ public class ClimberSubsystem extends SubsystemBase {
         if(!useSensors) {
             leftMotorZeroed = true;
             rightMotorZeroed = true;
+            climberZeroed = true;
             return;
         }
 
@@ -124,9 +129,7 @@ public class ClimberSubsystem extends SubsystemBase {
             if(leftMotorEncoder.getVelocity() < 0) {
                 leftMotorEncoder.setPosition(0);
                 leftMotorZeroed = true;
-                setMotorPosition(0);
-            } else {
-                setMotorPosition(leftMotorEncoder.getPosition());
+                setLeftMotorPosition(0);
             }
         }
 
@@ -136,18 +139,34 @@ public class ClimberSubsystem extends SubsystemBase {
             // if the motor is moving up set the encoder position
             if(leftMotorEncoder.getVelocity() > 0)
                 leftMotorEncoder.setPosition(0);
+                leftMotorZeroed = true;
         }
 
         // right sensor rising edge
         if(!atRightSensor && isRightSensorTriggered()) {
-            rightMotorZeroed = true;
+            
+            // if the motor is moving down, zero the encoder
+            // always stop to motor, regardless of direction
+            if(rightMotorEncoder.getVelocity() < 0) {
+                rightMotorEncoder.setPosition(0);
+                rightMotorZeroed = true;
+                setRightMotorPosition(0);
+            }
         }
 
-        if (rightMotorZeroed && leftMotorZeroed) {
+        // right sensor falling edge
+        if(atRightSensor && !isRightSensorTriggered()) {
+
+            // if the motor is moving up set the encoder position
+            if(rightMotorEncoder.getVelocity() > 0)
+                rightMotorEncoder.setPosition(0);
+                rightMotorZeroed = true;
+        }
+
+        if (rightMotorZeroed && leftMotorZeroed && !climberZeroed) {
             climberZeroed = true;
-            rightMotor.follow(leftMotor, true);
         }
-
+      
         atLeftSensor = isLeftSensorTriggered();
         atRightSensor = isRightSensorTriggered();
     }
@@ -155,26 +174,34 @@ public class ClimberSubsystem extends SubsystemBase {
     public void checkMinPosition() {
 
         if(!useCodeStops) {
-            atMinPosition = false;
+            atLeftMinPosition = false;
             return;
         }
 
         if(!climberZeroed) {
             return;
         }
-
-        if(!atMinPosition && leftMotorEncoder.getPosition() < CLIMBER_MIN_POSITION) {
-            atMinPosition = true;
-            setMotorPosition(CLIMBER_MIN_POSITION);
+        
+        // Rising edge
+        if(!atLeftMinPosition && leftMotorEncoder.getPosition() < CLIMBER_MIN_POSITION) {
+            atLeftMinPosition = true;
+            setLeftMotorPosition(CLIMBER_MIN_POSITION);
         } else if (leftMotorEncoder.getPosition() > CLIMBER_MIN_POSITION) {
-            atMinPosition = false;
+            atLeftMinPosition = false;
+        }
+
+        if(!atRightMinPosition && rightMotorEncoder.getPosition() < CLIMBER_MIN_POSITION) {
+            atRightMinPosition = true;
+            setRightMotorPosition(CLIMBER_MIN_POSITION);
+        } else if (rightMotorEncoder.getPosition() > CLIMBER_MIN_POSITION) {
+            atRightMinPosition = false;
         }
     }
 
     public void checkMaxPosition() {
 
         if(!useCodeStops) {
-            atMaxPosition = false;
+            atLeftMaxPosition = false;
             return;
         }
 
@@ -182,30 +209,39 @@ public class ClimberSubsystem extends SubsystemBase {
             return;
         }
 
-        if(!atMaxPosition && leftMotorEncoder.getPosition() > CLIMBER_MAX_POSITION) {
-            atMaxPosition = true;
-            setMotorPosition(CLIMBER_MAX_POSITION);
+        if(!atLeftMaxPosition && leftMotorEncoder.getPosition() > CLIMBER_MAX_POSITION) {
+            atLeftMaxPosition = true;
+            setLeftMotorPosition(CLIMBER_MAX_POSITION);
         } else if(leftMotorEncoder.getPosition() < CLIMBER_MAX_POSITION) {
-            atMaxPosition = false;
+            atLeftMaxPosition = false;
+        }
+
+        if(!atRightMaxPosition && rightMotorEncoder.getPosition() > CLIMBER_MAX_POSITION) {
+            atRightMaxPosition = true;
+            setRightMotorPosition(CLIMBER_MAX_POSITION);
+        } else if(rightMotorEncoder.getPosition() < CLIMBER_MAX_POSITION) {
+            atRightMaxPosition = false;
         }
     }
 
     public Command climbPositionCommand() {
-        return this.runOnce(() -> setMotorPosition(CLIMBER_PRE_CLIMB_POSITION));
+        return this.runOnce(() -> setLeftMotorPosition(CLIMBER_PRE_CLIMB_POSITION));
     }
 
     public Command climb() {
-        return this.runOnce(() -> setMotorPosition(CLIMBER_POST_CLIMB_POSITION));
+        return this.runOnce(() -> setLeftMotorPosition(CLIMBER_POST_CLIMB_POSITION));
     }
 
     public void updateTelemetry() {
-        minPositionPublisher.set(atMinPosition);
-        maxPositionPublisher.set(atMaxPosition);
-        leftMotorPositionPublisher.set(leftMotorEncoder.getPosition());
+        minPositionPublisher.set(atLeftMinPosition);
+        maxPositionPublisher.set(atLeftMaxPosition);
         leftSensorPublisher.set(isLeftSensorTriggered());
         rightSensorPublisher.set(isRightSensorTriggered());
         leftMotorZeroedPublisher.set(leftMotorZeroed);
         rightMotorZeroedPublisher.set(rightMotorZeroed);
+        climberZeroedPublisher.set(climberZeroed);
+        leftMotorPositionPublisher.set(leftMotorEncoder.getPosition());
+        rightMotorPositionPublisher.set(rightMotorEncoder.getPosition());
     }
 
     public Command climberLeftZeroCommand() {
@@ -233,33 +269,79 @@ public class ClimberSubsystem extends SubsystemBase {
         command.addRequirements(this);
         return command;
     }
+
+    public void setClimberDutyCycle(double dutyCycle) {
+        if (!climberZeroed)
+            return;
+        setLeftMotorDutyCycle(dutyCycle);
+        setRightMotorDutyCycle(dutyCycle);
+    }
   
     public void setLeftMotorDutyCycle(double dutyCycle) {
-        if ((atMaxPosition && dutyCycle > 0) || (atMinPosition && dutyCycle < 0 && leftMotorZeroed))
+        if ((atLeftMaxPosition && dutyCycle > 0) || (atLeftMinPosition && dutyCycle < 0 && leftMotorZeroed))
             return;
         leftMotor.set(dutyCycle);
     }
 
     public void setRightMotorDutyCycle(double dutyCycle) {
-        if ((atMaxPosition && dutyCycle > 0) || (atMinPosition && dutyCycle < 0 && rightMotorZeroed))
+        if ((atRightMaxPosition && dutyCycle > 0) || (atRightMinPosition && dutyCycle < 0 && rightMotorZeroed))
             return;
         rightMotor.set(dutyCycle);
     }
 
+    public void setClimberVelocity(double velocity) {
+        if (!climberZeroed)
+            return;
+        setLeftMotorVelocity(velocity);
+        setRightMotorVelocity(velocity);
+    }
   
-    public void setMotorVelocity(double velocity) {
-        if ((atMaxPosition && velocity > 0) || (atMinPosition && velocity < 0))
+    public void setLeftMotorVelocity(double velocity) {
+        if ((atLeftMaxPosition && velocity > 0) || (atLeftMinPosition && velocity < 0) || !leftMotorZeroed)
             return;
         leftMotorPidController.setReference(velocity, ControlType.kVelocity);
     }
 
-    public void setMotorPosition(double position) {
+    public void setRightMotorVelocity(double velocity) {
+        if ((atRightMaxPosition && velocity > 0) || (atRightMinPosition && velocity < 0) || !rightMotorZeroed)
+            return;
+        rightMotorPidController.setReference(velocity, ControlType.kVelocity);
+    }
+
+    public void setClimberPosition(double position) {
+        if (!climberZeroed)
+            return;
+        setLeftMotorPosition(position);
+        setRightMotorPosition(position);
+    }
+
+    public void setLeftMotorPosition(double position) {
+        if(!leftMotorZeroed)
+            return;
         double clampedPosition = Math.max(Math.min(position, CLIMBER_MAX_POSITION), CLIMBER_MIN_POSITION);
         leftMotorPidController.setReference(clampedPosition, ControlType.kPosition);
     }
+
+    public void setRightMotorPosition(double position) {
+        if(!rightMotorZeroed)
+            return;
+        double clampedPosition = Math.max(Math.min(position, CLIMBER_MAX_POSITION), CLIMBER_MIN_POSITION);
+        rightMotorPidController.setReference(clampedPosition, ControlType.kPosition);
+    }
+
+    public void holdClimberPosition() {
+        if (!climberZeroed)
+            return;
+        holdLeftMotorPosition();
+        holdRightMotorPosition();
+    }
   
-    public void holdMotorPosition() {
-        setMotorPosition(leftMotorEncoder.getPosition());
+    public void holdLeftMotorPosition() {
+        setLeftMotorPosition(leftMotorEncoder.getPosition());
+    }
+
+    public void holdRightMotorPosition() {
+        setRightMotorPosition(rightMotorEncoder.getPosition());
     }
   
     public double getCurrent() {

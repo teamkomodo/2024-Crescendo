@@ -69,7 +69,7 @@ public class RobotContainer {
     // Operator Controls
         
         double shooterVelocity = 2000;
-        double climberVelocity = 0.1;
+        double climberVelocity = 0.2;
 
         // Trigger operatorA = operatorController.a();
         // operatorA.onTrue(new IntakePositionCommand(armSubsystem));
@@ -84,38 +84,50 @@ public class RobotContainer {
         // operatorY.onTrue(new AmpPositionCommand(armSubsystem));
 
         //amp
-        Trigger operatorRB = operatorController.rightBumper();
-        operatorRB.whileTrue(turbotakeSubsystem.shootForAmp());
+        // Trigger operatorRB = operatorController.rightBumper();
+        // operatorRB.whileTrue(turbotakeSubsystem.shootForAmp());
 
-        //intake indexer
-        Trigger operatorLB = operatorController.leftBumper();
-        operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        // //intake indexer
+        // Trigger operatorLB = operatorController.leftBumper();
+        // operatorLB.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0)));
         
-        //speaker
-        Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(turbotakeSubsystem.shootForSpeaker());
+        // //speaker
+        // Trigger operatorRT = operatorController.rightTrigger();
+        // operatorRT.whileTrue(turbotakeSubsystem.shootForSpeaker());
 
-        //intake shooter
-        Trigger operatorLT = operatorController.leftTrigger();
-        operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
+        // //intake shooter
+        // Trigger operatorLT = operatorController.leftTrigger();
+        // operatorLT.whileTrue(Commands.runEnd(() -> turbotakeSubsystem.setShooterPercent(-0.5), () -> turbotakeSubsystem.setShooterPercent(0)));
         
-        Trigger operatorRS = operatorController.rightStick();
-        operatorRS.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getRightX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
+        // Trigger operatorRS = operatorController.rightStick();
+        // operatorRS.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getRightX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
 
-        Trigger operatorLS = operatorController.leftStick();
-        operatorLS.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightX()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
+        // Trigger operatorLS = operatorController.leftStick();
+        // operatorLS.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(operatorController.getRightX()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
         
-        Trigger a = operatorController.a();
-        a.whileTrue(Commands.runEnd(() -> {climberSubsystem.setMotorVelocity(climberVelocity);}, () -> {climberSubsystem.holdMotorPosition();}));
+        Trigger LT = operatorController.leftTrigger();
+        LT.whileTrue(Commands.runEnd(() -> climberSubsystem.setLeftMotorDutyCycle(-climberVelocity), () -> climberSubsystem.setLeftMotorDutyCycle(0)));
 
-        Trigger b = operatorController.b();
-        b.whileTrue(Commands.runEnd(() -> climberSubsystem.setMotorVelocity(-climberVelocity), () -> climberSubsystem.holdMotorPosition()));
+        Trigger LB = operatorController.leftBumper();
+        LB.whileTrue(Commands.runEnd(() -> climberSubsystem.setLeftMotorDutyCycle(climberVelocity), () -> climberSubsystem.setLeftMotorDutyCycle(0)));
+
+        Trigger RT = operatorController.rightTrigger();
+        RT.whileTrue(Commands.runEnd(() -> climberSubsystem.setRightMotorDutyCycle(-climberVelocity), () -> climberSubsystem.setRightMotorDutyCycle(0)));
+
+        Trigger RB = operatorController.rightBumper();
+        RB.whileTrue(Commands.runEnd(() -> climberSubsystem.setRightMotorDutyCycle(climberVelocity), () -> climberSubsystem.setRightMotorDutyCycle(0)));
 
         Trigger x = operatorController.x();
         x.onTrue(climberSubsystem.climbPositionCommand());
 
         Trigger y = operatorController.y();
         y.onTrue(climberSubsystem.climberZeroCommand());
+
+        Trigger a = operatorController.a();
+        a.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberDutyCycle(-climberVelocity), () -> climberSubsystem.holdClimberPosition()));
+        
+        Trigger b = operatorController.b();
+        b.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberDutyCycle(climberVelocity), () -> climberSubsystem.holdClimberPosition()));
 
         armSubsystem.setJointMotorPercent(0);
 

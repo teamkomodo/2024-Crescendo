@@ -158,14 +158,14 @@ public final class Constants {
     public static final double FIELD_LENGTH = 1654;
 
     // Climber
-    public static final int CLIMBER_MOTOR_RIGHT_ID = 38;
-    public static final int CLIMBER_MOTOR_LEFT_ID = 39;
+    public static final int CLIMBER_MOTOR_RIGHT_ID = 39;
+    public static final int CLIMBER_MOTOR_LEFT_ID = 38;
 
     public static final int CLIMBER_MOTOR_RIGHT_BEAM_BREAK_ID = 4;
     public static final int CLIMBER_MOTOR_LEFT_BEAM_BREAK_ID = 5;
 
     public static final double CLIMBER_MIN_POSITION = 0;
-    public static final double CLIMBER_MAX_POSITION = 80; //FIXME: change later
+    public static final double CLIMBER_MAX_POSITION = 66;
 
     public static final double CLIMBER_PRE_CLIMB_POSITION = 20; //FIXME: change later
     public static final double CLIMBER_POST_CLIMB_POSITION = -40; //FIXME: change later
