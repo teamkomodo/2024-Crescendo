@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.DynamicCommand;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class SpeakerPositionCommand extends DynamicCommand{
+public class SpeakerPositionCommand extends DynamicCommand {
 
     private final ArmSubsystem armSubsystem;
 
@@ -18,32 +18,21 @@ public class SpeakerPositionCommand extends DynamicCommand{
         addRequirements(armSubsystem);
     }
 
+    @Override
     protected Command getCommand() {
         if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
-            return Commands.parallel(
+            return Commands.sequence(
                 armSubsystem.jointZeroCommand(),
-                armSubsystem.elevatorZeroCommand()
+                armSubsystem.elevatorZeroCommand(),
+                new SpeakerPositionCommand(armSubsystem)
             );
         }
 
-        if (armSubsystem.getCommandedPosition() == "speaker") {
-            return null;
-        }
-
-        if (armSubsystem.getJointPosition() < 2.5) {
-            return new SequentialCommandGroup(
-                armSubsystem.jointSpeakerPositionCommand(),
-                new WaitCommand(0.2),
-                armSubsystem.elevatorZeroPositionCommand(),
-                armSubsystem.jointSpeakerPositionCommand(),
-                armSubsystem.elevatorSpeakerPositionCommand()
-            );
-        }
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),
             new WaitCommand(0.1),
-            armSubsystem.jointSpeakerPositionCommand(),
-            armSubsystem.elevatorSpeakerPositionCommand()
+            armSubsystem.jointSpeakerPositionCommand()
         );
     }
+    
 }

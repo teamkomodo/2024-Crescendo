@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.units.Units;
 
 import static frc.robot.Constants.*;
@@ -37,7 +38,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final SparkPIDController rightShooterPidController;
     
     //defines beam break sensor
-    private final DigitalInput turbotakeNoteSensor;
+    private final DigitalInput beamBreakSensor;
     
     //Telemetry
     
@@ -45,10 +46,14 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private final DoublePublisher leftShooterVelocityPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("leftshootervelocity").publish();
     private final DoublePublisher rightShooterVelocityPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("rightshootervelocity").publish();
     private final DoublePublisher indexerVelocityPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("indexervelocity").publish();
-    
+    private final DoublePublisher filteredCurrentPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("filteredcurrent").publish();
+
     //beam break sensor telemetry
-    private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getBooleanTopic("piecedetected").publish();
-    
+    private final BooleanPublisher pieceDetectedPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getBooleanTopic("piecedetected").publish();
+    private final BooleanPublisher hasPiecePublisher = NetworkTableInstance.getDefault().getTable("turbotake").getBooleanTopic("haspiece").publish();
+
+    private final StringPublisher currentCommandPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getStringTopic("currentcommand").publish();
+
     //PID values for indexer
     private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
     //PID values for shooter motors
@@ -65,6 +70,12 @@ public class TurbotakeSubsystem extends SubsystemBase{
             null,
             this
     ));
+
+    private double filteredCurrent = 0;
+    private double currentFilterConstant = 0.1;
+
+    private boolean pieceDetected = false;
+    private double beambreakPasses = 0;
     
     public TurbotakeSubsystem(){
         
@@ -102,7 +113,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerMotor.setInverted(true);
 
         //Initialize the beam break sensor
-        turbotakeNoteSensor = new DigitalInput(TURBOTAKE_NOTE_SENSOR_PORT);
+        beamBreakSensor = new DigitalInput(INTAKE_BEAM_BREAK_PORT);
         
         //Initializes encoders
         leftShooterEncoder = leftShooterMotor.getEncoder();
@@ -146,10 +157,28 @@ public class TurbotakeSubsystem extends SubsystemBase{
         
     }
 
+    public void teleopInit() {
+        leftShooterMotor.set(0);
+        rightShooterMotor.set(0);
+        indexerMotor.set(0);
+    }
+
     @Override
-    public void periodic(){
+    public void periodic() {
         updateShooterTelemetry();
-        checkNoteIndexer();
+        filterCurrent();
+        countBeambreakPasses();
+    }
+
+    private void filterCurrent() {
+        filteredCurrent = filteredCurrent * (1 - currentFilterConstant) + indexerMotor.getOutputCurrent() * currentFilterConstant;
+    }
+
+    private void countBeambreakPasses() {        
+        if (pieceDetected != isPieceDetected()) {
+            pieceDetected = isPieceDetected();
+            beambreakPasses += 1 * Math.signum(indexerEncoder.getVelocity());
+        }
     }
     
 
@@ -159,12 +188,26 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterVelocityPublisher.set(leftShooterEncoder.getVelocity());
         rightShooterVelocityPublisher.set(rightShooterEncoder.getVelocity());
         indexerVelocityPublisher.set(indexerEncoder.getVelocity());
+        filteredCurrentPublisher.set(filteredCurrent);
+        hasPiecePublisher.set(hasPiece());
+        currentCommandPublisher.set(getCurrentCommand() != null? getCurrentCommand().getName() : "null");
     }
     
-    // Returns true if a piece has triggered the beambreak
+    /**
+     * @return If the beambreak sensor is triggered
+     */
     public boolean isPieceDetected(){
         // The sensor returns false when the beam is broken
-        return turbotakeNoteSensor.get();
+        return !beamBreakSensor.get();
+    }
+
+    /**
+     * By counting the number of times the beam break sensor is triggered, we can determine if the turbotake has a piece even if the beam break is not currently triggered.
+     * 
+     * @return If the turbotake thinks it has a piece
+     */
+    public boolean hasPiece() {
+        return beambreakPasses % 2 == 1 || isPieceDetected();
     }
 
     public double getShooterVelocity() {
@@ -173,6 +216,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
 
     public double getIndexerVelocity() {
         return indexerEncoder.getVelocity();
+    }
+
+    public double getFilteredCurrent() {
+        return filteredCurrent;
     }
     
     // commands the shooter to a target velocity

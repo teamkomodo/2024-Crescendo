@@ -42,6 +42,7 @@ import static frc.robot.Constants.*;
 
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -76,12 +77,17 @@ public class DrivetrainSubsystem implements Subsystem {
         SwerveModuleState.struct
         ).publish();
     
-        private final StructPublisher<Pose2d> robotPosePublisher = drivetrainNT.getStructTopic("robotPose", Pose2d.struct).publish();
+    private final StructPublisher<Pose2d> robotPosePublisher = drivetrainNT.getStructTopic("robotPose", Pose2d.struct).publish();
 
-        private final StructPublisher<Rotation2d> robotRotationPublisher = drivetrainNT.getStructTopic(
-            "robotRotation",
-            Rotation2d.struct
-        ).publish();
+    private final StructPublisher<Rotation2d> adjustedRotationPublisher = drivetrainNT.getStructTopic(
+        "adjustedRotation",
+        Rotation2d.struct
+    ).publish();
+
+    private final StructPublisher<Rotation2d> rotationPublisher = drivetrainNT.getStructTopic(
+        "rotation",
+        Rotation2d.struct
+    ).publish();
 
     // SysID
     private final SysIdRoutine driveSysIdRoutine = new SysIdRoutine(
@@ -115,10 +121,11 @@ public class DrivetrainSubsystem implements Subsystem {
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(frontLeftPosition, frontRightPosition, backLeftPosition, backRightPosition);
     private final SwerveDrivePoseEstimator poseEstimator;
+    private final ProfiledPIDController rotationController = new ProfiledPIDController(3, 1.0e-5, 1.0e-1, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT));
     private final HolonomicDriveController driveController = new HolonomicDriveController(
         new PIDController(1, 0, 0),
         new PIDController(1, 0, 0),
-        new ProfiledPIDController(1, 0, 0, new TrapezoidProfile.Constraints(ANGULAR_VELOCITY_CONSTRAINT, ANGULAR_ACCEL_CONSTRAINT)));
+        rotationController);
     
     private final AHRS navX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
@@ -137,36 +144,32 @@ public class DrivetrainSubsystem implements Subsystem {
             this::getChassisSpeeds,
             this::robotRelativeDrive,
             HOLONOMIC_PATH_FOLLOWER_CONFIG,
-            () -> {
-                Optional<Alliance> alliance = DriverStation.getAlliance();
-                if(alliance.isPresent()) {
-                    return alliance.get() == DriverStation.Alliance.Red;
-                }
-                return false;
-            },
+            ON_RED_ALLIANCE,
             this
         );
 
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
+        // Drive FFGain updated AM 03/07
+
         frontLeft = new NeoSwerveModule(
                 FRONT_LEFT_DRIVE_MOTOR_ID,
                 FRONT_LEFT_STEER_MOTOR_ID,
-                FRONT_LEFT_STEER_ENCODER_ID,
+                FONT_LEFT_STEER_ENCODER_ID,
                 FRONT_LEFT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(2*0, 0, 0),
-                new FFGains(0.15263, 3.158, 0.53993),
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.19861, 3.2379, 0.562),
                 drivetrainNT.getSubTable("frontleft"));
-        
+
         frontRight = new NeoSwerveModule(
                 FRONT_RIGHT_DRIVE_MOTOR_ID,
                 FRONT_RIGHT_STEER_MOTOR_ID,
                 FRONT_RIGHT_STEER_ENCODER_ID,
                 FRONT_RIGHT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(1*0, 0, 0),
-                new FFGains(0.17645, 3.1584, 0.30427),
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.18406, 3.2722, 0.40914),
                 drivetrainNT.getSubTable("frontright"));
 
         backLeft = new NeoSwerveModule(
@@ -175,25 +178,25 @@ public class DrivetrainSubsystem implements Subsystem {
                 BACK_LEFT_STEER_ENCODER_ID,
                 BACK_LEFT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(0.45027 * 0, 0, 0),
-                new FFGains(0.1464, 3.206, 0.44254),
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.17395, 3.286, 0.51328),
                 drivetrainNT.getSubTable("backleft"));
-        
+
         backRight = new NeoSwerveModule(
                 BACK_RIGHT_DRIVE_MOTOR_ID,
                 BACK_RIGHT_STEER_MOTOR_ID,
                 BACK_RIGHT_STEER_ENCODER_ID,
                 BACK_RIGHT_STEER_OFFSET,
                 new PIDGains(1.0, 0, 0),
-                new PIDGains(2 * 0, 0, 0),
-                new FFGains(0.1751, 3.1887, 0.31847),
+                new PIDGains(1, 1.0e-6, 0),
+                new FFGains(0.17731, 3.2446, 0.41604),
                 drivetrainNT.getSubTable("backright"));
 
         tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
         poseEstimator = new SwerveDrivePoseEstimator(
             kinematics,
-                navX.getRotation2d(),
+                getRotation(),
                 new SwerveModulePosition[] {
                         frontLeft.getPosition(),
                         frontRight.getPosition(),
@@ -202,7 +205,8 @@ public class DrivetrainSubsystem implements Subsystem {
                 }, 
                 new Pose2d());
 
-        resetPose(new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)));
+        resetPose(new Pose2d(new Translation2d(10, 0), Rotation2d.fromDegrees(0)));
+        //zeroGyro();
     }
 
 
@@ -210,7 +214,7 @@ public class DrivetrainSubsystem implements Subsystem {
     public void periodic() {
         // does not need to use adjusted rotation, odometry handles it.
         //updates pose with rotation and swerve positions
-        poseEstimator.update(navX.getRotation2d(), getSwervePositions());
+        poseEstimator.update(getRotation(), getSwervePositions());
 
         if(useVision)
             visionPosePeriodic();
@@ -238,7 +242,8 @@ public class DrivetrainSubsystem implements Subsystem {
             backRight.getState()
         });
 
-        robotRotationPublisher.set(getAdjustedRotation());
+        adjustedRotationPublisher.set(getAdjustedRotation());
+        rotationPublisher.set(getRotation());
 
         frontLeft.updateTelemetry();
         frontRight.updateTelemetry();
@@ -318,7 +323,7 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void zeroGyro() {
-        rotationOffsetRadians = -navX.getRotation2d().getRadians();
+        rotationOffsetRadians = -getRotation().getRadians();
     }
 
     public void runDriveVolts(double voltage) {
@@ -362,8 +367,18 @@ public class DrivetrainSubsystem implements Subsystem {
         return driveController;
     }
 
+    /**
+     * @return a rotation2d object representing the robot's zeored heading, with 0 degrees being the direction the robot will drive forward in
+     */
     public Rotation2d getAdjustedRotation() {
-        return navX.getRotation2d().plus(Rotation2d.fromRadians(rotationOffsetRadians));
+        return getRotation().plus(Rotation2d.fromRadians(rotationOffsetRadians));
+    }
+
+    /**
+     * @return a rotation2d object representing the robot's current heading, with 0 degrees being the direction the robot was facing at startup
+     */
+    public Rotation2d getRotation() {
+        return navX.getRotation2d().plus(Rotation2d.fromRadians(Math.PI));
     }
 
     public ChassisSpeeds getChassisSpeeds() {
@@ -381,11 +396,38 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public void resetPose(Pose2d pose) {
-        poseEstimator.resetPosition(navX.getRotation2d(), getSwervePositions(), pose);
+        poseEstimator.resetPosition(getRotation(), getSwervePositions(), pose);
     }
 
     public void setGyro(Rotation2d rotation) {
-        rotationOffsetRadians = -navX.getRotation2d().getRadians() + rotation.getRadians();
+        rotationOffsetRadians = -getRotation().getRadians() + rotation.getRadians();
+    }
+
+
+    /**
+     * Converts raw joystick values to speeds for the drivetrain
+     * <p>
+     * This method applies deadbands and curves to the joystick values and clamps the resultant speed to the linear velocity constraint
+     * 
+     * @param xAxis value from -1 to 1 representing the x-axis of the joystick
+     * @param yAxis value from -1 to 1 representing the y-axis of the joystick
+     * @param rotAxis value from -1 to 1 representing the rotation axis of the joystick
+     * @return a ChassisSpeeds object representing the speeds to be passed to the drivetrain
+     */
+    public ChassisSpeeds joystickAxesToChassisSpeeds(double xAxis, double yAxis, double rotAxis) {
+
+        double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis, XBOX_DEADBAND)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+        double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis, XBOX_DEADBAND)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
+        double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis, XBOX_DEADBAND)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
+        
+        double totalVelocity = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
+
+        if (totalVelocity > LINEAR_VELOCITY_CONSTRAINT){
+            xVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+            yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
+        }
+
+        return new ChassisSpeeds(xVelocity, yVelocity, rotVelocity);
     }
 
     // Commands
@@ -403,40 +445,39 @@ public class DrivetrainSubsystem implements Subsystem {
     }
 
     public Command joystickDriveCommand(DoubleSupplier xAxis, DoubleSupplier yAxis, DoubleSupplier rotAxis) {
-        double deadband = 0.06;
         return Commands.run(() -> {
 
-            double xVelocity = Util.translationCurve(MathUtil.applyDeadband(xAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double yVelocity = Util.translationCurve(MathUtil.applyDeadband(yAxis.getAsDouble(), deadband)) * LINEAR_VELOCITY_CONSTRAINT * (slowMode ? LINEAR_SLOW_MODE_MODIFIER : 1);
-            double rotVelocity = Util.steerCurve(MathUtil.applyDeadband(rotAxis.getAsDouble(), deadband)) * ANGULAR_VELOCITY_CONSTRAINT * (slowMode ? ANGULAR_SLOW_MODE_MODIFIER : 1);
-            
-            double totalVelocity = Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2));
-
-            if (totalVelocity > LINEAR_VELOCITY_CONSTRAINT){
-                xVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
-                yVelocity *= (LINEAR_VELOCITY_CONSTRAINT / totalVelocity);
-            }
-
-            drive(xVelocity, yVelocity, rotVelocity, true, true);
+            ChassisSpeeds speeds = joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), rotAxis.getAsDouble());
+            drive(speeds, true, true);
 
         }, this);
     }
 
     // SysID Routine Commands
-    public Command driveSysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
-        return driveSysIdRoutine.quasistatic(direction);
+    public Command driveSysIdRoutineCommand() {
+        return Commands.sequence(
+            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(7),
+            Commands.waitSeconds(2),
+            driveSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(7),
+            Commands.waitSeconds(2),
+            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2),
+            Commands.waitSeconds(2),
+            driveSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(2),
+            Commands.waitSeconds(2)
+        );
     }
 
-    public Command steerSysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
-        return steerSysIdRoutine.quasistatic(direction);
-    }
-
-    public Command driveSysIdDynamicCommand(SysIdRoutine.Direction direction) {
-        return driveSysIdRoutine.dynamic(direction);
-    }
-
-    public Command steerSysIdDynamicCommand(SysIdRoutine.Direction direction) {
-        return steerSysIdRoutine.dynamic(direction);
+    public Command steerSysIdRoutineCommand() {
+        return Commands.sequence(
+            steerSysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(7),
+            Commands.waitSeconds(2),
+            steerSysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(7),
+            Commands.waitSeconds(2),
+            steerSysIdRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2),
+            Commands.waitSeconds(2),
+            steerSysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(2),
+            Commands.waitSeconds(2)
+        );
     }
     
     public Command followPathCommand(String pathName){
@@ -458,4 +499,29 @@ public class DrivetrainSubsystem implements Subsystem {
             this
         );    
     }
+
+    public Command driveAndPointToSpeakerCommand(DoubleSupplier xAxis, DoubleSupplier yAxis) {
+        return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), 0)));
+    }
+
+    public Command pointToSpeakerCommand() {
+        return pointToSpeakerWithSpeedsCommand(() -> (new ChassisSpeeds()));
+    }
+
+    public Command pointToSpeakerWithSpeedsCommand(Supplier<ChassisSpeeds> speedsSupplier) {
+        return Commands.run(() -> {
+
+            double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.0f;
+            double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.2f;
+
+            // TODO: Account for alliance
+            //improve this math eventually
+            //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
+            double desiredAngle = Math.atan(yDistance/xDistance);
+            
+            drive(speedsSupplier.get().vxMetersPerSecond, speedsSupplier.get().vyMetersPerSecond, rotationController.calculate(getPose().getRotation().getRadians(), desiredAngle), true, true);
+
+        }, this);
+    }
+    
 }

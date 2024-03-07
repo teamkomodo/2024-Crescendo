@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.DynamicCommand;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class TrapPositionCommand extends DynamicCommand{
+public class TrapPositionCommand extends DynamicCommand {
 
     private final ArmSubsystem armSubsystem;
 
@@ -18,11 +18,15 @@ public class TrapPositionCommand extends DynamicCommand{
         addRequirements(armSubsystem);
     }
 
+    @Override
     protected Command getCommand() {
         if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
-            return Commands.parallel(
-                armSubsystem.jointZeroCommand(),
-                armSubsystem.elevatorZeroCommand()
+            return Commands.sequence(
+                Commands.parallel(
+                    armSubsystem.jointZeroCommand(),
+                    armSubsystem.elevatorZeroCommand()
+                ),
+                new TrapPositionCommand(armSubsystem)
             );
         }
         if (armSubsystem.getJointPosition() < 2.5) {

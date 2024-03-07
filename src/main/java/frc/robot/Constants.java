@@ -4,9 +4,15 @@
 
 package frc.robot;
 
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
+
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -19,6 +25,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 public final class Constants {
 
 // Controls
+    public static final double XBOX_DEADBAND = 0.06;
     public static final int DRIVER_XBOX_PORT = 0;
     public static final int OPERATOR_XBOX_PORT = 1;
 
@@ -28,10 +35,13 @@ public final class Constants {
     public static final int RIGHT_SHOOTER_MOTOR_ID = 37;
     public static final int INDEXER_MOTOR_ID = 35;
     //Beam Break Sensor
-    public static final int TURBOTAKE_NOTE_SENSOR_PORT = 3;
+    public static final int INTAKE_BEAM_BREAK_PORT = 3;
+
     //Constants
     public static final double INDEXER_SPEED = 0.7;
+    
     public static final double SHOOTER_SPEED = 2500;
+    public static final double SHOOTER_MAX_VELOCITY = 2900;
 
     //duty cycle
     public static final double AMP_SPEED = 0.75;
@@ -44,25 +54,25 @@ public final class Constants {
     public static final double DRIVETRAIN_WIDTH = 0.5271; // Distance between center of left and right swerve wheels in meters
     public static final double DRIVETRAIN_LENGTH = 0.5271; // Distance between center of front and back swerve wheels in meters
 
-    public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 16;
-    public static final int FRONT_LEFT_STEER_MOTOR_ID = 17;
-    public static final int FRONT_LEFT_STEER_ENCODER_ID = 23;
-    public static final double FRONT_LEFT_STEER_OFFSET = -Math.toRadians(24.697);
+    public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 16;
+    public static final int BACK_RIGHT_STEER_MOTOR_ID = 17;
+    public static final int BACK_RIGHT_STEER_ENCODER_ID = 23;
+    public static final double BACK_RIGHT_STEER_OFFSET = -Math.toRadians(24.697 + 180);
 
-    public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 12;
-    public static final int FRONT_RIGHT_STEER_MOTOR_ID = 13;
-    public static final int FRONT_RIGHT_STEER_ENCODER_ID = 21;
-    public static final double FRONT_RIGHT_STEER_OFFSET = -Math.toRadians(-72.510);
+    public static final int BACK_LEFT_DRIVE_MOTOR_ID = 12;
+    public static final int BACK_LEFT_STEER_MOTOR_ID = 13;
+    public static final int BACK_LEFT_STEER_ENCODER_ID = 21;
+    public static final double BACK_LEFT_STEER_OFFSET = -Math.toRadians(-72.510 + 180);
 
-    public static final int BACK_LEFT_DRIVE_MOTOR_ID = 14;
-    public static final int BACK_LEFT_STEER_MOTOR_ID = 15;
-    public static final int BACK_LEFT_STEER_ENCODER_ID = 22;
-    public static final double BACK_LEFT_STEER_OFFSET = -Math.toRadians(174.841);
+    public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 14;
+    public static final int FRONT_RIGHT_STEER_MOTOR_ID = 15;
+    public static final int FRONT_RIGHT_STEER_ENCODER_ID = 22;
+    public static final double FRONT_RIGHT_STEER_OFFSET = -Math.toRadians(174.841 + 180);
 
-    public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 10;
-    public static final int BACK_RIGHT_STEER_MOTOR_ID = 11;
-    public static final int BACK_RIGHT_STEER_ENCODER_ID = 20;
-    public static final double BACK_RIGHT_STEER_OFFSET = -Math.toRadians(57.920);
+    public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 10;
+    public static final int FRONT_LEFT_STEER_MOTOR_ID = 11;
+    public static final int FONT_LEFT_STEER_ENCODER_ID = 20;
+    public static final double FRONT_LEFT_STEER_OFFSET = -Math.toRadians(57.920 + 180);
 
     public static final double WHEEL_DIAMETER = 0.1016;
 
@@ -85,36 +95,43 @@ public final class Constants {
         new ReplanningConfig()
     );
 
+    public static final BooleanSupplier ON_RED_ALLIANCE = () -> {
+                Optional<Alliance> alliance = DriverStation.getAlliance();
+                if(alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            };
+
 // Joint/Elevator
     public static final int JOINT_MOTOR_ID = 32;
     public static final int JOINT_SECOND_MOTOR_ID = 33;
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
-    public static final double JOINT_MIN_POSITION = 0; // Code stop
+    public static final double JOINT_MIN_POSITION = 2; // Code stop
     public static final double JOINT_MAX_POSITION = 47; // Code stop
 
-    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 6.262;
-    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 2.738;
-    public static final double JOINT_BOTTOM_SWITCH_POSITION = JOINT_MIN_POSITION;
+    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 7.5;
+    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 4.4;
+    public static final double JOINT_BOTTOM_SWITCH_POSITION = 2;
+    public static final double JOINT_STARTING_POSITION = 4.4;
 
+    public static final double JOINT_REDUTION = (1.0 / 100.0) * (18.0 / 30.0); // reduction * motor rotations = mechanism rotations
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 6.3;
-    public static final double JOINT_AMP_POSITION = 26;
+    public static final double JOINT_STOW_POSITION = 10;
+    public static final double JOINT_AMP_POSITION = 30;
     public static final double JOINT_SPEAKER_POSITION = 16;
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 1.5;
 
-    public static final double[] JOINT_POSITIONS_ORDERED = { // Order in array corresponds to selector position
-        JOINT_STOW_POSITION,
-        JOINT_AMP_POSITION,
-        JOINT_SPEAKER_POSITION,
-        JOINT_TRAP_POSITION,
-        JOINT_INTAKE_POSITION
-    };
+    /**
+     * motor rotations -> joint radians
+     */
+    public static final double JOINT_ANGLE_CONVERSION_FACTOR = JOINT_REDUTION * 2.0 * Math.PI;
 
     public static double JOINT_POSITION_FROM_ROBOT_FRONT = 22.0; // Change later
     public static double JOINT_POSITION_FROM_ROBOT_BACK = 4.0;
@@ -136,10 +153,10 @@ public final class Constants {
 
     // Position in rotations of the motor shaft before gearbox
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
-    public static final double ELEVATOR_MAX_POSITION = 63; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 64.5; // Code stop
 
     public static final double ELEVATOR_STOW_POSITION = 0;
-    public static final double ELEVATOR_AMP_POSITION = 63;
+    public static final double ELEVATOR_AMP_POSITION = 55;
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 63;
@@ -158,17 +175,17 @@ public final class Constants {
     public static final double FIELD_LENGTH = 1654;
 
     // Climber
-    public static final int CLIMBER_MOTOR_1_ID = 38;
-    public static final int CLIMBER_MOTOR_2_ID = 39;
+    public static final int CLIMBER_MOTOR_RIGHT_ID = 39;
+    public static final int CLIMBER_MOTOR_LEFT_ID = 38;
 
-    public static final int CLIMBER_MOTOR_1_BEAM_BREAK_ID = 6;
-    public static final int CLIMBER_MOTOR_2_BEAM_BREAK_ID = 7;
+    public static final int CLIMBER_MOTOR_RIGHT_BEAM_BREAK_ID = 4;
+    public static final int CLIMBER_MOTOR_LEFT_BEAM_BREAK_ID = 5;
 
     public static final double CLIMBER_MIN_POSITION = 0;
-    public static final double CLIMBER_MAX_POSITION = 80; //FIXME: change later
+    public static final double CLIMBER_MAX_POSITION = 66;
 
-    public static final double CLIMBER_PRE_CLIMB_POSITION = 100; //FIXME: change later
-    public static final double CLIMBER_POST_CLIMB_POSITION = -20; //FIXME: change later
+    public static final double CLIMBER_PRE_CLIMB_POSITION = 20; //FIXME: change later
+    public static final double CLIMBER_POST_CLIMB_POSITION = -40; //FIXME: change later
 
     public static final int LED_CHANNEL = 0;
 

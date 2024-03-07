@@ -1,7 +1,5 @@
 package frc.robot.commands.positions;
 
-import static frc.robot.Constants.JOINT_STOW_POSITION;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -9,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.DynamicCommand;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class StowPositionCommand extends DynamicCommand{
+public class StowPositionCommand extends DynamicCommand {
 
     private final ArmSubsystem armSubsystem;
 
@@ -20,21 +18,21 @@ public class StowPositionCommand extends DynamicCommand{
         addRequirements(armSubsystem);
     }
 
+    @Override
     protected Command getCommand() {
         if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
-            return Commands.parallel(
-                armSubsystem.jointZeroCommand(),
-                armSubsystem.elevatorZeroCommand()
+            return Commands.sequence(
+                Commands.parallel(
+                    armSubsystem.jointZeroCommand(),
+                    armSubsystem.elevatorZeroCommand()
+                ),
+                new StowPositionCommand(armSubsystem)
             );
-        }
-
-        if (armSubsystem.getCommandedPosition() == "stow") {
-            return null;
         }
         
         if (armSubsystem.getJointPosition() < 2.5) {
             return new SequentialCommandGroup(
-                armSubsystem.jointSpeakerPositionCommand(),
+                armSubsystem.jointPositionCommand(16),
                 new WaitCommand(0.2),
                 armSubsystem.elevatorZeroPositionCommand(),
                 new WaitCommand(0.1),
@@ -43,7 +41,7 @@ public class StowPositionCommand extends DynamicCommand{
             );
         }
         return new SequentialCommandGroup(
-            armSubsystem.elevatorZeroPositionCommand(),
+            armSubsystem.jointPositionCommand(16),
             new WaitCommand(0.1),
             armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorStowPositionCommand()

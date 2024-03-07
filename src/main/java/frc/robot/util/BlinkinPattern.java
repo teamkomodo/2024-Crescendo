@@ -2,7 +2,7 @@ package frc.robot.util;
 
 
 //ALL PATTERNS FOR LED
-public class Patterns {
+public class BlinkinPattern {
     public static final double FIXED_PALETTE_PATTERN_RAINBOW_RAINBOW_PALETTE = -0.99;
         public static final double FIXED_PALETTE_PATTERN_RAINBOW_PARTY_PALETTE = -0.97;
         public static final double FIXED_PALETTE_PATTERN_RAINBOW_OCEAN_PALETTE = -0.95;
