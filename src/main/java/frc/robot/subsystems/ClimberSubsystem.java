@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 
+import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
@@ -65,6 +66,10 @@ public class ClimberSubsystem extends SubsystemBase {
     private final BooleanPublisher climberZeroedPublisher = climberTable.getBooleanTopic("climberzeroed").publish();
     private final DoublePublisher leftMotorPositionPublisher = climberTable.getDoubleTopic("leftmotorposition").publish();
     private final DoublePublisher rightMotorPositionPublisher = climberTable.getDoubleTopic("rightmotorposition").publish();
+
+    private final BooleanEntry useCodeStopsEntry = climberTable.getBooleanTopic("usecodestops").getEntry(useCodeStops);
+    private final BooleanEntry useSensorsEntry = climberTable.getBooleanTopic("usesensors").getEntry(useSensors);
+
 
     public ClimberSubsystem() {
         leftMotor = new CANSparkMax(CLIMBER_MOTOR_LEFT_ID, MotorType.kBrushless); // CHANGE DEVICE ID
@@ -242,6 +247,16 @@ public class ClimberSubsystem extends SubsystemBase {
         climberZeroedPublisher.set(climberZeroed);
         leftMotorPositionPublisher.set(leftMotorEncoder.getPosition());
         rightMotorPositionPublisher.set(rightMotorEncoder.getPosition());
+
+        boolean newUseCodeStops = useCodeStopsEntry.get(useCodeStops);
+        if(useCodeStops != newUseCodeStops) {
+            setUseCodeStops(newUseCodeStops);
+        }
+
+        boolean newUseSensors = useSensorsEntry.get(useSensors);
+        if(useCodeStops != newUseSensors) {
+            setUseCodeStops(newUseSensors);
+        }
     }
 
     public Command climberLeftZeroCommand() {
@@ -356,6 +371,14 @@ public class ClimberSubsystem extends SubsystemBase {
     public boolean isRightSensorTriggered() {
         // sensor sees tape when false
         return rightSensor.get();
+    }
+
+    public void setUseSensors(boolean useSensors) {
+        this.useSensors = useSensors;
+    }
+
+    public void setUseCodeStops(boolean useCodeStops) {
+        this.useCodeStops = useCodeStops;
     }
   
 }
