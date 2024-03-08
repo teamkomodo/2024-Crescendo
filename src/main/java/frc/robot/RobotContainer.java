@@ -172,7 +172,7 @@ public class RobotContainer {
             Commands.runOnce(() -> System.out.println("shooting")),
             Commands.sequence(
                 Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(SPEAKER_SPEED)),
-                Commands.waitSeconds(1.5),
+                Commands.waitSeconds(1.75),
                 Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
                 Commands.waitSeconds(1)
             ).finallyDo(() -> {

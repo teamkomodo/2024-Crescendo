@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4194171612308972,
-      "y": 5.539225686154654
+      "x": 1.3070140425995143,
+      "y": 5.646965382375843
     },
-    "rotation": -177.95459151111265
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -14,25 +14,7 @@
         {
           "type": "named",
           "data": {
-            "name": "armToSpeaker"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "shootSpeaker"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
           }
         },
         {
@@ -44,31 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "1 Score"
+            "pathName": "Align Speaker Center"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Intake C1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "1 Score"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Outer Top Middle Note"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Outer Shoot"
+            "name": "shootSpeaker"
           }
         },
         {
@@ -80,7 +44,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2 Score"
+            "pathName": "Align Speaker Center"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSpeaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake C1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Align Speaker Center"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSpeaker"
           }
         }
       ]

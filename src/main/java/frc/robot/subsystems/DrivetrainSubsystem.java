@@ -56,7 +56,7 @@ public class DrivetrainSubsystem implements Subsystem {
      */
 
     // Limelight
-    private static boolean useVision = false;
+    private static boolean useVision = true;
 
     private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
@@ -234,7 +234,7 @@ public class DrivetrainSubsystem implements Subsystem {
             frontRight.getState(),
             backLeft.getState(),
             backRight.getState()
-        });
+        }, RobotController.getFPGATime() - 200000);
 
         adjustedRotationPublisher.set(getAdjustedRotation());
         rotationPublisher.set(getRotation());
