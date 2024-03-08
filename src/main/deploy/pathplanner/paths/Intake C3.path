@@ -1,0 +1,121 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.2950971113523524,
+        "y": 5.640463129478598
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.3185187844439152,
+        "y": 5.640463129478598
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.7669197431936072,
+        "y": 4.479460183864689
+      },
+      "prevControl": {
+        "x": 2.755208906647826,
+        "y": 4.502881856956253
+      },
+      "nextControl": {
+        "x": 2.7786305797393887,
+        "y": 4.4560385107731255
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.6516255749660724,
+        "y": 4.899980935819333
+      },
+      "prevControl": {
+        "x": 1.9957259458981287,
+        "y": 4.673438845557592
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": -71.87813975209869,
+      "rotateFast": false
+    }
+  ],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "pre intake",
+      "waypointRelativePos": 0.0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "armToIntake"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "runIndexerIn"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "post intake",
+      "waypointRelativePos": 1.4,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "armToSpeaker"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "alignPiece"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -43.49256424122504,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": null,
+  "previewStartingState": {
+    "rotation": -0.987760399639827,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
