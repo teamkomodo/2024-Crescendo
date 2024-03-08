@@ -226,7 +226,10 @@ public class TeleopStateMachine {
                     stateSwitched = false;
                     currentPickupState = PickupState.NO_PIECE;
                     currentPickupStateSwitched = true;
-                    commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LIGHT_CHASE_BLUE));
+                    commandScheduler.schedule(
+                        ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LIGHT_CHASE_BLUE),
+                        ledSubsystem.setTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_VIOLET)
+                    );
                 }
 
                 // Internal State Machine
