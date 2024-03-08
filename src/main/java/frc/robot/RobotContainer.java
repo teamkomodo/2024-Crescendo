@@ -137,18 +137,6 @@ public class RobotContainer {
 
         Trigger operatorLT = operatorController.leftTrigger();
         operatorLT.whileTrue(teleopStateMachine.pickupGroundCommand());
-        
-        Trigger operatorRSY = new Trigger(() -> (Math.abs(operatorController.getRightY()) > XBOX_DEADBAND));
-        operatorRSY.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-operatorController.getRightY()), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
-
-        Trigger operatorLSX = new Trigger(() -> (Math.abs(operatorController.getLeftX()) > XBOX_DEADBAND));
-        operatorLSX.whileTrue(Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(operatorController.getLeftX()), () -> armSubsystem.setElevatorPosition(armSubsystem.getElevatorPosition())));
-        
-        Trigger operatorStart = operatorController.start();
-        operatorStart.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberDutyCycle(0.3), () -> climberSubsystem.holdClimberPosition()));
-
-        Trigger operatorBack = operatorController.back();
-        operatorBack.whileTrue(Commands.runEnd(() -> climberSubsystem.setClimberDutyCycle(-0.3), () -> climberSubsystem.holdClimberPosition()));
 
         armSubsystem.setJointMotorPercent(0);
     }
