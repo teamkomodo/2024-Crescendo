@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.6067905459634015,
-        "y": 5.550936522700434
+        "x": 2.356284084893418,
+        "y": 5.691466561249813
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.606790545963402,
-        "y": 5.550936522700434
+        "x": 2.379705757984981,
+        "y": 5.691466561249813
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 4.625780435583695
       },
       "prevControl": {
-        "x": 2.531946633080141,
-        "y": 4.953683858865578
+        "x": 2.5202357965343594,
+        "y": 4.649202108675259
       },
       "nextControl": null,
       "isLocked": false,
@@ -73,7 +73,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "2024 Crescendo Paths",
+  "folder": null,
   "previewStartingState": {
     "rotation": 178.53119928561415,
     "velocity": 0

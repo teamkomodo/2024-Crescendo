@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.4148382676223257,
-        "y": 4.239322829572906
+        "x": 2.4851032868970147,
+        "y": 4.450117887396973
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5975273177365166,
-        "y": 4.049607277531247
+        "x": 2.625633325446393,
+        "y": 4.309587848847595
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 4.66091294522104
       },
       "prevControl": {
-        "x": 2.41050533305659,
-        "y": 4.517455876479106
+        "x": 2.2040432097982583,
+        "y": 4.614069599037914
       },
       "nextControl": null,
       "isLocked": false,
@@ -63,13 +63,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 161.9958383940866,
+    "rotation": -13.421835067886168,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "2024 Crescendo Paths",
+  "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -50.35582504285521,
     "velocity": 0
   },
   "useDefaultConstraints": true

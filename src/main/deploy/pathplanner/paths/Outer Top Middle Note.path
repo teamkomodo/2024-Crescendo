@@ -16,28 +16,12 @@
     },
     {
       "anchor": {
-        "x": 7.626160530495097,
-        "y": 5.7500207439787205
+        "x": 7.766690569044476,
+        "y": 5.785153253616065
       },
       "prevControl": {
-        "x": 7.146016232118054,
-        "y": 6.253586715447326
-      },
-      "nextControl": {
-        "x": 3.0222663517060493,
-        "y": 7.001357088424414
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 0.44210602706919755,
-        "y": 5.55593454044051
-      },
-      "prevControl": {
-        "x": 1.1458078737738506,
-        "y": 5.567662106750761
+        "x": 7.286546270667433,
+        "y": 6.28871922508467
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,7 +43,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "2024 Crescendo Paths",
+  "folder": null,
   "previewStartingState": {
     "rotation": 180.0,
     "velocity": 0

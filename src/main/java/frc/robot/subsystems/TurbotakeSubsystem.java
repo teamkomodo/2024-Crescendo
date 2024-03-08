@@ -303,7 +303,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public Command shootForSpeaker(){
         return Commands.sequence(
             Commands.runOnce(() -> setShooterVelocity(SPEAKER_SPEED)),
-            Commands.waitUntil(() -> (checkShooterSpeed())),
+            Commands.waitSeconds(2.0),
             Commands.runOnce(() -> setIndexerPercent(1)),
             Commands.waitSeconds(1),
             Commands.runOnce(() -> turnOffIndexer()),
@@ -325,16 +325,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         });
     }
 
-    public Command IntakePiece(){
-        return Commands.sequence(
-            Commands.waitUntil(() -> !isPieceDetected()),
-            Commands.runOnce(() -> setIndexerPercent(-1)),
-            Commands.waitUntil(() -> isPieceDetected()),
-            Commands.runOnce(() -> turnOffIndexer())
-        ).finallyDo(() -> {
-            turnOffIndexer();
-        });
-    }
+   
 
 
     

@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.4382599407138885,
-        "y": 6.2770083885388885
+        "x": 1.6957929037113406,
+        "y": 5.646965382375843
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7989537063239585,
-        "y": 6.192690365409261
+        "x": 1.7192145768029041,
+        "y": 5.635254545830061
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.5905008158090483,
-        "y": 6.113056676897948
+        "x": 2.4359177734047326,
+        "y": 5.539225686154652
       },
       "prevControl": {
-        "x": 2.5553683061717036,
-        "y": 6.024054319150008
+        "x": 1.9955903192833477,
+        "y": 5.5111196784447785
+      },
+      "nextControl": {
+        "x": 2.8202779158597315,
+        "y": 5.563759312268799
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.6957929037113406,
+        "y": 5.646965382375843
+      },
+      "prevControl": {
+        "x": 2.023696326993223,
+        "y": 5.49706667458984
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,11 +45,23 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "slow approach",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.9,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.0,
       "command": {
         "type": "sequential",
         "data": {
@@ -45,15 +73,32 @@
               }
             },
             {
-              "type": "wait",
+              "type": "named",
               "data": {
-                "waitTime": 0.5
+                "name": "runIndexerIn"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.15,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "armToSpeaker"
               }
             },
             {
               "type": "named",
               "data": {
-                "name": "intakePiece"
+                "name": "alignPieceCommand"
               }
             }
           ]
@@ -68,14 +113,14 @@
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -66.21796957677866,
+    "velocity": 1.5,
+    "rotation": 0.5025816667210457,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "2024 Crescendo Paths",
+  "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 0.5846305207053063,
     "velocity": 0
   },
   "useDefaultConstraints": true
