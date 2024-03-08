@@ -26,8 +26,6 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -148,8 +146,6 @@ public class DrivetrainSubsystem implements Subsystem {
             this
         );
 
-        ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-
         // Drive FFGain updated AM 03/07
 
         frontLeft = new NeoSwerveModule(
@@ -191,8 +187,6 @@ public class DrivetrainSubsystem implements Subsystem {
                 new PIDGains(1, 1.0e-6, 0),
                 new FFGains(0.17731, 3.2446, 0.41604),
                 drivetrainNT.getSubTable("backright"));
-
-        tab.addNumber("Rotation", () -> (getAdjustedRotation().getDegrees()));
 
         poseEstimator = new SwerveDrivePoseEstimator(
             kinematics,

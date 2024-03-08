@@ -410,7 +410,7 @@ public class ArmSubsystem extends SubsystemBase {
 		// use .set instead of setElevatorPercent so that the limit don't apply
 		return Commands.sequence(
 			Commands.runOnce(() -> setJointPosition(JOINT_STOW_POSITION)),
-			Commands.waitUntil(() -> isJointAtPosition(JOINT_STOW_POSITION, 0.5)),
+			Commands.waitUntil(() -> (isJointAtPosition(JOINT_STOW_POSITION, 1)||atJointMiddleLimitSwitch)),
 			Commands.runEnd(() -> elevatorMotor.set(-0.3), () -> elevatorMotor.set(0), this).until(() -> (atElevatorLimitSwitch))
 		);
 	}

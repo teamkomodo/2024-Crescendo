@@ -247,7 +247,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
     
     public void setIndexerPercent(double percent){
-        System.out.println("RUNNING INDEXER");
+        System.out.println(percent);
         indexerPidController.setReference(percent, ControlType.kDutyCycle);
     }
 
@@ -302,9 +302,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public Command shootForSpeaker(){
         return Commands.sequence(
             Commands.runOnce(() -> setShooterVelocity(SPEAKER_SPEED)),
-            Commands.waitUntil(() -> (checkShooterSpeed())),
+            Commands.waitSeconds(3.0),
             Commands.runOnce(() -> setIndexerPercent(1)),
-            Commands.waitUntil(() -> (!isPieceDetected())),
+            Commands.waitSeconds(1.0),
             Commands.runOnce(() -> turnOffIndexer()),
             Commands.runOnce(() -> turnoffShooter())
         ).finallyDo(() -> {

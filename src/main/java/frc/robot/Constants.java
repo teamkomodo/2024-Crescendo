@@ -47,8 +47,8 @@ public final class Constants {
     public static final double SPEAKER_SPEED = 2500;
     public static final double SPIN_RATIO = 1.0;
 
-    public static final double LINEAR_SLOW_MODE_MODIFIER = 0.5;
-    public static final double ANGULAR_SLOW_MODE_MODIFIER = 0.2;
+    public static final double LINEAR_SLOW_MODE_MODIFIER = 1.0;
+    public static final double ANGULAR_SLOW_MODE_MODIFIER = 0.3;
     public static final double DRIVETRAIN_WIDTH = 0.5271; // Distance between center of left and right swerve wheels in meters
     public static final double DRIVETRAIN_LENGTH = 0.5271; // Distance between center of front and back swerve wheels in meters
 
@@ -130,20 +130,6 @@ public final class Constants {
      * motor rotations -> joint radians
      */
     public static final double JOINT_ANGLE_CONVERSION_FACTOR = JOINT_REDUTION * 2.0 * Math.PI;
-
-    public static double JOINT_POSITION_FROM_ROBOT_FRONT = 22.0; // Change later
-    public static double JOINT_POSITION_FROM_ROBOT_BACK = 4.0;
-    public static double JOINT_POSITION_FROM_ROBOT_LEFT = 11.0;
-    public static double JOINT_POSITION_FROM_ROBOT_RIGHT = 11.0;
-    public static double JOINT_POSITION_FROM_FLOOR = 5.0;
-
-    public static double JOINT_RADIAN_PER_REVOLUTION = 0; // Change later
-    public static double JOINT_VERTICAL_ANGLE = Math.PI/2; // Radians
-
-    public static double VERTICAL_EXTENSION_LIMIT = 1.2192; // Meters
-    public static double HORIZONTAL_EXTENSION_LIMIT = 0.3048;
-
-    public static double ELEVATOR_MAX_EXTENSION = 35.0;
 
     public static final int ELEVATOR_MOTOR_ID = 34;
     public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 2;
