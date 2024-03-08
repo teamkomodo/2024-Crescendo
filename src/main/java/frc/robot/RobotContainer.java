@@ -190,8 +190,17 @@ public class RobotContainer {
     public Command shootCommand(){
         return Commands.sequence(
             new SpeakerPositionCommand(armSubsystem),
-            Commands.waitSeconds(0.5),
-            turbotakeSubsystem.shootForSpeaker()
+            Commands.runOnce(() -> System.out.println("shooting")),
+            Commands.sequence(
+                Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(SPEAKER_SPEED)),
+                Commands.waitSeconds(1.5),
+                Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
+                Commands.waitSeconds(1)
+            ).finallyDo(() -> {
+                turbotakeSubsystem.setIndexerPercent(0);
+                turbotakeSubsystem.turnoffShooter();
+                System.out.println("canceled");
+            })
         );
     }
 
@@ -204,7 +213,7 @@ public class RobotContainer {
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.2)),
             new SpeakerPositionCommand(armSubsystem),
             Commands.waitUntil(() -> turbotakeSubsystem.isPieceDetected()),
-            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.2)),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.1)),
             Commands.waitUntil(() -> !turbotakeSubsystem.isPieceDetected()),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
         );
@@ -212,10 +221,11 @@ public class RobotContainer {
 
     public Command alignPieceCommand(){
         return Commands.sequence(
-            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
-        ).finallyDo(() -> {
-            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0));
-        }).withTimeout(1);
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.2)),
+            Commands.waitUntil(() -> turbotakeSubsystem.isPieceDetected()),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.2)),
+            Commands.waitUntil(() -> !turbotakeSubsystem.isPieceDetected())
+        ).withTimeout(1.0).finallyDo(() -> turbotakeSubsystem.setIndexerPercent(0));
     }
 
 }

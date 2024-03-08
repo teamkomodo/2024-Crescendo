@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3491521419562087,
-      "y": 5.58606903233778
+      "x": 1.325730468864645,
+      "y": 5.457249830334182
     },
     "rotation": 0.0
   },
@@ -18,15 +18,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "IntakeMid"
+            "name": "armToStow"
           }
         }
       ]

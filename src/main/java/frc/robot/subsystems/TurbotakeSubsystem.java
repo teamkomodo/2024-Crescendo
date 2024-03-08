@@ -146,6 +146,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterPidController.setIZone(shooterIZone);
         leftShooterPidController.setFF(shooterFF);
         leftShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
+
+        leftShooterMotor.setSmartCurrentLimit(50);
+        rightShooterMotor.setSmartCurrentLimit(50);
         
         //sets PID values for right shooter
         rightShooterPidController.setP(shooterP);
