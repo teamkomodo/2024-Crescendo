@@ -173,6 +173,7 @@ public final class Constants {
     public static final double CLIMBER_PRE_CLIMB_POSITION = 20; //FIXME: change later
     public static final double CLIMBER_POST_CLIMB_POSITION = -40; //FIXME: change later
 
-    public static final int LED_CHANNEL = 0;
+    public static final int A_FRAME_LED_CHANNEL = 0;
+    public static final int TURBOTAKE_LED_CHANNEL = 1;
 
 }

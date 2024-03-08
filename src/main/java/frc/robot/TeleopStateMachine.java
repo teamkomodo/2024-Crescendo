@@ -126,11 +126,11 @@ public class TeleopStateMachine {
         currentState = State.START;
         stateSwitched = true;
 
-        currentShootingState = ShootingState.PREPARE_SHOOT;
+        currentShootingState = ShootingState.INACTIVE;
         shootingStateSwitched = true;
 
         currentPickupStateSwitched = true;
-        currentPickupState = PickupState.NO_PIECE;
+        currentPickupState = PickupState.INACTIVE;
 
         commandingPickupGround = false;
         commandingShootSpeaker = false;
@@ -157,10 +157,8 @@ public class TeleopStateMachine {
                 if(stateSwitched) {
                     stateSwitched = false;
                     commandScheduler.schedule(
-                        Commands.sequence(
-                            Commands.waitSeconds(0.8), // Allows time for green flashes
-                            ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_1_PATTERN_BREATH_FAST)
-                        )
+                        ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_BREATH_FAST),
+                        ledSubsystem.setTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_RED)
                     );
                 }
 
@@ -171,15 +169,20 @@ public class TeleopStateMachine {
                     stateSwitched = true;
                 }
 
+                if(commandingEject) {
+                    currentState = State.EJECT_PIECE;
+                    stateSwitched = true;
+                }
+
                 break;
             case DRIVE_WITH_PIECE:
 
                 if(stateSwitched) {
                     stateSwitched = false;
-                    commandScheduler.schedule(Commands.sequence(
-                            Commands.waitSeconds(0.8),
-                            ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_2_PATTERN_BREATH_FAST)
-                        )
+                    commandScheduler.schedule(
+                        ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_2_PATTERN_BREATH_FAST),
+                        ledSubsystem.setTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_GREEN),
+                        new StowPositionCommand(armSubsystem)
                     );
                 }
 
@@ -206,6 +209,7 @@ public class TeleopStateMachine {
 
                     commandScheduler.schedule(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.5)));
                     timer.restart();
+                    commandingEject = false;
                 }
 
                 if(timer.hasElapsed(0.5)) {
@@ -222,7 +226,7 @@ public class TeleopStateMachine {
                     stateSwitched = false;
                     currentPickupState = PickupState.NO_PIECE;
                     currentPickupStateSwitched = true;
-                    commandScheduler.schedule(ledSubsystem.setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LIGHT_CHASE_BLUE));
+                    commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LIGHT_CHASE_BLUE));
                 }
 
                 // Internal State Machine
@@ -241,7 +245,7 @@ public class TeleopStateMachine {
                             timer.restart();
                             commandScheduler.schedule(
                                 new IntakePositionCommand(armSubsystem),
-                                Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.8))
+                                Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1.0))
                             );
 
                         }
@@ -272,7 +276,7 @@ public class TeleopStateMachine {
                                 xboxRumbleCommand(driverController, 0.5),
                                 xboxRumbleCommand(operatorController, 0.5)
                             );
-                            turbotakeSubsystem.setIndexerPercent(0.1);
+                            turbotakeSubsystem.setIndexerPercent(0.3);
                         }
 
                         if(turbotakeSubsystem.isPieceDetected()) {
@@ -328,7 +332,13 @@ public class TeleopStateMachine {
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
                             turbotakeSubsystem.setShooterVelocity(SHOOTER_MAX_VELOCITY);
-                            commandScheduler.schedule(ledSubsystem.setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LIGHT_CHASE_RED));
+                            commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
+
+                            if(!smartShooting) {
+                                commandScheduler.schedule(
+                                    new SpeakerPositionCommand(armSubsystem)
+                                );
+                            }
                         }
 
                         if(turbotakeSubsystem.getShooterVelocity() > shooterThreshold) {
@@ -342,7 +352,7 @@ public class TeleopStateMachine {
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
                             commandScheduler.schedule(
-                                ledSubsystem.setPatternCommand(BlinkinPattern.SOLID_COLORS_YELLOW),
+                                ledSubsystem.setTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_YELLOW),
                                 xboxRumbleCommand(operatorController, 0.5)
                             );
                         }
@@ -365,10 +375,6 @@ public class TeleopStateMachine {
                                         Commands.run(() -> armSubsystem.setTurbotakeAngle(calculateShooterAngle()), armSubsystem).until(() -> shootingStateSwitched)
                                     ),
                                     drivetrainSubsystem.pointToSpeakerCommand()
-                                );
-                            }else {
-                                commandScheduler.schedule(
-                                    new SpeakerPositionCommand(armSubsystem)
                                 );
                             }
                             timer.restart();
@@ -446,7 +452,7 @@ public class TeleopStateMachine {
                 if(stateSwitched) {
                     stateSwitched = false;
                     commandScheduler.schedule(
-                        ledSubsystem.setPatternCommand(BlinkinPattern.COLOR_2_PATTERN_BREATH_FAST),
+                        ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_2_PATTERN_BREATH_FAST),
                         Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-1.0))
                     );
                     timer.restart();
@@ -470,7 +476,7 @@ public class TeleopStateMachine {
                 if(stateSwitched) {
 
                     commandScheduler.schedule(
-                        ledSubsystem.setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_BEATS_PER_MINUTE_PARTY_PALETTE)
+                        ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_BEATS_PER_MINUTE_PARTY_PALETTE)
                     );
                 }
 
@@ -495,7 +501,7 @@ public class TeleopStateMachine {
                 break;
             default:
                 // The default case will only run if the currentState doesn't have a corresponding case in the switch statement. This is an error
-                ledSubsystem.setPatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LARSON_SCANNER_RED);
+                ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_LARSON_SCANNER_RED);
                 DriverStation.reportError("TeleopStateMachine: state " + currentState.toString() + " behavior is undefined", false);
                 break;
         }
@@ -535,13 +541,14 @@ public class TeleopStateMachine {
 
     private Command flashGreenCommand() {
         return Commands.sequence(
-            ledSubsystem.setPatternCommand(BlinkinPattern.SOLID_COLORS_GREEN),
-            Commands.waitSeconds(0.2),
-            ledSubsystem.setPatternCommand(BlinkinPattern.SOLID_COLORS_BLACK),
-            Commands.waitSeconds(0.2),
-            ledSubsystem.setPatternCommand(BlinkinPattern.SOLID_COLORS_GREEN),
-            Commands.waitSeconds(0.2),
-            ledSubsystem.setPatternCommand(BlinkinPattern.SOLID_COLORS_BLACK)
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_GREEN).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_GREEN).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_GREEN).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_GREEN).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1)
         );
     }
 

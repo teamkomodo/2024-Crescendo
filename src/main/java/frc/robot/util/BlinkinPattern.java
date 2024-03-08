@@ -1,7 +1,7 @@
 package frc.robot.util;
 
 
-//ALL PATTERNS FOR LED
+
 public class BlinkinPattern {
     public static final double FIXED_PALETTE_PATTERN_RAINBOW_RAINBOW_PALETTE = -0.99;
         public static final double FIXED_PALETTE_PATTERN_RAINBOW_PARTY_PALETTE = -0.97;
@@ -83,7 +83,7 @@ public class BlinkinPattern {
         public static final double COLOR_1_AND_2_PATTERN_SINELON_COLOR_1_AND_2 = 0.55;
         public static final double SOLID_COLORS_HOT_PINK = 0.57;
         public static final double SOLID_COLORS_DARK_RED = 0.59;
-        public static final double SOLID_COLORS_RED = 0.61;
+        public static final double SOLID_COLORS_RED = 0.77; // 0.61;
         public static final double SOLID_COLORS_RED_ORANGE = 0.63;
         public static final double SOLID_COLORS_ORANGE = 0.65;
         public static final double SOLID_COLORS_GOLD = 0.67;
@@ -91,7 +91,7 @@ public class BlinkinPattern {
         public static final double SOLID_COLORS_LAWN_GREEN = 0.71;
         public static final double SOLID_COLORS_LIME = 0.73;
         public static final double SOLID_COLORS_DARK_GREEN = 0.75;
-        public static final double SOLID_COLORS_GREEN = 0.77;
+        public static final double SOLID_COLORS_GREEN = 0.61; // 0.77;
         public static final double SOLID_COLORS_BLUE_GREEN = 0.79;
         public static final double SOLID_COLORS_AQUA = 0.81;
         public static final double SOLID_COLORS_SKY_BLUE = 0.83;
