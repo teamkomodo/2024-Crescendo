@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.RobotController;
 
 import static frc.robot.Constants.*;
 
@@ -28,6 +29,7 @@ public class NeoSwerveModule implements SwerveModule{
     private final DoublePublisher normalizedVelocityError;
     private final DoublePublisher rotationErrorPublisher;
     private final DoublePublisher dutyCyclePublisher;
+    private final DoublePublisher velocityPublisher;
 
     private final CANSparkMax driveMotor;
     private final CANSparkMax steerMotor;
@@ -69,10 +71,12 @@ public class NeoSwerveModule implements SwerveModule{
         configureMotors(steerPIDGains);
      
         // Telemetry
-        velocityErrorPublisher = moduleNT.getDoubleTopic("velocityerror").publish();
+        velocityErrorPublisher = 
         normalizedVelocityError = moduleNT.getDoubleTopic("normvelocityerror").publish();
         rotationErrorPublisher = moduleNT.getDoubleTopic("rotationerror").publish();
         dutyCyclePublisher = moduleNT.getDoubleTopic("dutycycle").publish();
+        velocityPublisher = moduleNT.getDoubleTopic("velocity").publish();
+        
     }
 
     private void configureMotors(PIDGains steerGains) {
@@ -104,7 +108,7 @@ public class NeoSwerveModule implements SwerveModule{
         normalizedVelocityError.set((desiredState.speedMetersPerSecond - getDriveVelocity()) * Math.signum(desiredState.speedMetersPerSecond));
         rotationErrorPublisher.set(MathUtil.angleModulus(desiredState.angle.getRadians() - getModuleRotation().getRadians()));
         dutyCyclePublisher.set(driveMotor.get());
-
+        velocityPublisher.set(getDriveVelocity(), RobotController.getFPGATime() - 200000);
     }
     public SwerveModuleState getState() {
         return new SwerveModuleState(driveRelativeEncoder.getVelocity(), getModuleRotation());

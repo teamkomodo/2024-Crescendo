@@ -234,7 +234,7 @@ public class DrivetrainSubsystem implements Subsystem {
             frontRight.getState(),
             backLeft.getState(),
             backRight.getState()
-        });
+        }, RobotController.getFPGATime() - 200000);
 
         adjustedRotationPublisher.set(getAdjustedRotation());
         rotationPublisher.set(getRotation());
