@@ -39,10 +39,12 @@ public class TeleopStateMachine {
         ALIGN_AMP,
         SCORE_AMP,
         CLIMB,
+        EJECT_PIECE,
         END
     }
 
     public static enum ShootingState {
+        INACTIVE,
         PREPARE_SHOOT,
         READY_SHOOT,
         ALIGN_SPEAKER,
@@ -50,6 +52,7 @@ public class TeleopStateMachine {
     }
 
     public static enum PickupState {
+        INACTIVE,
         NO_PIECE,
         PARTIAL_AQUISITION,
         ALIGN_PIECE
@@ -88,7 +91,7 @@ public class TeleopStateMachine {
     // Store the current state
     private State currentState = State.START;
     private ShootingState currentShootingState = ShootingState.PREPARE_SHOOT;
-    private PickupState currentPickupState = PickupState.NO_PIECE;
+    private PickupState currentPickupState = PickupState.INACTIVE;
     private ClimbState currentClimbState = ClimbState.EXTEND;
 
     // This will turn to true when the current state's exit condition is met, and will signal the next state to run its entrance code
@@ -102,7 +105,7 @@ public class TeleopStateMachine {
     private boolean commandingShootSpeaker = false;
     private boolean commandingAlignAmp = false;
     private boolean commandingScoreAmp = false;
-    private boolean commandingCancel = false;
+    private boolean commandingEject = false;
 
     public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem, ArmSubsystem armSubsystem, TurbotakeSubsystem turbotakeSubsystem, LEDSubsystem ledSubsystem, XboxController driverController, XboxController operatorController) {
 
@@ -146,6 +149,7 @@ public class TeleopStateMachine {
             case START:
                 currentState = State.DRIVE_WITHOUT_PIECE; //turbotakeSubsystem.isPieceDetected()? State.DRIVE_WITH_PIECE : State.DRIVE_WITHOUT_PIECE;
                 stateSwitched = true;
+                commandScheduler.schedule(new StowPositionCommand(armSubsystem));
                 // intentionally no break statement
             case DRIVE_WITHOUT_PIECE:
 
@@ -190,6 +194,27 @@ public class TeleopStateMachine {
                     currentState = State.ALIGN_AMP;
                 }
 
+                if(commandingEject) {
+                    stateSwitched = true;
+                    currentState = State.EJECT_PIECE;
+                }
+
+                break;
+            case EJECT_PIECE:
+                if(stateSwitched) {
+                    stateSwitched = false;
+
+                    commandScheduler.schedule(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.5)));
+                    timer.restart();
+                }
+
+                if(timer.hasElapsed(0.5)) {
+                    stateSwitched = true;
+                    currentState = State.DRIVE_WITHOUT_PIECE;
+
+                    commandScheduler.schedule(Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0)));
+                }
+
                 break;
             case PICKUP_GROUND:
 
@@ -206,6 +231,9 @@ public class TeleopStateMachine {
                 final double intakeCurrentThreshold = 15;
 
                 switch (currentPickupState) {
+                    case INACTIVE:
+                        currentPickupState = PickupState.NO_PIECE;
+                        currentPickupStateSwitched = true;
                     case NO_PIECE:
 
                         if(currentPickupStateSwitched) {
@@ -221,6 +249,11 @@ public class TeleopStateMachine {
                         if(!commandingPickupGround) {
                             stateSwitched = true;
                             currentState = State.DRIVE_WITHOUT_PIECE;
+                        }
+
+                        if(turbotakeSubsystem.isPieceDetected()) {
+                            currentPickupStateSwitched = true;
+                            currentPickupState = PickupState.ALIGN_PIECE;
                         }
 
                         if(timer.hasElapsed(indexerRampUpTime) && turbotakeSubsystem.getFilteredCurrent() - intakeCurrentThreshold > 0) {
@@ -239,7 +272,7 @@ public class TeleopStateMachine {
                                 xboxRumbleCommand(driverController, 0.5),
                                 xboxRumbleCommand(operatorController, 0.5)
                             );
-                            turbotakeSubsystem.setIndexerPercent(0.2);
+                            turbotakeSubsystem.setIndexerPercent(0.1);
                         }
 
                         if(turbotakeSubsystem.isPieceDetected()) {
@@ -263,9 +296,14 @@ public class TeleopStateMachine {
                         break;
                 }
 
+                if(commandingEject) {
+                    stateSwitched = true;
+                    currentState = State.EJECT_PIECE;
+                }
+
                 if(stateSwitched) {
                     commandScheduler.schedule(new StowPositionCommand(armSubsystem));
-                    currentPickupState = PickupState.NO_PIECE;
+                    currentPickupState = PickupState.INACTIVE;
                     turbotakeSubsystem.setIndexerPercent(0);
                 }
 
@@ -280,9 +318,12 @@ public class TeleopStateMachine {
 
                 // Interal State Machine
                 switch (currentShootingState) {
+                    case INACTIVE:
+                        currentShootingState = ShootingState.PREPARE_SHOOT;
+                        currentPickupStateSwitched = true;
                     case PREPARE_SHOOT:
 
-                        double shooterThreshold = SHOOTER_MAX_VELOCITY - 50;
+                        double shooterThreshold = SHOOTER_MAX_VELOCITY - 200;
 
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
@@ -363,10 +404,17 @@ public class TeleopStateMachine {
                     stateSwitched = true;
                 }
 
+                if(commandingEject) {
+                    currentState = State.EJECT_PIECE;
+                    stateSwitched = true;
+                }
+
                 if(stateSwitched) {
                     commandScheduler.schedule(new StowPositionCommand(armSubsystem));
                     turbotakeSubsystem.setIndexerPercent(0);
                     turbotakeSubsystem.setShooterPercent(0);
+
+                    currentShootingState = ShootingState.INACTIVE;
                 }
 
                 break;
@@ -517,8 +565,8 @@ public class TeleopStateMachine {
         return Commands.runEnd(() -> commandingScoreAmp = true, () -> commandingScoreAmp = false);
     }
 
-    public Command cancelCommand() {
-        return Commands.runOnce(() -> commandingCancel = true);
+    public Command ejectCommand() {
+        return Commands.runEnd(() -> commandingEject = true, () -> commandingEject = false);
     }
 
 }

@@ -49,7 +49,7 @@ public final class Constants {
     public static final double SPEAKER_SPEED = 2500;
     public static final double SPIN_RATIO = 0.5;
 
-    public static final double LINEAR_SLOW_MODE_MODIFIER = 1.0;
+    public static final double LINEAR_SLOW_MODE_MODIFIER = 0.5;
     public static final double ANGULAR_SLOW_MODE_MODIFIER = 0.3;
     public static final double DRIVETRAIN_WIDTH = 0.5271; // Distance between center of left and right swerve wheels in meters
     public static final double DRIVETRAIN_LENGTH = 0.5271; // Distance between center of front and back swerve wheels in meters

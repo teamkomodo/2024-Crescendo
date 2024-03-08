@@ -76,7 +76,7 @@ public class RobotContainer {
         /*
          * Driver Controls
          * 
-         * LT - Slow Mode
+         * RT - Slow Mode
          * 
          */
 
@@ -103,6 +103,7 @@ public class RobotContainer {
          * Operator Controls
          * 
          * A - Stow
+         * B - Command Eject
          * X - Command Align Amp
          * 
          * Left Stick X - Elevator
@@ -118,6 +119,9 @@ public class RobotContainer {
         Trigger operatorA = operatorController.a();
         operatorA.onTrue(new StowPositionCommand(armSubsystem));
         //operatorA.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(0.8), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
+
+        Trigger operatorB = operatorController.b();
+        operatorB.whileTrue(teleopStateMachine.ejectCommand());
 
         Trigger operatorX = operatorController.x();
         operatorX.whileTrue(teleopStateMachine.alignAmpCommand());
