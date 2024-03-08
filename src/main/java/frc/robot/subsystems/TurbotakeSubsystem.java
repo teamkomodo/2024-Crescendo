@@ -146,6 +146,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
         leftShooterPidController.setIZone(shooterIZone);
         leftShooterPidController.setFF(shooterFF);
         leftShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
+
+        leftShooterMotor.setSmartCurrentLimit(50);
+        rightShooterMotor.setSmartCurrentLimit(50);
         
         //sets PID values for right shooter
         rightShooterPidController.setP(shooterP);
@@ -241,13 +244,14 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
     
     public void setShooterPercent(double percent, double spinRatio) {
+        System.out.println("RUNNING SHOOTERS, SPIN RATIO " + " " + spinRatio);
         leftShooterPidController.setReference(percent * spinRatio, ControlType.kDutyCycle);
         rightShooterPidController.setReference(percent, ControlType.kDutyCycle);
         
     }
     
     public void setIndexerPercent(double percent){
-        System.out.println(percent);
+        System.out.println("RUNNING INDEXER, SPEED " + " " + percent);
         indexerPidController.setReference(percent, ControlType.kDutyCycle);
     }
 
@@ -302,9 +306,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
     public Command shootForSpeaker(){
         return Commands.sequence(
             Commands.runOnce(() -> setShooterVelocity(SPEAKER_SPEED)),
-            Commands.waitSeconds(3.0),
+            Commands.waitSeconds(2.0),
             Commands.runOnce(() -> setIndexerPercent(1)),
-            Commands.waitSeconds(1.0),
+            Commands.waitSeconds(1),
             Commands.runOnce(() -> turnOffIndexer()),
             Commands.runOnce(() -> turnoffShooter())
         ).finallyDo(() -> {
@@ -317,13 +321,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
         return Commands.sequence(
             Commands.waitUntil(() -> !isPieceDetected()),
             Commands.runOnce(() -> setIndexerPercent(-1)),
-            Commands.waitUntil(() -> isPieceDetected()),
+            Commands.waitSeconds(1),
             Commands.runOnce(() -> turnOffIndexer())
         ).finallyDo(() -> {
             turnOffIndexer();
         });
     }
-
-
-    
 }

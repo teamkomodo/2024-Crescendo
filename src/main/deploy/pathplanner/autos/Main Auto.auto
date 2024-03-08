@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2337167531477924,
-      "y": 5.702529119343954
+      "x": 1.3725738150477713,
+      "y": 6.487803446362955
     },
-    "rotation": 0.0
+    "rotation": -146.1209584403734
   },
   "command": {
     "type": "sequential",
@@ -14,49 +14,55 @@
         {
           "type": "path",
           "data": {
-            "pathName": "align-c2-top"
+            "pathName": "1 Score"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "align-speaker-top"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
+            "pathName": "Intake Close 2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "align-c1"
+            "pathName": "1 Score"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "align-speaker-top"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
+            "pathName": "IntakeTop"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "align-c3"
+            "pathName": "1 Score"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "align-speaker-bottom"
+            "pathName": "Outer Top Middle Note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake Close 3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 Score"
           }
         }
       ]

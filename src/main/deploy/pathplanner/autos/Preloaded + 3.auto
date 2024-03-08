@@ -1,0 +1,79 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.36086297850199,
+      "y": 5.609490705429342
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "armToSpeaker"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSpeaker"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake Close 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1 Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Top Middle Note"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outer Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

@@ -1,0 +1,49 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.6113694395719733,
+      "y": 4.391563704668065
+    },
+    "rotation": -60.572543596810306
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSpeaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "armToStow"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake Far 5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Score Bottom"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

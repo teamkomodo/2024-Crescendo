@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
 
@@ -13,8 +14,16 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurbotakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -36,9 +45,33 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        autoChooser = AutoBuilder.buildAutoChooser();
+
+
+        SmartDashboard.putData("Auto Chooser",autoChooser);
     }
+
+    
+      private final SendableChooser<Command> autoChooser;
+    
     
     private void configureBindings() {
+    //Auto
+        NamedCommands.registerCommand("armToIntake", Commands.sequence(
+            armSubsystem.jointStowPositionCommand(),
+            Commands.waitSeconds(0.2),
+            armSubsystem.elevatorIntakePositionCommand(),
+            Commands.waitSeconds(0.2),
+            armSubsystem.jointIntakePositionCommand()
+        ));
+        NamedCommands.registerCommand("armToStow", new StowPositionCommand(armSubsystem));
+        NamedCommands.registerCommand("armToSpeaker", new SpeakerPositionCommand(armSubsystem));
+        NamedCommands.registerCommand("intakePiece", intakeCommand());
+        NamedCommands.registerCommand("shootSpeaker", shootCommand());
+        NamedCommands.registerCommand("runIndexerIn", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.5)));
+        NamedCommands.registerCommand("runIndexerStop", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0)));
+        NamedCommands.registerCommand("alignPiece", alignPieceCommand());
+
 
         /*
          * Driver Controls
@@ -122,16 +155,52 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
-        //return null;
-        return Commands.sequence(
-            new SpeakerPositionCommand(armSubsystem),
-            Commands.waitSeconds(1),
-            turbotakeSubsystem.shootForSpeaker()
-        );
+        return autoChooser.getSelected();
     }
 
     public TeleopStateMachine getTeleopStateMachine() {
-        return teleopStateMachine;
+        return this.teleopStateMachine;
+    }
+
+    public Command shootCommand(){
+        return Commands.sequence(
+            new SpeakerPositionCommand(armSubsystem),
+            Commands.runOnce(() -> System.out.println("shooting")),
+            Commands.sequence(
+                Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(SPEAKER_SPEED)),
+                Commands.waitSeconds(1.5),
+                Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
+                Commands.waitSeconds(1)
+            ).finallyDo(() -> {
+                turbotakeSubsystem.setIndexerPercent(0);
+                turbotakeSubsystem.turnoffShooter();
+                System.out.println("canceled");
+            })
+        );
+    }
+
+    public Command intakeCommand() {
+        return Commands.sequence(
+            new IntakePositionCommand(armSubsystem),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1.0)),
+            Commands.waitSeconds(1.0),
+            Commands.waitUntil(() -> turbotakeSubsystem.getFilteredCurrent() > 15),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.2)),
+            new SpeakerPositionCommand(armSubsystem),
+            Commands.waitUntil(() -> turbotakeSubsystem.isPieceDetected()),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.1)),
+            Commands.waitUntil(() -> !turbotakeSubsystem.isPieceDetected()),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
+        );
+    }
+
+    public Command alignPieceCommand(){
+        return Commands.sequence(
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.2)),
+            Commands.waitUntil(() -> turbotakeSubsystem.isPieceDetected()),
+            Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.2)),
+            Commands.waitUntil(() -> !turbotakeSubsystem.isPieceDetected())
+        ).withTimeout(1.0).finallyDo(() -> turbotakeSubsystem.setIndexerPercent(0));
     }
 
 }
