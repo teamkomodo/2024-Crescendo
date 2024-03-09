@@ -32,8 +32,8 @@ public class ClimberSubsystem extends SubsystemBase {
     private final SparkPIDController rightMotorPidController;
     private final RelativeEncoder rightMotorEncoder;
   
-    private double p = 0.0009;
-    private double i = 0.000000001;
+    private double p = 0.1;
+    private double i = 5.0e-9;
     private double d = 0.002;
     private double maxIAccum = 0;
 
@@ -243,6 +243,18 @@ public class ClimberSubsystem extends SubsystemBase {
         return this.runOnce(() -> setLeftMotorPosition(CLIMBER_POST_CLIMB_POSITION));
     }
 
+    public Command climbUpCommand() {
+        return this.runEnd(() -> {
+            setClimberPosition(leftMotorEncoder.getPosition() + (80 * 0.02));
+        }, this::holdClimberPosition);
+    }
+
+    public Command climbDownCommand() {
+        return this.runEnd(() -> {
+            setClimberPosition(leftMotorEncoder.getPosition() - (80 * 0.02));
+        }, this::holdClimberPosition);
+    }
+
     public void updateTelemetry() {
         leftMinPositionPublisher.set(atLeftMinPosition);
         leftMaxPositionPublisher.set(atLeftMaxPosition);
@@ -262,8 +274,8 @@ public class ClimberSubsystem extends SubsystemBase {
         }
 
         boolean newUseSensors = useSensorsEntry.get(useSensors);
-        if(useCodeStops != newUseSensors) {
-            setUseCodeStops(newUseSensors);
+        if(useSensors != newUseSensors) {
+            setUseSensors(newUseSensors);
         }
     }
 
@@ -341,14 +353,20 @@ public class ClimberSubsystem extends SubsystemBase {
     public void setLeftMotorPosition(double position) {
         if(!leftMotorZeroed)
             return;
-        double clampedPosition = Math.max(Math.min(position, CLIMBER_MAX_POSITION), CLIMBER_MIN_POSITION);
+        
+        double clampedPosition = position;
+        if(useCodeStops)
+            clampedPosition = Math.max(Math.min(position, CLIMBER_MAX_POSITION), CLIMBER_MIN_POSITION);
         leftMotorPidController.setReference(clampedPosition, ControlType.kPosition);
     }
 
     public void setRightMotorPosition(double position) {
         if(!rightMotorZeroed)
             return;
-        double clampedPosition = Math.max(Math.min(position, CLIMBER_MAX_POSITION), CLIMBER_MIN_POSITION);
+
+        double clampedPosition = position;
+        if(useCodeStops)
+            clampedPosition = Math.max(Math.min(position, CLIMBER_MAX_POSITION), CLIMBER_MIN_POSITION);
         rightMotorPidController.setReference(clampedPosition, ControlType.kPosition);
     }
 
@@ -371,6 +389,14 @@ public class ClimberSubsystem extends SubsystemBase {
         return (leftMotor.getOutputCurrent());
     }
 
+    public double getLeftMotorPosition() {
+        return leftMotorEncoder.getPosition();
+    }
+
+    public double getRightMotorPosition() {
+        return rightMotorEncoder.getPosition();
+    }
+
     public boolean isLeftSensorTriggered() {
         // sensor sees tape when false
         return !leftSensor.get();
@@ -379,6 +405,14 @@ public class ClimberSubsystem extends SubsystemBase {
     public boolean isRightSensorTriggered() {
         // sensor sees tape when false
         return rightSensor.get();
+    }
+
+    public boolean isClimberAtPosition(double position, double tolerance) {
+        return position - rightMotorEncoder.getPosition() < tolerance && position - leftMotorEncoder.getPosition() < tolerance; 
+    }
+
+    public boolean isClimberStowed() {
+        return atRightMinPosition && atLeftMinPosition;
     }
 
     public void setUseSensors(boolean useSensors) {

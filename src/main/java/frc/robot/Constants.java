@@ -127,6 +127,7 @@ public final class Constants {
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 1.5;
+    public static final double JOINT_CLIMB_POSITION = 1.5;
 
     /**
      * motor rotations -> joint radians
@@ -147,6 +148,7 @@ public final class Constants {
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 63;
     public static final double ELEVATOR_BUFFER_DISTANCE = 0;
+    public static final double ELEVATOR_CLIMB_POSITION = 63;
 
     public static final double[] ELEVATOR_POSITIONS_ORDERED = { // Order in array corresponds to selector position
         ELEVATOR_STOW_POSITION,

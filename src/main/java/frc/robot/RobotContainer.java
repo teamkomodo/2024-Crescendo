@@ -41,7 +41,7 @@ public class RobotContainer {
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
     private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
-    private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, driverController.getHID(), operatorController.getHID());
+    private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, climberSubsystem, driverController.getHID(), operatorController.getHID());
 
     public RobotContainer() {
         configureBindings();
@@ -114,6 +114,9 @@ public class RobotContainer {
          * 
          * Right Bumper - Command Spin Up State
          * Left Bumper - Command Score Amp
+         * 
+         * Start - Climber Up
+         * Back - Climber Down
          */
 
         Trigger operatorA = operatorController.a();
@@ -137,6 +140,21 @@ public class RobotContainer {
 
         Trigger operatorLT = operatorController.leftTrigger();
         operatorLT.whileTrue(teleopStateMachine.pickupGroundCommand());
+
+        Trigger operatorStart = operatorController.start();
+        operatorStart.whileTrue(
+            Commands.parallel(
+                climberSubsystem.climbUpCommand(),
+                teleopStateMachine.extendClimbCommand()
+            )
+        );
+
+        Trigger operatorBack = operatorController.back();
+        operatorBack.whileTrue(Commands.parallel(
+                climberSubsystem.climbDownCommand(),
+                teleopStateMachine.ascendClimbCommand()
+            )
+        );
 
         armSubsystem.setJointMotorPercent(0);
     }
