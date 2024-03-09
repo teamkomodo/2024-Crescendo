@@ -505,13 +505,10 @@ public class DrivetrainSubsystem implements Subsystem {
     public Command pointToSpeakerWithSpeedsCommand(Supplier<ChassisSpeeds> speedsSupplier) {
         return Commands.run(() -> {
 
-            double xDistance = poseEstimator.getEstimatedPosition().getX() - 0.0f;
+            double xDistance = poseEstimator.getEstimatedPosition().getX() - (ON_RED_ALLIANCE.getAsBoolean()? 16.46 : 0);
             double yDistance = poseEstimator.getEstimatedPosition().getY() - 5.2f;
 
-            // TODO: Account for alliance
-            //improve this math eventually
-            //assuming Blue Speaker, and Blue is Left/Red is Right and speakers/amps are on the top half of the arena
-            double desiredAngle = Math.atan(yDistance/xDistance);
+            double desiredAngle = Math.atan(yDistance/ xDistance) + (ON_RED_ALLIANCE.getAsBoolean() ? Math.PI : 0);
             
             drive(speedsSupplier.get().vxMetersPerSecond, speedsSupplier.get().vyMetersPerSecond, rotationController.calculate(getPose().getRotation().getRadians(), desiredAngle), true, true);
 

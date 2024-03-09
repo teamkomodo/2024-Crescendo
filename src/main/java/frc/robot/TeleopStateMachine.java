@@ -64,7 +64,7 @@ public class TeleopStateMachine {
         SCORE_TRAP
     }
 
-    private static final boolean smartShooting = false;
+    private static final boolean smartShooting = true;
 
     private final NetworkTable table = NetworkTableInstance.getDefault().getTable("teleopstatemachine");
     private final StringPublisher statePublisher = table.getStringTopic("teleopstate").publish();
@@ -350,12 +350,11 @@ public class TeleopStateMachine {
                             shootingStateSwitched = false;
                             turbotakeSubsystem.setShooterVelocity(SHOOTER_MAX_VELOCITY);
                             commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
-
-                            if(!smartShooting) {
-                                commandScheduler.schedule(
-                                    new SpeakerPositionCommand(armSubsystem)
-                                );
-                            }
+                            
+                            commandScheduler.schedule(
+                                new SpeakerPositionCommand(armSubsystem)
+                            );
+                            
                         }
 
                         if(turbotakeSubsystem.getShooterVelocity() > shooterThreshold) {
@@ -391,13 +390,13 @@ public class TeleopStateMachine {
                                         Commands.runOnce(() -> armSubsystem.setElevatorPosition(1)),
                                         Commands.run(() -> armSubsystem.setTurbotakeAngle(calculateShooterAngle()), armSubsystem).until(() -> shootingStateSwitched)
                                     ),
-                                    drivetrainSubsystem.pointToSpeakerCommand()
+                                    drivetrainSubsystem.pointToSpeakerCommand().until(() -> shootingStateSwitched)
                                 );
                             }
                             timer.restart();
                         }
 
-                        if(timer.hasElapsed(.3)) {
+                        if(timer.hasElapsed(2.0)) {
                             shootingStateSwitched = true;
                             currentShootingState = ShootingState.SHOOT_SPEAKER;
                         }
@@ -525,7 +524,7 @@ public class TeleopStateMachine {
     private Rotation2d calculateShooterAngle() {
         double distFromWall = Math.sqrt(Math.pow(drivetrainSubsystem.getPose().getX() - (ON_RED_ALLIANCE.getAsBoolean() ? 16.46 : 0), 2));
         double distFromShooterFront = distFromWall - .46;
-        double vertical = 2.11 - 0.30; // 2.11 is height from ground. 0.30 is average height of turbotake
+        double vertical = 2.11 - 0.42; // 2.11 is height from ground. 0.30 is average height of turbotake
 
         double shooterAngle = Math.atan(vertical / distFromShooterFront);
 

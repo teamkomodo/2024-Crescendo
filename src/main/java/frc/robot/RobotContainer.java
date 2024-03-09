@@ -89,6 +89,9 @@ public class RobotContainer {
         Trigger driverStart = driverController.start();
         driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
+        Trigger driverA = driverController.a();
+        driverA.whileTrue(drivetrainSubsystem.pointToSpeakerCommand());
+
         // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
             drivetrainSubsystem.joystickDriveCommand(
