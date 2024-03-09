@@ -538,6 +538,10 @@ public class TeleopStateMachine {
         }
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     private Command xboxRumbleCommand(XboxController controller, double time) {
         return Commands.runEnd(() -> controller.setRumble(RumbleType.kLeftRumble, 1), () -> controller.setRumble(RumbleType.kLeftRumble, 0)).withTimeout(time);
     }

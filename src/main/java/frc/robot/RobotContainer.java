@@ -140,6 +140,16 @@ public class RobotContainer {
 
         Trigger operatorLT = operatorController.leftTrigger();
         operatorLT.whileTrue(teleopStateMachine.pickupGroundCommand());
+        
+        Trigger operatorLY = new Trigger(() -> Math.abs(operatorController.getLeftY()) > XBOX_DEADBAND);
+        operatorLY.whileTrue(manualCommand(
+            Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(0.5), () -> armSubsystem.holdElevatorPosition())
+        ));
+
+        Trigger operatorRY = new Trigger(() -> Math.abs(operatorController.getRightY()) > XBOX_DEADBAND);
+        operatorRY.whileTrue(manualCommand(
+            Commands.runEnd(() -> armSubsystem.setJointMotorPercent(0.5), () -> armSubsystem.holdJointPosition())
+        ));
 
         Trigger operatorStart = operatorController.start();
         operatorStart.whileTrue(
@@ -211,6 +221,12 @@ public class RobotContainer {
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.2)),
             Commands.waitUntil(() -> !turbotakeSubsystem.isPieceDetected())
         ).withTimeout(1.0).finallyDo(() -> turbotakeSubsystem.setIndexerPercent(0));
+    }
+
+    private Command manualCommand(Command command) {
+        return Commands.either(
+            command, null, teleopStateMachine::isEnabled
+        );
     }
 
 }
