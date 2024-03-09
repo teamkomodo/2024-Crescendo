@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.ProfiledClimbCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
@@ -143,25 +144,25 @@ public class RobotContainer {
         
         Trigger operatorLY = new Trigger(() -> Math.abs(operatorController.getLeftY()) > XBOX_DEADBAND);
         operatorLY.whileTrue(manualCommand(
-            Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(0.5), () -> armSubsystem.holdElevatorPosition())
+            Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(-operatorController.getLeftY()), () -> armSubsystem.holdElevatorPosition())
         ));
 
         Trigger operatorRY = new Trigger(() -> Math.abs(operatorController.getRightY()) > XBOX_DEADBAND);
         operatorRY.whileTrue(manualCommand(
-            Commands.runEnd(() -> armSubsystem.setJointMotorPercent(0.5), () -> armSubsystem.holdJointPosition())
+            Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-operatorController.getRightY()), () -> armSubsystem.holdJointPosition())
         ));
 
         Trigger operatorStart = operatorController.start();
         operatorStart.whileTrue(
             Commands.parallel(
-                climberSubsystem.climbUpCommand(),
+                new ProfiledClimbCommand(climberSubsystem, 80),
                 teleopStateMachine.extendClimbCommand()
             )
         );
 
         Trigger operatorBack = operatorController.back();
         operatorBack.whileTrue(Commands.parallel(
-                climberSubsystem.climbDownCommand(),
+                new ProfiledClimbCommand(climberSubsystem, -20),
                 teleopStateMachine.ascendClimbCommand()
             )
         );
@@ -172,6 +173,7 @@ public class RobotContainer {
     public void teleopInit() {
         armSubsystem.teleopInit();
         turbotakeSubsystem.teleopInit();
+        climberSubsystem.setClimberDutyCycle(0);
     }
     
     public Command getAutonomousCommand() {
@@ -225,7 +227,7 @@ public class RobotContainer {
 
     private Command manualCommand(Command command) {
         return Commands.either(
-            command, null, teleopStateMachine::isEnabled
+            Commands.waitSeconds(0.1), command, teleopStateMachine::isEnabled
         );
     }
 

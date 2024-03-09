@@ -87,7 +87,7 @@ public class TeleopStateMachine {
     private final XboxController driverController;
     private final XboxController operatorController;
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     // Store the current state
     private State currentState = State.START;
@@ -517,6 +517,7 @@ public class TeleopStateMachine {
 
         boolean newEnabled = enabledEntry.get();
         if(newEnabled != enabled) {
+            System.out.println("Change state machine");
             setEnabled(newEnabled);
         }
     }
@@ -533,7 +534,7 @@ public class TeleopStateMachine {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        if(this.enabled = true) {
+        if(this.enabled == true) {
             currentState = State.START;
         }
     }

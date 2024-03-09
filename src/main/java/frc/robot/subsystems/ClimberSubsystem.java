@@ -245,13 +245,13 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public Command climbUpCommand() {
         return this.runEnd(() -> {
-            setClimberPosition(leftMotorEncoder.getPosition() + (80 * 0.02));
+            setClimberVelocity(10);
         }, this::holdClimberPosition);
     }
 
     public Command climbDownCommand() {
         return this.runEnd(() -> {
-            setClimberPosition(leftMotorEncoder.getPosition() - (80 * 0.02));
+            setClimberVelocity(-10);
         }, this::holdClimberPosition);
     }
 
