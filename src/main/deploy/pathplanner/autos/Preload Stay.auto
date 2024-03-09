@@ -14,13 +14,19 @@
         {
           "type": "named",
           "data": {
+            "name": "spinUp"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "shootSpeaker"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "armToStow"
+            "name": "stopFlywheels"
           }
         }
       ]

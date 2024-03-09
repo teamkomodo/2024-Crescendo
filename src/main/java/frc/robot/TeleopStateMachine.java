@@ -3,7 +3,7 @@ package frc.robot;
 import static frc.robot.Constants.ELEVATOR_MAX_POSITION;
 import static frc.robot.Constants.JOINT_AMP_POSITION;
 import static frc.robot.Constants.ON_RED_ALLIANCE;
-import static frc.robot.Constants.SHOOTER_MAX_VELOCITY;
+import static frc.robot.Constants.SHOOTER_SPEED;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.BooleanEntry;
@@ -334,11 +334,11 @@ public class TeleopStateMachine {
                         currentPickupStateSwitched = true;
                     case PREPARE_SHOOT:
 
-                        double shooterThreshold = SHOOTER_MAX_VELOCITY - 200;
+                        double shooterThreshold = SHOOTER_SPEED - 200;
 
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
-                            turbotakeSubsystem.setShooterVelocity(SHOOTER_MAX_VELOCITY);
+                            turbotakeSubsystem.setShooterVelocity(SHOOTER_SPEED);
                             commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
 
                             if(!smartShooting) {
