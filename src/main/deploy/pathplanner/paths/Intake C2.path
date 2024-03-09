@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 2.19098914812529,
+        "x": 1.313380622306902,
         "y": 5.539225686154654
       },
       "prevControl": {
-        "x": 2.291548458375314,
+        "x": 1.413939932556925,
         "y": 5.512478552796749
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "speaker-middle"
     }
   ],
   "rotationTargets": [
@@ -54,8 +54,8 @@
   "constraintZones": [
     {
       "name": "slow approach",
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 1.05,
+      "minWaypointRelativePos": 0.85,
+      "maxWaypointRelativePos": 0.95,
       "constraints": {
         "maxVelocity": 0.5,
         "maxAcceleration": 3.0,
@@ -113,18 +113,18 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.25,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 1.5,
-    "rotation": 0.5025816667210457,
+    "velocity": 0.0,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Center",
   "previewStartingState": {
     "rotation": 0.5846305207053063,
     "velocity": 0

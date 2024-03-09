@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2788871226815193,
-      "y": 5.646965382375843
+      "x": 0.6113694395719733,
+      "y": 4.391563704668065
     },
-    "rotation": 0.0
+    "rotation": -60.572543596810306
   },
   "command": {
     "type": "sequential",
@@ -18,21 +18,15 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Intake C2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Align Speaker Center"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "armToStow"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Move Bottom"
           }
         }
       ]

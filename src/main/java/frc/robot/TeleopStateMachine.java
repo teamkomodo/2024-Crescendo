@@ -149,7 +149,11 @@ public class TeleopStateMachine {
             case START:
                 currentState = State.DRIVE_WITHOUT_PIECE; //turbotakeSubsystem.isPieceDetected()? State.DRIVE_WITH_PIECE : State.DRIVE_WITHOUT_PIECE;
                 stateSwitched = true;
-                commandScheduler.schedule(new StowPositionCommand(armSubsystem));
+                commandScheduler.schedule(
+                    new StowPositionCommand(armSubsystem),
+                    Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)),
+                    Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
+                );
                 // intentionally no break statement
             case DRIVE_WITHOUT_PIECE:
 

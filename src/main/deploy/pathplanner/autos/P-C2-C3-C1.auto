@@ -14,6 +14,12 @@
         {
           "type": "named",
           "data": {
+            "name": "spinUp"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "shootSpeaker"
           }
         },
@@ -21,12 +27,6 @@
           "type": "path",
           "data": {
             "pathName": "Intake C2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Align Speaker Center"
           }
         },
         {
@@ -42,12 +42,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Align Speaker Center"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "shootSpeaker"
@@ -60,15 +54,21 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Align Speaker Center"
+            "name": "shootSpeaker"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "stopFlywheels"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
           }
         }
       ]
