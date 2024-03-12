@@ -155,14 +155,14 @@ public class RobotContainer {
         Trigger operatorStart = operatorController.start();
         operatorStart.whileTrue(
             Commands.parallel(
-                new ProfiledClimbCommand(climberSubsystem, 80),
+                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity()),
                 teleopStateMachine.extendClimbCommand()
             )
         );
 
         Trigger operatorBack = operatorController.back();
         operatorBack.whileTrue(Commands.parallel(
-                new ProfiledClimbCommand(climberSubsystem, -20),
+                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getAscendVelocity()),
                 teleopStateMachine.ascendClimbCommand()
             )
         );

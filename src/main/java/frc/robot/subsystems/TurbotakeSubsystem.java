@@ -14,6 +14,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -54,6 +55,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
 
     private final StringPublisher currentCommandPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getStringTopic("currentcommand").publish();
 
+    private final DoubleEntry shooterSpeedEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("shooterspeed").getEntry(SHOOTER_SPEED);
+
+    private final DoubleEntry indexerPEntry, indexerIEntry, indexerDEntry, shooterPEntry, shooterIEntry, shooterDEntry, shooterFFEntry;
+
     //PID values for indexer
     private double indexerP, indexerI, indexerD, indexerIZone, indexerFF, indexerMinOutput, indexerMaxOutput;
     //PID values for shooter motors
@@ -78,8 +83,6 @@ public class TurbotakeSubsystem extends SubsystemBase{
     private double beambreakPasses = 0;
     
     public TurbotakeSubsystem(){
-        
-       
 
         // PID coefficients for indexer
         indexerP = 1;
@@ -89,6 +92,14 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerFF = 0;
         indexerMinOutput = -1;
         indexerMaxOutput = 1;
+
+        indexerPEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("tuning/indexerkP").getEntry(indexerP);
+        indexerIEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("tuning/indexerkI").getEntry(indexerI);
+        indexerDEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("tuning/indexerkD").getEntry(indexerD);
+
+        indexerPEntry.set(indexerP);
+        indexerIEntry.set(indexerI);
+        indexerDEntry.set(indexerD);
         
         // PID coefficients for shooter motors
         shooterP = 3e-4;
@@ -99,9 +110,16 @@ public class TurbotakeSubsystem extends SubsystemBase{
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
 
-       
-        
-        
+        shooterPEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("tuning/shooterkP").getEntry(shooterP);
+        shooterIEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("tuning/shooterkI").getEntry(shooterI);
+        shooterDEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("tuning/shooterkD").getEntry(shooterD);
+        shooterFFEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("tuning/shooterkV").getEntry(shooterFF);
+
+        shooterPEntry.set(shooterP);
+        shooterIEntry.set(shooterI);
+        shooterDEntry.set(shooterD);
+        shooterFFEntry.set(shooterFF);
+
         //Initialize the motors
         leftShooterMotor = new CANSparkMax(LEFT_SHOOTER_MOTOR_ID, MotorType.kBrushless);
         rightShooterMotor = new CANSparkMax(RIGHT_SHOOTER_MOTOR_ID, MotorType.kBrushless);
@@ -171,6 +189,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         updateShooterTelemetry();
         filterCurrent();
         countBeambreakPasses();
+        updateControlConstants();
     }
 
     private void filterCurrent() {
@@ -184,8 +203,6 @@ public class TurbotakeSubsystem extends SubsystemBase{
         }
     }
     
-
-
     public void updateShooterTelemetry(){
         pieceDetectedPublisher.set(isPieceDetected());
         leftShooterVelocityPublisher.set(leftShooterEncoder.getVelocity());
@@ -194,6 +211,56 @@ public class TurbotakeSubsystem extends SubsystemBase{
         filteredCurrentPublisher.set(filteredCurrent);
         hasPiecePublisher.set(hasPiece());
         currentCommandPublisher.set(getCurrentCommand() != null? getCurrentCommand().getName() : "null");
+    }
+
+    public void updateControlConstants() {
+
+        double newIndexerP = indexerPEntry.get(indexerP);
+        if(newIndexerP != indexerP) {
+            indexerP = newIndexerP;
+            indexerPidController.setP(indexerP);
+        }
+
+        double newIndexerI = indexerIEntry.get(indexerI);
+        if(newIndexerI != indexerI) {
+            indexerI = newIndexerI;
+            indexerPidController.setI(indexerI);
+        }
+
+        double newIndexerD = indexerDEntry.get(indexerD);
+        if(newIndexerD != indexerD) {
+            indexerD = newIndexerD;
+            indexerPidController.setD(indexerD);
+        }
+
+        double newShooterP = shooterPEntry.get(shooterP);
+        if(newShooterP != shooterP) {
+            shooterP = newShooterP;
+            leftShooterPidController.setP(shooterP);
+            rightShooterPidController.setP(shooterP);
+        }
+
+        double newShooterI = shooterIEntry.get(shooterI);
+        if(newShooterI != shooterI) {
+            shooterI = newShooterI;
+            leftShooterPidController.setI(shooterI);
+            rightShooterPidController.setI(shooterI);
+        }
+
+        double newShooterD = shooterDEntry.get(shooterD);
+        if(newShooterD != shooterD) {
+            shooterD = newShooterD;
+            leftShooterPidController.setD(shooterD);
+            rightShooterPidController.setD(shooterD);
+        }
+
+        double newShooterFF = shooterFFEntry.get(shooterFF);
+        if(newShooterFF != shooterFF) {
+            shooterFF = newShooterFF;
+            leftShooterPidController.setFF(shooterFF);
+            rightShooterPidController.setFF(shooterFF);
+        }
+
     }
     
     /**
@@ -283,6 +350,10 @@ public class TurbotakeSubsystem extends SubsystemBase{
         } else{
             return false;
         }
+    }
+
+    public double getShooterSpeed(){
+        return shooterSpeedEntry.get(SHOOTER_SPEED);
     }
     
     // Command 
