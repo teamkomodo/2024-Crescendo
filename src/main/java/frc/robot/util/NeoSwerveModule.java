@@ -140,6 +140,9 @@ public class NeoSwerveModule implements SwerveModule{
         dutyCyclePublisher.set(driveMotor.get());
         velocityPublisher.set(getDriveVelocity(), RobotController.getFPGATime() - 200000);
 
+        if(!TUNING_MODE)
+            return;
+
         double newDrivekP = drivekPEntry.get();
         if(newDrivekP != driveController.getP()) driveController.setP(newDrivekP);
 

@@ -23,6 +23,7 @@ import edu.wpi.first.units.Units;
 import static frc.robot.Constants.*;
 
 public class TurbotakeSubsystem extends SubsystemBase{
+
     //defines motors
     private final CANSparkMax leftShooterMotor;
     private final CANSparkMax rightShooterMotor;
@@ -215,6 +216,9 @@ public class TurbotakeSubsystem extends SubsystemBase{
 
     public void updateControlConstants() {
 
+        if(!TUNING_MODE)
+            return;
+
         double newIndexerP = indexerPEntry.get(indexerP);
         if(newIndexerP != indexerP) {
             indexerP = newIndexerP;
@@ -353,7 +357,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
 
     public double getShooterSpeed(){
-        return shooterSpeedEntry.get(SHOOTER_SPEED);
+        return !TUNING_MODE? SHOOTER_SPEED : shooterSpeedEntry.get(SHOOTER_SPEED);
     }
     
     // Command 

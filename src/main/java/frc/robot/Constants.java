@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  */
 public final class Constants {
 
+    public static final boolean TUNING_MODE = false;
+
 // Controls
     public static final double XBOX_DEADBAND = 0.06;
     public static final int DRIVER_XBOX_PORT = 0;

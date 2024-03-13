@@ -441,27 +441,27 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public double getMinPosition() {
-        return minPositionEntry.get(CLIMBER_MIN_POSITION);
+        return !TUNING_MODE ? CLIMBER_MIN_POSITION : minPositionEntry.get(CLIMBER_MIN_POSITION);
     }
 
     public double getMaxPosition() {
-        return maxPositionEntry.get(CLIMBER_MAX_POSITION);
+        return !TUNING_MODE ? CLIMBER_MAX_POSITION : maxPositionEntry.get(CLIMBER_MAX_POSITION);
     }
 
     public double getPreClimbPosition() {
-        return preClimbPositionEntry.get(CLIMBER_PRE_CLIMB_POSITION);
+        return !TUNING_MODE ? CLIMBER_PRE_CLIMB_POSITION : preClimbPositionEntry.get(CLIMBER_PRE_CLIMB_POSITION);
     }
 
     public double getPostClimbPosition() {
-        return postClimbPositionEntry.get(CLIMBER_POST_CLIMB_POSITION);
+        return !TUNING_MODE ? CLIMBER_POST_CLIMB_POSITION : postClimbPositionEntry.get(CLIMBER_POST_CLIMB_POSITION);
     }
 
     public double getExtendVelocity() {
-        return extendVelocityEntry.get(CLIMBER_EXTEND_VELOCITY);
+        return !TUNING_MODE ? CLIMBER_EXTEND_VELOCITY : extendVelocityEntry.get(CLIMBER_EXTEND_VELOCITY);
     }
 
     public double getAscendVelocity() {
-        return ascendVelocityEntry.get(CLIMBER_ASCEND_VELOCITY);
+        return !TUNING_MODE ? CLIMBER_ASCEND_VELOCITY : ascendVelocityEntry.get(CLIMBER_ASCEND_VELOCITY);
     }
   
 }

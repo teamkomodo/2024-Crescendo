@@ -590,62 +590,62 @@ public class ArmSubsystem extends SubsystemBase {
     // Getters for all preset positions that will return the current value from network tables or the value from Constants if none is published
 
     public double getJointMinPosition() {
-        return jointMinPositionEntry.get(JOINT_MIN_POSITION);
+        return !TUNING_MODE ? JOINT_MIN_POSITION : jointMinPositionEntry.get(JOINT_MIN_POSITION);
     }
     
     public double getJointMaxPosition() {
-        return jointMaxPositionEntry.get(JOINT_MAX_POSITION);
+        return !TUNING_MODE ? JOINT_MAX_POSITION : jointMaxPositionEntry.get(JOINT_MAX_POSITION);
     }
     
     public double getJointStowPosition() {
-        return jointStowPositionEntry.get(JOINT_STOW_POSITION);
+        return !TUNING_MODE ? JOINT_STOW_POSITION : jointStowPositionEntry.get(JOINT_STOW_POSITION);
     }
     
     public double getJointAmpPosition() {
-        return jointAmpPositionEntry.get(JOINT_AMP_POSITION);
+        return !TUNING_MODE ? JOINT_AMP_POSITION : jointAmpPositionEntry.get(JOINT_AMP_POSITION);
     }
     
     public double getJointSpeakerPosition() {
-        return jointSpeakerPositionEntry.get(JOINT_SPEAKER_POSITION);
+        return !TUNING_MODE ? JOINT_SPEAKER_POSITION : jointSpeakerPositionEntry.get(JOINT_SPEAKER_POSITION);
     }
     
     public double getJointTrapPosition() {
-        return jointTrapPositionEntry.get(JOINT_TRAP_POSITION);
+        return !TUNING_MODE ? JOINT_TRAP_POSITION : jointTrapPositionEntry.get(JOINT_TRAP_POSITION);
     }
     
     public double getJointIntakePosition() {
-        return jointIntakePositionEntry.get(JOINT_INTAKE_POSITION);
+        return !TUNING_MODE ? JOINT_INTAKE_POSITION : jointIntakePositionEntry.get(JOINT_INTAKE_POSITION);
     }
     
     public double getJointPreIntakePosition() {
-        return jointPreIntakePositionEntry.get(JOINT_PRE_INTAKE_POSITION);
+        return !TUNING_MODE ? JOINT_PRE_INTAKE_POSITION : jointPreIntakePositionEntry.get(JOINT_PRE_INTAKE_POSITION);
     }
     
     public double getElevatorMinPosition() {
-        return elevatorMinPositionEntry.get(ELEVATOR_MIN_POSITION);
+        return !TUNING_MODE ? ELEVATOR_MIN_POSITION : elevatorMinPositionEntry.get(ELEVATOR_MIN_POSITION);
     }
     
     public double getElevatorMaxPosition() {
-        return elevatorMaxPositionEntry.get(ELEVATOR_MAX_POSITION);
+        return !TUNING_MODE ? ELEVATOR_MAX_POSITION : elevatorMaxPositionEntry.get(ELEVATOR_MAX_POSITION);
     }
     
     public double getElevatorStowPosition() {
-        return elevatorStowPositionEntry.get(ELEVATOR_STOW_POSITION);
+        return !TUNING_MODE ? ELEVATOR_STOW_POSITION : elevatorStowPositionEntry.get(ELEVATOR_STOW_POSITION);
     }
     
     public double getElevatorAmpPosition() {
-        return elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION);
+        return !TUNING_MODE ? ELEVATOR_AMP_POSITION : elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION);
     }
     
     public double getElevatorSpeakerPosition() {
-        return elevatorSpeakerPositionEntry.get(ELEVATOR_SPEAKER_POSITION);
+        return !TUNING_MODE ? ELEVATOR_SPEAKER_POSITION : elevatorSpeakerPositionEntry.get(ELEVATOR_SPEAKER_POSITION);
     }
     
     public double getElevatorTrapPosition() {
-        return elevatorTrapPositionEntry.get(ELEVATOR_TRAP_POSITION);
+        return !TUNING_MODE ? ELEVATOR_TRAP_POSITION : elevatorTrapPositionEntry.get(ELEVATOR_TRAP_POSITION);
     }
     
     public double getElevatorIntakePosition() {
-        return elevatorIntakePositionEntry.get(ELEVATOR_INTAKE_POSITION);
+        return !TUNING_MODE ? ELEVATOR_INTAKE_POSITION : elevatorIntakePositionEntry.get(ELEVATOR_INTAKE_POSITION);
     }
 }
