@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.commands.ProfiledClimbCommand;
+import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
@@ -21,10 +22,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -88,52 +87,80 @@ public class RobotContainer {
         /*
          * Operator Controls
          * 
-         * A - Stow
-         * B - Command Eject
-         * X - Command Align Amp
+         * A - Stow | Stow
+         * B - Command Eject | Pickup
+         * X - Command Align Amp | Amp
+         * Y - Speaker Pos
          * 
          * Left Stick X - Elevator
          * Right Stick Y - Joint
          * 
-         * Right Trigger - Command Shoot State
-         * Left Trigger - Command Intake State
+         * Right Trigger - Command Shoot State | Shoot
+         * Left Trigger - Command Intake State | Intake
          * 
          * Right Bumper - Command Spin Up State
-         * Left Bumper - Command Score Amp
+         * Left Bumper - Command Score Amp | Outtake
          * 
          * Start - Climber Up
          * Back - Climber Down
          */
 
         Trigger operatorA = operatorController.a();
-        operatorA.onTrue(new StowPositionCommand(armSubsystem));
-        //operatorA.whileTrue(Commands.runEnd(() -> armSubsystem.setJointMotorPercent(0.8), () -> armSubsystem.setJointPosition(armSubsystem.getJointPosition())));
+        operatorA.onTrue(manualBinding(
+            new StowPositionCommand(armSubsystem)
+        ));
 
         Trigger operatorB = operatorController.b();
-        operatorB.whileTrue(teleopStateMachine.ejectCommand());
+        operatorB.whileTrue(stateMachineBinding(
+            teleopStateMachine.ejectCommand()
+        ));
+
+        operatorB.onTrue(manualBinding(
+            new IntakePositionCommand(armSubsystem)
+        ));
 
         Trigger operatorX = operatorController.x();
-        operatorX.whileTrue(teleopStateMachine.alignAmpCommand());
+        operatorX.whileTrue(stateMachineBinding(
+            teleopStateMachine.alignAmpCommand()
+        ));
+
+        operatorX.onTrue(manualBinding(
+            new AmpPositionCommand(armSubsystem)
+        ));
+
+        Trigger operatorY = operatorController.y();
+        operatorY.onTrue(manualBinding(
+            new SpeakerPositionCommand(armSubsystem)
+        ));
 
         Trigger operatorRB = operatorController.rightBumper();
         operatorRB.whileTrue(teleopStateMachine.spinUpCommand());
 
         Trigger operatorLB = operatorController.leftBumper();
-        operatorLB.whileTrue(teleopStateMachine.scoreAmpCommand());
+        operatorLB.whileTrue(dualBinding(
+            teleopStateMachine.scoreAmpCommand(),
+            Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-1.0), () -> turbotakeSubsystem.setIndexerPercent(0))
+        ));
         
         Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(teleopStateMachine.shootSpeakerCommand());
+        operatorRT.whileTrue(dualBinding(
+            teleopStateMachine.shootSpeakerCommand(),
+            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(SPEAKER_SPEED), () -> turbotakeSubsystem.setShooterPercent(0))
+        ));
 
         Trigger operatorLT = operatorController.leftTrigger();
-        operatorLT.whileTrue(teleopStateMachine.pickupGroundCommand());
+        operatorLT.whileTrue(dualBinding(
+            teleopStateMachine.pickupGroundCommand(),
+            Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0))
+        ));
         
         Trigger operatorLY = new Trigger(() -> Math.abs(operatorController.getLeftY()) > XBOX_DEADBAND);
-        operatorLY.whileTrue(manualCommand(
+        operatorLY.whileTrue(manualBinding(
             Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(-operatorController.getLeftY()), () -> armSubsystem.holdElevatorPosition())
         ));
 
         Trigger operatorRY = new Trigger(() -> Math.abs(operatorController.getRightY()) > XBOX_DEADBAND);
-        operatorRY.whileTrue(manualCommand(
+        operatorRY.whileTrue(manualBinding(
             Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-operatorController.getRightY()), () -> armSubsystem.holdJointPosition())
         ));
 
@@ -210,9 +237,19 @@ public class RobotContainer {
         ).withTimeout(1.0).finallyDo(() -> turbotakeSubsystem.setIndexerPercent(0));
     }
 
-    private Command manualCommand(Command command) {
+    private Command stateMachineBinding(Command stateMachineCommand) {
+        return stateMachineCommand.unless(() -> !teleopStateMachine.isEnabled()).until(() -> !teleopStateMachine.isEnabled());
+    }
+
+    private Command manualBinding(Command manualBinding) {
+        return manualBinding.unless(() -> teleopStateMachine.isEnabled()).until(() -> teleopStateMachine.isEnabled());
+    }
+
+    private Command dualBinding(Command stateMachineCommand, Command manualCommand) {
         return Commands.either(
-            Commands.waitSeconds(0.1), command, teleopStateMachine::isEnabled
+            stateMachineCommand.until(() -> !teleopStateMachine.isEnabled()),
+            manualCommand.until(teleopStateMachine::isEnabled),
+            teleopStateMachine::isEnabled
         );
     }
 

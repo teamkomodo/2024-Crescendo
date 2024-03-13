@@ -87,7 +87,7 @@ public class TeleopStateMachine {
     private final XboxController driverController;
     private final XboxController operatorController;
 
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     // Store the current state
     private State currentState = State.START;
@@ -504,7 +504,7 @@ public class TeleopStateMachine {
 
                 break;
             case END:
-
+                
                 break;
             default:
                 // The default case will only run if the currentState doesn't have a corresponding case in the switch statement. This is an error
@@ -538,8 +538,13 @@ public class TeleopStateMachine {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        if(this.enabled == true) {
+        if(this.enabled) {
             currentState = State.START;
+        }else {
+            commandScheduler.schedule(
+                ledSubsystem.setTurbotakePatternCommand(BlinkinPattern.COLOR_1_AND_2_PATTERN_SPARKLE_COLOR_1_ON_COLOR_2),
+                ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_AND_2_PATTERN_SPARKLE_COLOR_2_ON_COLOR_1)
+            );
         }
     }
 
