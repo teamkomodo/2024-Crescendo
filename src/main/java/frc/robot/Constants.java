@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  */
 public final class Constants {
 
+    public static final boolean TUNING_MODE = false;
+
 // Controls
     public static final double XBOX_DEADBAND = 0.06;
     public static final int DRIVER_XBOX_PORT = 0;
@@ -76,7 +78,14 @@ public final class Constants {
 
     public static final double WHEEL_DIAMETER = 0.1016;
 
-    public static final double DRIVE_REDUCTION = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0); // reduction * motor rpm = wheel rpm
+    /**
+     * motor rotations -> wheel rotations
+     */
+    public static final double DRIVE_REDUCTION = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0);
+
+    /**
+     * motor rotations -> module rotations
+     */
     public static final double STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
 
     public static final double MAX_ATTAINABLE_VELOCITY = 3.8;
@@ -117,7 +126,10 @@ public final class Constants {
     public static final double JOINT_BOTTOM_SWITCH_POSITION = 2;
     public static final double JOINT_STARTING_POSITION = 4.4;
 
-    public static final double JOINT_REDUTION = (1.0 / 100.0) * (18.0 / 30.0); // reduction * motor rotations = mechanism rotations
+    /**
+     * motor rotations -> mechanism rotations
+     */
+    public static final double JOINT_REDUTION = (1.0 / 100.0) * (18.0 / 30.0);
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
@@ -127,6 +139,7 @@ public final class Constants {
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 1.5;
+    public static final double JOINT_CLIMB_POSITION = 1.5;
 
     /**
      * motor rotations -> joint radians
@@ -146,19 +159,11 @@ public final class Constants {
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 63;
-    public static final double ELEVATOR_BUFFER_DISTANCE = 0;
-
-    public static final double[] ELEVATOR_POSITIONS_ORDERED = { // Order in array corresponds to selector position
-        ELEVATOR_STOW_POSITION,
-        ELEVATOR_AMP_POSITION,
-        ELEVATOR_SPEAKER_POSITION,
-        ELEVATOR_TRAP_POSITION,
-        ELEVATOR_INTAKE_POSITION
-    };
+    public static final double ELEVATOR_CLIMB_POSITION = 63;
 
     // FRC Field
-    public static final double FIELD_WIDTH = 821; //cm approxiamation Field Length is 26ft. 11 1/8 in wide
-    public static final double FIELD_LENGTH = 1654;
+    public static final double FIELD_WIDTH = 8.21; // m approxiamation: Field Length is 26ft. 11 1/8 in wide
+    public static final double FIELD_LENGTH = 16.54;
 
     // Climber
     public static final int CLIMBER_MOTOR_RIGHT_ID = 39;
@@ -170,8 +175,11 @@ public final class Constants {
     public static final double CLIMBER_MIN_POSITION = 0;
     public static final double CLIMBER_MAX_POSITION = 66;
 
-    public static final double CLIMBER_PRE_CLIMB_POSITION = 20; //FIXME: change later
-    public static final double CLIMBER_POST_CLIMB_POSITION = -40; //FIXME: change later
+    public static final double CLIMBER_PRE_CLIMB_POSITION = 20;
+    public static final double CLIMBER_POST_CLIMB_POSITION = -40;
+
+    public static final double CLIMBER_EXTEND_VELOCITY = 80;
+    public static final double CLIMBER_ASCEND_VELOCITY = 80;
 
     public static final int A_FRAME_LED_CHANNEL = 0;
     public static final int TURBOTAKE_LED_CHANNEL = 1;

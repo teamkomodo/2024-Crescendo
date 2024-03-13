@@ -1,9 +1,6 @@
 package frc.robot;
 
-import static frc.robot.Constants.ELEVATOR_MAX_POSITION;
-import static frc.robot.Constants.JOINT_AMP_POSITION;
-import static frc.robot.Constants.ON_RED_ALLIANCE;
-import static frc.robot.Constants.SHOOTER_SPEED;
+import static frc.robot.Constants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.BooleanEntry;
@@ -22,6 +19,7 @@ import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurbotakeSubsystem;
@@ -59,7 +57,9 @@ public class TeleopStateMachine {
     }
 
     public static enum ClimbState {
+        INACTIVE,
         EXTEND,
+        READY,
         ASCEND,
         SCORE_TRAP
     }
@@ -82,23 +82,24 @@ public class TeleopStateMachine {
     private final ArmSubsystem armSubsystem;
     private final TurbotakeSubsystem turbotakeSubsystem;
     private final LEDSubsystem ledSubsystem;
+    private final ClimberSubsystem climberSubsystem;
 
     private final XboxController driverController;
     private final XboxController operatorController;
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     // Store the current state
     private State currentState = State.START;
     private ShootingState currentShootingState = ShootingState.PREPARE_SHOOT;
     private PickupState currentPickupState = PickupState.INACTIVE;
-    private ClimbState currentClimbState = ClimbState.EXTEND;
+    //private ClimbState currentClimbState = ClimbState.EXTEND;
 
     // This will turn to true when the current state's exit condition is met, and will signal the next state to run its entrance code
     private boolean stateSwitched = true;
     private boolean shootingStateSwitched = true;
     private boolean currentPickupStateSwitched = true;
-    private boolean climbStateSwitched = true;
+    //private boolean climbStateSwitched = true;
 
     private boolean commandingPickupGround = false;
     private boolean commandingSpinUp = false;
@@ -106,14 +107,17 @@ public class TeleopStateMachine {
     private boolean commandingAlignAmp = false;
     private boolean commandingScoreAmp = false;
     private boolean commandingEject = false;
+    private boolean commandingClimbExtend = false;
+    private boolean commandingClimbAscend = false;
 
-    public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem, ArmSubsystem armSubsystem, TurbotakeSubsystem turbotakeSubsystem, LEDSubsystem ledSubsystem, XboxController driverController, XboxController operatorController) {
+    public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem, ArmSubsystem armSubsystem, TurbotakeSubsystem turbotakeSubsystem, LEDSubsystem ledSubsystem, ClimberSubsystem climberSubsystem, XboxController driverController, XboxController operatorController) {
 
         // Set our references
         this.drivetrainSubsystem = drivetrainSubsystem;
         this.armSubsystem = armSubsystem;
         this.turbotakeSubsystem = turbotakeSubsystem;
         this.ledSubsystem = ledSubsystem;
+        this.climberSubsystem = climberSubsystem;
 
         this.driverController = driverController;
         this.operatorController = operatorController;
@@ -178,6 +182,11 @@ public class TeleopStateMachine {
                     stateSwitched = true;
                 }
 
+                if(commandingClimbExtend) {
+                    stateSwitched = true;
+                    currentState = State.CLIMB;
+                }
+
                 break;
             case DRIVE_WITH_PIECE:
 
@@ -204,6 +213,11 @@ public class TeleopStateMachine {
                 if(commandingEject) {
                     stateSwitched = true;
                     currentState = State.EJECT_PIECE;
+                }
+
+                if(commandingClimbExtend) {
+                    stateSwitched = true;
+                    currentState = State.CLIMB;
                 }
 
                 break;
@@ -481,25 +495,11 @@ public class TeleopStateMachine {
             case CLIMB:
 
                 if(stateSwitched) {
-
+                    stateSwitched = false;
                     commandScheduler.schedule(
-                        ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_BEATS_PER_MINUTE_PARTY_PALETTE)
+                        ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_BEATS_PER_MINUTE_PARTY_PALETTE),
+                        new IntakePositionCommand(armSubsystem)
                     );
-                }
-
-                switch (currentClimbState) {
-                    case EXTEND:
-                        commandScheduler.schedule(
-                            Commands.sequence(
-                                armSubsystem.jointPositionCommand(JOINT_AMP_POSITION),
-                                Commands.waitUntil(() -> armSubsystem.isJointAtPosition(JOINT_AMP_POSITION, 1)),
-                                armSubsystem.elevatorPositionCommand(ELEVATOR_MAX_POSITION - 1)
-                            )
-                        );
-                        break;
-
-                    default:
-                        break;
                 }
 
                 break;
@@ -521,6 +521,7 @@ public class TeleopStateMachine {
 
         boolean newEnabled = enabledEntry.get();
         if(newEnabled != enabled) {
+            System.out.println("Change state machine");
             setEnabled(newEnabled);
         }
     }
@@ -537,9 +538,13 @@ public class TeleopStateMachine {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        if(this.enabled = true) {
+        if(this.enabled == true) {
             currentState = State.START;
         }
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     private Command xboxRumbleCommand(XboxController controller, double time) {
@@ -581,6 +586,14 @@ public class TeleopStateMachine {
 
     public Command ejectCommand() {
         return Commands.runEnd(() -> commandingEject = true, () -> commandingEject = false);
+    }
+
+    public Command extendClimbCommand() {
+        return Commands.runEnd(() -> commandingClimbExtend = true, () -> commandingClimbExtend = false);
+    }
+
+    public Command ascendClimbCommand() {
+        return Commands.runEnd(() -> commandingClimbAscend = true, () -> commandingClimbAscend = false);
     }
 
 }

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.ProfiledClimbCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
@@ -41,7 +42,7 @@ public class RobotContainer {
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
     private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
-    private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, driverController.getHID(), operatorController.getHID());
+    private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, climberSubsystem, driverController.getHID(), operatorController.getHID());
 
     public RobotContainer() {
         configureBindings();
@@ -99,6 +100,9 @@ public class RobotContainer {
          * 
          * Right Bumper - Command Spin Up State
          * Left Bumper - Command Score Amp
+         * 
+         * Start - Climber Up
+         * Back - Climber Down
          */
 
         Trigger operatorA = operatorController.a();
@@ -122,6 +126,31 @@ public class RobotContainer {
 
         Trigger operatorLT = operatorController.leftTrigger();
         operatorLT.whileTrue(teleopStateMachine.pickupGroundCommand());
+        
+        Trigger operatorLY = new Trigger(() -> Math.abs(operatorController.getLeftY()) > XBOX_DEADBAND);
+        operatorLY.whileTrue(manualCommand(
+            Commands.runEnd(() -> armSubsystem.setElevatorMotorPercent(-operatorController.getLeftY()), () -> armSubsystem.holdElevatorPosition())
+        ));
+
+        Trigger operatorRY = new Trigger(() -> Math.abs(operatorController.getRightY()) > XBOX_DEADBAND);
+        operatorRY.whileTrue(manualCommand(
+            Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-operatorController.getRightY()), () -> armSubsystem.holdJointPosition())
+        ));
+
+        Trigger operatorStart = operatorController.start();
+        operatorStart.whileTrue(
+            Commands.parallel(
+                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity()),
+                teleopStateMachine.extendClimbCommand()
+            )
+        );
+
+        Trigger operatorBack = operatorController.back();
+        operatorBack.whileTrue(Commands.parallel(
+                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getAscendVelocity()),
+                teleopStateMachine.ascendClimbCommand()
+            )
+        );
 
         armSubsystem.setJointMotorPercent(0);
     }
@@ -129,6 +158,7 @@ public class RobotContainer {
     public void teleopInit() {
         armSubsystem.teleopInit();
         turbotakeSubsystem.teleopInit();
+        climberSubsystem.setClimberDutyCycle(0);
     }
     
     public Command getAutonomousCommand() {
@@ -178,6 +208,12 @@ public class RobotContainer {
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(-0.2)),
             Commands.waitUntil(() -> !turbotakeSubsystem.isPieceDetected())
         ).withTimeout(1.0).finallyDo(() -> turbotakeSubsystem.setIndexerPercent(0));
+    }
+
+    private Command manualCommand(Command command) {
+        return Commands.either(
+            Commands.waitSeconds(0.1), command, teleopStateMachine::isEnabled
+        );
     }
 
 }
