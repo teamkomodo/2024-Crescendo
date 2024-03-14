@@ -16,6 +16,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.RobotController;
@@ -25,11 +26,21 @@ import static frc.robot.Constants.*;
 public class NeoSwerveModule implements SwerveModule{
 
     // Telemetry
-    private final DoublePublisher velocityErrorPublisher;
     private final DoublePublisher normalizedVelocityError;
     private final DoublePublisher rotationErrorPublisher;
     private final DoublePublisher dutyCyclePublisher;
     private final DoublePublisher velocityPublisher;
+
+    private final DoubleEntry drivekPEntry;
+    private final DoubleEntry drivekIEntry;
+    private final DoubleEntry drivekDEntry;
+    private final DoubleEntry drivekSEntry;
+    private final DoubleEntry drivekVEntry;
+    private final DoubleEntry drivekAEntry;
+
+    private final DoubleEntry steerkPEntry;
+    private final DoubleEntry steerkIEntry;
+    private final DoubleEntry steerkDEntry;
 
     private final CANSparkMax driveMotor;
     private final CANSparkMax steerMotor;
@@ -44,7 +55,7 @@ public class NeoSwerveModule implements SwerveModule{
 
     private final SparkPIDController steerController;
         
-    private final SimpleMotorFeedforward driveFeedforward; // Gains from SysId Analysis
+    private SimpleMotorFeedforward driveFeedforward; // Gains from SysId Analysis
 
 
     private double relativeSteerAdjustment = 0;
@@ -71,12 +82,32 @@ public class NeoSwerveModule implements SwerveModule{
         configureMotors(steerPIDGains);
      
         // Telemetry
-        velocityErrorPublisher = 
         normalizedVelocityError = moduleNT.getDoubleTopic("normvelocityerror").publish();
         rotationErrorPublisher = moduleNT.getDoubleTopic("rotationerror").publish();
         dutyCyclePublisher = moduleNT.getDoubleTopic("dutycycle").publish();
         velocityPublisher = moduleNT.getDoubleTopic("velocity").publish();
         
+        drivekPEntry = moduleNT.getDoubleTopic("tuning/drivekP").getEntry(drivePIDGains.kP);
+        drivekIEntry = moduleNT.getDoubleTopic("tuning/drivekI").getEntry(drivePIDGains.kI);
+        drivekDEntry = moduleNT.getDoubleTopic("tuning/drivekD").getEntry(drivePIDGains.kD);
+        drivekSEntry = moduleNT.getDoubleTopic("tuning/drivekS").getEntry(driveFFGains.kS);
+        drivekVEntry = moduleNT.getDoubleTopic("tuning/drivekV").getEntry(driveFFGains.kV);
+        drivekAEntry = moduleNT.getDoubleTopic("tuning/drivekA").getEntry(driveFFGains.kA);
+
+        steerkPEntry = moduleNT.getDoubleTopic("tuning/steerkP").getEntry(steerPIDGains.kP);
+        steerkIEntry = moduleNT.getDoubleTopic("tuning/steerkI").getEntry(steerPIDGains.kI);
+        steerkDEntry = moduleNT.getDoubleTopic("tuning/steerkD").getEntry(steerPIDGains.kD);
+
+        drivekPEntry.set(drivePIDGains.kP);
+        drivekIEntry.set(drivePIDGains.kI);
+        drivekDEntry.set(drivePIDGains.kD);
+        drivekSEntry.set(driveFFGains.kS);
+        drivekVEntry.set(driveFFGains.kV);
+        drivekAEntry.set(driveFFGains.kA);
+
+        steerkPEntry.set(steerPIDGains.kP);
+        steerkIEntry.set(steerPIDGains.kI);
+        steerkDEntry.set(steerPIDGains.kD);
     }
 
     private void configureMotors(PIDGains steerGains) {
@@ -104,11 +135,39 @@ public class NeoSwerveModule implements SwerveModule{
     }
 
     public void updateTelemetry(){
-        velocityErrorPublisher.set(desiredState.speedMetersPerSecond - getDriveVelocity());
         normalizedVelocityError.set((desiredState.speedMetersPerSecond - getDriveVelocity()) * Math.signum(desiredState.speedMetersPerSecond));
         rotationErrorPublisher.set(MathUtil.angleModulus(desiredState.angle.getRadians() - getModuleRotation().getRadians()));
         dutyCyclePublisher.set(driveMotor.get());
         velocityPublisher.set(getDriveVelocity(), RobotController.getFPGATime() - 200000);
+
+        if(!TUNING_MODE)
+            return;
+
+        double newDrivekP = drivekPEntry.get();
+        if(newDrivekP != driveController.getP()) driveController.setP(newDrivekP);
+
+        double newDrivekI = drivekIEntry.get();
+        if(newDrivekI != driveController.getI()) driveController.setI(newDrivekI);
+
+        double newDrivekD = drivekDEntry.get();
+        if(newDrivekD != driveController.getD()) driveController.setD(newDrivekD);
+
+        double newDrivekS = drivekSEntry.get();
+        double newDrivekV = drivekVEntry.get();
+        double newDrivekA = drivekAEntry.get();
+
+        if(newDrivekS != driveFeedforward.ks || newDrivekV != driveFeedforward.kv || newDrivekA != driveFeedforward.ka)
+            driveFeedforward = new SimpleMotorFeedforward(newDrivekS, newDrivekV, newDrivekA);
+
+        double newSteerkP = steerkPEntry.get();
+        if(newSteerkP != steerController.getP()) steerController.setP(newSteerkP);
+
+        double newSteerkI = steerkIEntry.get();
+        if(newSteerkI != steerController.getI()) steerController.setI(newSteerkI);
+
+        double newSteerkD = steerkDEntry.get();
+        if(newSteerkD != steerController.getD()) steerController.setD(newSteerkD);
+
     }
     public SwerveModuleState getState() {
         return new SwerveModuleState(driveRelativeEncoder.getVelocity(), getModuleRotation());

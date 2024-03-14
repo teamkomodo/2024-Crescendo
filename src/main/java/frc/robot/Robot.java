@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
         
         DataLogManager.start();
-        DriverStation.startDataLog(DataLogManager.getLog(), isAutonomous());
+        DriverStation.startDataLog(DataLogManager.getLog(), true);
         URCL.start();
     }
     
