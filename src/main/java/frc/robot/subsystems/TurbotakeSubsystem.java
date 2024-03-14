@@ -106,8 +106,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
         shooterP = 3e-4;
         shooterI = 1e-8;
         shooterD = 0;
-        shooterIZone = 0;
-        shooterFF = 2.2e-4;
+        shooterIZone = 1;
+        shooterFF = 0.00047;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
 
@@ -177,6 +177,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         rightShooterPidController.setFF(shooterFF);
         rightShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
+        shooterSpeedEntry.set(SHOOTER_SPEED);
     }
 
     public void teleopInit() {
@@ -348,12 +349,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
         }
     }
 
-    public boolean checkShooterSpeed(){
-        if(leftShooterEncoder.getVelocity() == 2500){
-            return true;
-        } else{
-            return false;
-        }
+    public boolean checkShooterSpeed(double targetSpeed, double tolerance){
+        return Math.abs(leftShooterEncoder.getVelocity() - targetSpeed) < tolerance;
     }
 
     public double getShooterSpeed(){

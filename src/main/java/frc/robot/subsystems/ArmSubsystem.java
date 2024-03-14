@@ -111,7 +111,7 @@ public class ArmSubsystem extends SubsystemBase {
     private double jointP = 0.05;
     private double jointI = 0.000000005;
     private double jointD = 3;
-    private double jointMaxIAccum = 0;
+    private double jointMaxIAccum = 6;
     
     private boolean jointZeroed = false;
     

@@ -31,6 +31,8 @@ import static frc.robot.Constants.*;
 
 public class RobotContainer {    
 
+    private final SendableChooser<Command> autoChooser;
+
     //Inputs Devices
     private final CommandXboxController driverController = new CommandXboxController(DRIVER_XBOX_PORT); 
     private final CommandXboxController operatorController = new CommandXboxController(OPERATOR_XBOX_PORT);
@@ -48,13 +50,8 @@ public class RobotContainer {
         registerNamedCommands();
         autoChooser = AutoBuilder.buildAutoChooser();
 
-        SmartDashboard.putData("Auto Chooser",autoChooser);
-        registerNamedCommands();
-    }
-
-    
-      private final SendableChooser<Command> autoChooser;
-    
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+    }    
     
     private void configureBindings() {
 
@@ -134,7 +131,8 @@ public class RobotContainer {
         ));
 
         Trigger operatorRB = operatorController.rightBumper();
-        operatorRB.whileTrue(teleopStateMachine.spinUpCommand());
+        //operatorRB.whileTrue(teleopStateMachine.spinUpCommand());
+        operatorRB.whileTrue(shootCommand(20.786, 3500));
 
         Trigger operatorLB = operatorController.leftBumper();
         operatorLB.whileTrue(dualBinding(
@@ -145,7 +143,7 @@ public class RobotContainer {
         Trigger operatorRT = operatorController.rightTrigger();
         operatorRT.whileTrue(dualBinding(
             teleopStateMachine.shootSpeakerCommand(),
-            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(SPEAKER_SPEED), () -> turbotakeSubsystem.setShooterPercent(0))
+            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(turbotakeSubsystem.getShooterSpeed()), () -> turbotakeSubsystem.setShooterPercent(0))
         ));
 
         Trigger operatorLT = operatorController.leftTrigger();
@@ -189,7 +187,11 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        if(autoChooser != null) {
+            return autoChooser.getSelected();
+        }
+
+        return null;
     }
 
     public TeleopStateMachine getTeleopStateMachine() {
@@ -206,7 +208,7 @@ public class RobotContainer {
         ));
         NamedCommands.registerCommand("armToStow", new StowPositionCommand(armSubsystem));
         NamedCommands.registerCommand("armToSpeaker", new SpeakerPositionCommand(armSubsystem));
-        NamedCommands.registerCommand("shootSpeaker", shootCommand());
+        NamedCommands.registerCommand("shootSpeaker", shootCommand(JOINT_SPEAKER_POSITION, SHOOTER_SPEED));
         NamedCommands.registerCommand("runIndexerIn", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.5)));
         NamedCommands.registerCommand("stopIndexer", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0)));
         NamedCommands.registerCommand("alignPiece", alignPieceCommand());
@@ -215,15 +217,17 @@ public class RobotContainer {
             Commands.waitSeconds(2.0)
         ));
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
+        NamedCommands.registerCommand("shoot-C3", getAutonomousCommand());
     }
 
-    private Command shootCommand(){
+    private Command shootCommand(double jointPosition, double shooterSpeed){
         return Commands.sequence(
             Commands.print("shoot"),
-            new SpeakerPositionCommand(armSubsystem),
-            Commands.waitSeconds(0.5),
+            armSubsystem.jointPositionCommand(jointPosition),
+            Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(shooterSpeed)),
+            Commands.waitUntil(() -> armSubsystem.isJointAtPosition(jointPosition, 0.2) && turbotakeSubsystem.checkShooterSpeed(shooterSpeed, 100)),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
-            Commands.waitSeconds(0.5),
+            Commands.waitSeconds(0.2),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
         );
     }

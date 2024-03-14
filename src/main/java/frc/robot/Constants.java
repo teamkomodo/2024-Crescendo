@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  */
 public final class Constants {
 
-    public static final boolean TUNING_MODE = false;
+    public static final boolean TUNING_MODE = true;
 
 // Controls
     public static final double XBOX_DEADBAND = 0.06;
@@ -42,8 +42,8 @@ public final class Constants {
     //Constants
     public static final double INDEXER_SPEED = 0.7;
     
+    // Max shooter is ~4000
     public static final double SHOOTER_SPEED = 2500;
-    public static final double SHOOTER_MAX_VELOCITY = 2900;
 
     //duty cycle
     public static final double AMP_SPEED = 0.75;
