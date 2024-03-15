@@ -22,10 +22,6 @@ public class StowPositionCommand extends DynamicCommand {
     protected Command getCommand() {
         if(!(armSubsystem.isJointZeroed() || armSubsystem.isElevatorZeroed())) {
             return Commands.sequence(
-                Commands.parallel(
-                    armSubsystem.jointZeroCommand(),
-                    armSubsystem.elevatorZeroCommand()
-                ),
                 new StowPositionCommand(armSubsystem)
             );
         }

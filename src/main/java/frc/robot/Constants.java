@@ -121,10 +121,9 @@ public final class Constants {
     public static final double JOINT_MIN_POSITION = 2; // Code stop
     public static final double JOINT_MAX_POSITION = 47; // Code stop
 
-    public static final double JOINT_MIDDLE_SWITCH_TOP_POSITION = 7.5;
-    public static final double JOINT_MIDDLE_SWITCH_BOTTOM_POSITION = 4.4;
-    public static final double JOINT_BOTTOM_SWITCH_POSITION = 2;
-    public static final double JOINT_STARTING_POSITION = 4.4;
+    public static final double JOINT_BOTTOM_SWITCH_POSITION = 0;
+    public static final double JOINT_STARTING_POSITION = 4.1;
+    public static final double JOINT_LEVEL_OFFSET = -4;
 
     /**
      * motor rotations -> mechanism rotations
