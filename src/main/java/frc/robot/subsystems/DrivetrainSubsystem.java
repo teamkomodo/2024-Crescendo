@@ -214,6 +214,11 @@ public class DrivetrainSubsystem implements Subsystem {
             visionPosePeriodic();
 
         updateTelemetry();
+
+        frontLeft.periodic();
+        frontRight.periodic();
+        backLeft.periodic();
+        backRight.periodic();
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {

@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -118,7 +119,7 @@ public class ArmSubsystem extends SubsystemBase {
     
     private final CANSparkMax jointSecondMotor;
     
-    private ArmFeedforward jointFeedforward = new ArmFeedforward(0.22654, 0.51714, 0.0017815, 0.00033184);
+    private ArmFeedforward jointFeedforward = new ArmFeedforward(0.22654, 0.51714, 0.002, 0.00033184);
 
     private double jointMaxVelocity = 5000;
     private double jointMaxAccel = 200000;
@@ -136,9 +137,9 @@ public class ArmSubsystem extends SubsystemBase {
         )
     );
 
-    private double jointP = 0.1;
+    private double jointP = 0.15;
     private double jointI = 0.000000005;
-    private double jointD = 3;
+    private double jointD = 2;
     private double jointMaxIAccum = 6;
     
     private boolean jointZeroed = false;
@@ -170,6 +171,7 @@ public class ArmSubsystem extends SubsystemBase {
         
         jointEncoder = jointMotor.getEncoder();
         jointEncoder.setPosition(JOINT_STARTING_POSITION);
+        jointSetpoint = new TrapezoidProfile.State(JOINT_STARTING_POSITION, 0);
         
         jointPidController = jointMotor.getPIDController();
         jointPidController.setP(jointP);
@@ -188,6 +190,9 @@ public class ArmSubsystem extends SubsystemBase {
         jointMaxVelocityEntry = armTable.getDoubleTopic("joint/tuning/maxvelocity").getEntry(jointMaxVelocity);
         jointMaxAccelEntry = armTable.getDoubleTopic("joint/tuning/maxaccel").getEntry(jointMaxAccel);
         
+        jointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) JOINT_MIN_POSITION);
+        jointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) JOINT_MAX_POSITION);
+
         // Initialize elevator stuff
 
         elevatorZeroLimitSwitch = new DigitalInput(ELEVATOR_ZERO_SWITCH_CHANNEL);
@@ -397,7 +402,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Min Pos Rising edge
         if(!atJointMinLimit && jointEncoder.getPosition() < getJointMinPosition() && jointZeroed) { //Rising edge
             atJointMinLimit = true;
-            setJointPosition(getJointMinPosition());
+            //setJointPosition(getJointMinPosition());
         } else if(jointEncoder.getPosition() > getJointMinPosition()) {
             atJointMinLimit = false;
         }
@@ -405,7 +410,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atJointMaxLimit && jointEncoder.getPosition() > getJointMaxPosition() && jointZeroed) {
             atJointMaxLimit = true;
-            setJointPosition(getJointMaxPosition());
+            //setJointPosition(getJointMaxPosition());
         } else if(jointEncoder.getPosition() < getJointMaxPosition()) {
             atJointMaxLimit = false;
         }
@@ -420,7 +425,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Min Pos Rising edge
         if(!atElevatorMinLimit && elevatorEncoder.getPosition() < getElevatorMinPosition() && elevatorZeroed) { //Rising edge
             atElevatorMinLimit = true;
-            setElevatorPosition(getElevatorMinPosition());
+            //setElevatorPosition(getElevatorMinPosition());
         } else if(elevatorEncoder.getPosition() > getElevatorMinPosition()) {
             atElevatorMinLimit = false;
         }
@@ -428,7 +433,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atElevatorMaxLimit && elevatorEncoder.getPosition() > getElevatorMaxPosition() && elevatorZeroed) { //Rising edge
             atElevatorMaxLimit = true;
-            setElevatorPosition(getElevatorMaxPosition());
+            //setElevatorPosition(getElevatorMaxPosition());
         } else if(elevatorEncoder.getPosition() < getElevatorMaxPosition()) {
             atElevatorMaxLimit = false;
         }
@@ -483,6 +488,7 @@ public class ArmSubsystem extends SubsystemBase {
 
         // Clamp the position to the min and max
         position = Math.max(getJointMinPosition(), Math.min(getJointMaxPosition(), position));
+        jointSetpoint = new TrapezoidProfile.State(jointEncoder.getPosition(), jointEncoder.getVelocity());
         jointGoalState = new TrapezoidProfile.State(position, 0);
     }
     
@@ -492,6 +498,7 @@ public class ArmSubsystem extends SubsystemBase {
         if(!elevatorZeroed && position > elevatorEncoder.getPosition())
         return;
         
+        System.out.println("Elevator pos: " + position);
         // Clamp the position to the min and max
         position = Math.max(getElevatorMinPosition(), Math.min(getElevatorMaxPosition(), position));
         elevatorPidController.setReference(position, ControlType.kPosition);

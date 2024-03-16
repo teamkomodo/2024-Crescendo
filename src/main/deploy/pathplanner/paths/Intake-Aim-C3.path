@@ -3,62 +3,46 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.313380622306902,
-        "y": 5.539225686154654
+        "x": 1.3070140425995143,
+        "y": 5.4533183352081
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.45391066085628,
-        "y": 5.501751009208153
-      },
-      "isLocked": false,
-      "linkedName": "speaker-middle"
-    },
-    {
-      "anchor": {
-        "x": 2.781546551957247,
-        "y": 6.742958840037948
-      },
-      "prevControl": {
-        "x": 2.7577779877163318,
-        "y": 6.717361924701577
-      },
-      "nextControl": {
-        "x": 2.846655848542371,
-        "y": 6.8130765440527
+        "x": 2.157262600239487,
+        "y": 5.08683188794949
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.313380622306902,
-        "y": 5.539225686154654
+        "x": 2.3624950107043077,
+        "y": 4.353858993432273
       },
       "prevControl": {
-        "x": 1.337149186547817,
-        "y": 5.553852494918294
+        "x": 1.4682680793933023,
+        "y": 4.881599477484669
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "speaker-middle"
+      "linkedName": "C3-Aimed"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": 68.46,
-      "rotateFast": true
+      "waypointRelativePos": 0.8,
+      "rotationDegrees": -20.0,
+      "rotateFast": false
     }
   ],
   "constraintZones": [
     {
-      "name": "slow approach",
+      "name": "slow-approach",
       "minWaypointRelativePos": 0.85,
-      "maxWaypointRelativePos": 0.95,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
       }
@@ -66,8 +50,25 @@
   ],
   "eventMarkers": [
     {
-      "name": "pre intake",
-      "waypointRelativePos": 0.0,
+      "name": "detect-pickup",
+      "waypointRelativePos": 0.65,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "smart-align-piece"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "pre-intake",
+      "waypointRelativePos": 0,
       "command": {
         "type": "sequential",
         "data": {
@@ -87,29 +88,6 @@
           ]
         }
       }
-    },
-    {
-      "name": "post intake",
-      "waypointRelativePos": 1.3,
-      "command": {
-        "type": "sequential",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "armToSpeaker"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "alignPiece"
-              }
-            }
-          ]
-        }
-      }
     }
   ],
   "globalConstraints": {
@@ -120,13 +98,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
+    "rotation": -28.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Four-Piece",
   "previewStartingState": {
-    "rotation": 13.24051991518711,
+    "rotation": 0,
     "velocity": 0
   },
   "useDefaultConstraints": true

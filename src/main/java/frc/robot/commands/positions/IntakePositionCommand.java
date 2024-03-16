@@ -35,7 +35,7 @@ public class IntakePositionCommand extends DynamicCommand{
             new WaitCommand(0.1),
             armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorIntakePositionCommand(),
-            new WaitCommand(0.5),
+            new WaitCommand(0.1),
             armSubsystem.jointIntakePositionCommand()
         );
     }

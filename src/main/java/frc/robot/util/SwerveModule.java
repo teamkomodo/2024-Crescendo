@@ -59,6 +59,13 @@ public interface SwerveModule {
      */
     public void setDesiredState(SwerveModuleState desiredState);
 
+    /**
+     * Runs the control loops for the motors
+     * <p>
+     * Should be called by drivetrain subsystem periodic method
+     */
+    public void periodic();
+
      /**
      * Returns a Rotation2d object representing the current rotation of the module, as measured by the integrated encoder and adjusted by the steerOffset.
      * <p>

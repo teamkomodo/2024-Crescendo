@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  */
 public final class Constants {
 
-    public static final boolean TUNING_MODE = true;
+    public static final boolean TUNING_MODE = false;
 
 // Controls
     public static final double XBOX_DEADBAND = 0.06;
@@ -48,8 +48,8 @@ public final class Constants {
     //duty cycle
     public static final double AMP_SPEED = 0.75;
     //rpm
-    public static final double SPEAKER_SPEED = 2500;
-    public static final double SPIN_RATIO = 0.5;
+    public static final double SPEAKER_SPEED = 3000;
+    public static final double SPIN_RATIO = 0.3;
 
     public static final double LINEAR_SLOW_MODE_MODIFIER = 0.5;
     public static final double ANGULAR_SLOW_MODE_MODIFIER = 0.3;
@@ -97,8 +97,8 @@ public final class Constants {
     public static final double ANGULAR_ACCEL_CONSTRAINT = (LINEAR_ACCEL_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
 
     public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
-        new PIDConstants(1.0, 0, 0),
-        new PIDConstants(0, 0, 0),
+        new PIDConstants(2, 0, 0),
+        new PIDConstants(2, 0, 0),
         MAX_ATTAINABLE_VELOCITY,
         Math.sqrt(DRIVETRAIN_LENGTH*DRIVETRAIN_LENGTH + DRIVETRAIN_WIDTH*DRIVETRAIN_WIDTH)/2,
         new ReplanningConfig()
@@ -118,7 +118,7 @@ public final class Constants {
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
-    public static final double JOINT_MIN_POSITION = 2; // Code stop
+    public static final double JOINT_MIN_POSITION = 0; // Code stop
     public static final double JOINT_MAX_POSITION = 47; // Code stop
 
     public static final double JOINT_BOTTOM_SWITCH_POSITION = 0;
@@ -134,10 +134,10 @@ public final class Constants {
     
     public static final double JOINT_STOW_POSITION = 10;
     public static final double JOINT_AMP_POSITION = 30;
-    public static final double JOINT_SPEAKER_POSITION = 16;
+    public static final double JOINT_SPEAKER_POSITION = 12;
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
     public static final double JOINT_TRAP_POSITION = 45;
-    public static final double JOINT_INTAKE_POSITION = 1.5;
+    public static final double JOINT_INTAKE_POSITION = 0;
     public static final double JOINT_CLIMB_POSITION = 1.5;
 
     /**
@@ -153,7 +153,7 @@ public final class Constants {
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
     public static final double ELEVATOR_MAX_POSITION = 64.5; // Code stop
 
-    public static final double ELEVATOR_STOW_POSITION = 0;
+    public static final double ELEVATOR_STOW_POSITION = 0.5;
     public static final double ELEVATOR_AMP_POSITION = 55;
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
@@ -178,7 +178,7 @@ public final class Constants {
     public static final double CLIMBER_POST_CLIMB_POSITION = -40;
 
     public static final double CLIMBER_EXTEND_VELOCITY = 80;
-    public static final double CLIMBER_ASCEND_VELOCITY = 80;
+    public static final double CLIMBER_ASCEND_VELOCITY = -20;
 
     public static final int A_FRAME_LED_CHANNEL = 0;
     public static final int TURBOTAKE_LED_CHANNEL = 1;
