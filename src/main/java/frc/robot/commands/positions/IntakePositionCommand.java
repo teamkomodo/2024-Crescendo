@@ -1,5 +1,7 @@
 package frc.robot.commands.positions;
 
+import static frc.robot.Constants.JOINT_INTAKE_POSITION;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -36,7 +38,9 @@ public class IntakePositionCommand extends DynamicCommand{
             armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorIntakePositionCommand(),
             new WaitCommand(0.5),
-            armSubsystem.jointIntakePositionCommand()
+            armSubsystem.jointIntakePositionCommand(),
+            Commands.waitUntil(() -> armSubsystem.isJointAtPosition(JOINT_INTAKE_POSITION, 2)),
+            Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0))
         );
     }
 }
