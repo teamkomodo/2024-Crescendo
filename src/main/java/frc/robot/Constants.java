@@ -179,7 +179,7 @@ public final class Constants {
     public static final double CLIMBER_POST_CLIMB_POSITION = -40;
 
     public static final double CLIMBER_EXTEND_VELOCITY = 80;
-    public static final double CLIMBER_ASCEND_VELOCITY = 80;
+    public static final double CLIMBER_ASCEND_VELOCITY = -20;
 
     public static final int A_FRAME_LED_CHANNEL = 0;
     public static final int TURBOTAKE_LED_CHANNEL = 1;
