@@ -134,8 +134,10 @@ public final class Constants {
     
     public static final double JOINT_STOW_POSITION = 10;
     public static final double JOINT_AMP_POSITION = 30;
+
     public static final double JOINT_SPEAKER_POSITION = 12;
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
+
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 0;
     public static final double JOINT_CLIMB_POSITION = 1.5;

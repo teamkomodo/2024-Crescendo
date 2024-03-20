@@ -354,12 +354,6 @@ public class TeleopStateMachine {
                             shootingStateSwitched = false;
                             turbotakeSubsystem.setShooterVelocity(SHOOTER_SPEED);
                             commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
-
-                            if(!smartShooting) {
-                                commandScheduler.schedule(
-                                    new SpeakerPositionCommand(armSubsystem)
-                                );
-                            }
                         }
 
                         if(turbotakeSubsystem.getShooterVelocity() > shooterThreshold) {
@@ -396,6 +390,10 @@ public class TeleopStateMachine {
                                         Commands.run(() -> armSubsystem.setTurbotakeAngle(calculateShooterAngle()), armSubsystem).until(() -> shootingStateSwitched)
                                     ),
                                     drivetrainSubsystem.pointToSpeakerCommand()
+                                );
+                            }else {
+                                commandScheduler.schedule(
+                                    new SpeakerPositionCommand(armSubsystem)
                                 );
                             }
                             timer.restart();
