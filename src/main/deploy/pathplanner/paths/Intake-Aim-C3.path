@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.157262600239487,
-        "y": 5.08683188794949
+        "x": 1.4389491636126137,
+        "y": 4.866940019594326
       },
       "isLocked": false,
       "linkedName": null
@@ -30,15 +30,15 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.8,
+      "waypointRelativePos": 0.35,
       "rotationDegrees": -20.0,
-      "rotateFast": false
+      "rotateFast": true
     }
   ],
   "constraintZones": [
     {
       "name": "slow-approach",
-      "minWaypointRelativePos": 0.85,
+      "minWaypointRelativePos": 0.7,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.0,
