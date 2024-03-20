@@ -128,6 +128,8 @@ public class ArmSubsystem extends SubsystemBase {
     private TrapezoidProfile.State jointSetpoint = new TrapezoidProfile.State();
     private boolean jointPositionControlling = false;
 
+    private boolean useJointProfiledControl = false;
+
     private final SysIdRoutine jointRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(5), Seconds.of(5)),
         new SysIdRoutine.Mechanism(
@@ -137,10 +139,17 @@ public class ArmSubsystem extends SubsystemBase {
         )
     );
 
-    private double jointP = 0.15;
+    // Normal PID control uses slot 0
+    private double jointP = 0.05;
     private double jointI = 0.000000005;
-    private double jointD = 2;
+    private double jointD = 3;
     private double jointMaxIAccum = 6;
+
+    // Profiled control uses slot 1
+    private double jointP_1 = 0.15;
+    private double jointI_1 = 0.000000005;
+    private double jointD_1 = 2;
+    private double jointMaxIAccum_1 = 6;
     
     private boolean jointZeroed = false;
     
@@ -178,6 +187,11 @@ public class ArmSubsystem extends SubsystemBase {
         jointPidController.setI(jointI);
         jointPidController.setD(jointD);
         jointPidController.setIMaxAccum(jointMaxIAccum, 0);
+
+        jointPidController.setP(jointP_1, 1);
+        jointPidController.setI(jointI_1, 1);
+        jointPidController.setD(jointD_1, 1);
+        jointPidController.setIMaxAccum(jointMaxIAccum_1, 1);
         
         jointSecondMotor = new CANSparkMax(JOINT_SECOND_MOTOR_ID, MotorType.kBrushless);
         jointSecondMotor.setInverted(true);
@@ -439,13 +453,13 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
-    private void runMotorControl() {        
-        if(jointPositionControlling) {
+    private void runMotorControl() {
+        if(jointPositionControlling && useJointProfiledControl) {
             jointSetpoint = jointProfile.calculate((RobotController.getFPGATime() - jointPositionStartNano) / 1e9, jointSetpoint, jointGoalState);
             jointPidController.setReference(
                 jointSetpoint.position,
                 ControlType.kPosition,
-                0,
+                1,
                 jointFeedforward.calculate(jointSetpoint.position * JOINT_REDUTION - 0.1, jointSetpoint.velocity));
         }
     }
@@ -488,8 +502,14 @@ public class ArmSubsystem extends SubsystemBase {
 
         // Clamp the position to the min and max
         position = Math.max(getJointMinPosition(), Math.min(getJointMaxPosition(), position));
-        jointSetpoint = new TrapezoidProfile.State(jointEncoder.getPosition(), jointEncoder.getVelocity());
-        jointGoalState = new TrapezoidProfile.State(position, 0);
+
+        // Either use profiled control or standard PID control
+        if(useJointProfiledControl) {
+            jointSetpoint = new TrapezoidProfile.State(jointEncoder.getPosition(), jointEncoder.getVelocity());
+            jointGoalState = new TrapezoidProfile.State(position, 0);
+        }else {
+            jointPidController.setReference(position, ControlType.kPosition, 0);
+        }
     }
     
     public void setElevatorPosition(double position) {
@@ -658,6 +678,10 @@ public class ArmSubsystem extends SubsystemBase {
     
     public boolean isElevatorZeroed() {
         return elevatorZeroed;
+    }
+
+    public void setUseJointProfiledControl(boolean useJointProfiledControl) {
+        this.useJointProfiledControl = useJointProfiledControl;
     }
     
     // Getters for all preset positions that will return the current value from network tables or the value from Constants if none is published

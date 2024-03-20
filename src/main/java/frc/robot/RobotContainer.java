@@ -185,11 +185,16 @@ public class RobotContainer {
         armSubsystem.teleopInit();
         turbotakeSubsystem.teleopInit();
         climberSubsystem.setClimberDutyCycle(0);
+        armSubsystem.setUseJointProfiledControl(false);
     }
     
     public Command getAutonomousCommand() {
         if(autoChooser != null) {
-            return autoChooser.getSelected();
+            return Commands.sequence(
+                Commands.runOnce(() -> armSubsystem.setUseJointProfiledControl(true)),
+                autoChooser.getSelected(),
+                Commands.runOnce(() -> armSubsystem.setUseJointProfiledControl(false))
+            );
         }
 
         return null;
