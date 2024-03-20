@@ -103,11 +103,11 @@ public class TurbotakeSubsystem extends SubsystemBase{
         indexerDEntry.set(indexerD);
         
         // PID coefficients for shooter motors
-        shooterP = 3e-4;
-        shooterI = 1e-8;
+        shooterP = 0.001;
+        shooterI = 0;
         shooterD = 0;
-        shooterIZone = 0;
-        shooterFF = 2.2e-4;
+        shooterIZone = 1;
+        shooterFF = 0.00022;
         shooterMinOutput = -1;
         shooterMaxOutput = 1;
 
@@ -177,6 +177,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         rightShooterPidController.setFF(shooterFF);
         rightShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
+        shooterSpeedEntry.set(SHOOTER_SPEED);
     }
 
     public void teleopInit() {
@@ -298,7 +299,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     
     // commands the shooter to a target velocity
     public void setShooterVelocity(double velocity){
-        System.out.println("RUNNING SHOOTERS");
+        System.out.println("RUNNING SHOOTERS: " + velocity);
         leftShooterPidController.setReference(velocity * SPIN_RATIO, CANSparkMax.ControlType.kVelocity);
         rightShooterPidController.setReference(velocity, CANSparkMax.ControlType.kVelocity);
 
@@ -348,12 +349,8 @@ public class TurbotakeSubsystem extends SubsystemBase{
         }
     }
 
-    public boolean checkShooterSpeed(){
-        if(leftShooterEncoder.getVelocity() == 2500){
-            return true;
-        } else{
-            return false;
-        }
+    public boolean checkShooterSpeed(double targetSpeed, double tolerance){
+        return Math.abs(rightShooterEncoder.getVelocity() - targetSpeed) < tolerance;
     }
 
     public double getShooterSpeed(){

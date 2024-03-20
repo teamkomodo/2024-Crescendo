@@ -182,16 +182,17 @@ public class NeoSwerveModule implements SwerveModule{
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
-
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getModuleRotation());
+        this.desiredState = optimizedState;
+    }
 
-        final double driveOutput = driveController.calculate(driveRelativeEncoder.getVelocity(), optimizedState.speedMetersPerSecond);
-        final double driveFeedforward = this.driveFeedforward.calculate(optimizedState.speedMetersPerSecond);
+    @Override
+    public void periodic() {
+        final double driveOutput = driveController.calculate(driveRelativeEncoder.getVelocity(), desiredState.speedMetersPerSecond);
+        final double driveFeedforward = this.driveFeedforward.calculate(desiredState.speedMetersPerSecond);
         //System.out.println(driveFeedforward);
         driveMotor.setVoltage(driveOutput + driveFeedforward);
-        steerController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-
-        this.desiredState = optimizedState;
+        steerController.setReference(desiredState.angle.getRadians(), ControlType.kPosition);
     }
 
     // private void correctRelativeEncoder() {

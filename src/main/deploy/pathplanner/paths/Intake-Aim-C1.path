@@ -1,0 +1,88 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.3624950107043077,
+        "y": 5.878442614028085
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.344903661231789,
+        "y": 6.221473928662143
+      },
+      "isLocked": false,
+      "linkedName": "C2-Aimed"
+    },
+    {
+      "anchor": {
+        "x": 2.520817155915921,
+        "y": 6.801988461119779
+      },
+      "prevControl": {
+        "x": 2.3859501433247527,
+        "y": 6.585028484342683
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.25,
+      "rotationDegrees": 14.771418967043457,
+      "rotateFast": true
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "slow-approach",
+      "minWaypointRelativePos": 0.6,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
+  "eventMarkers": [
+    {
+      "name": "detect-pickup",
+      "waypointRelativePos": 0.1,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "smart-align-piece"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 32.55000349193541,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Four-Piece",
+  "previewStartingState": {
+    "rotation": 8.972626614896448,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

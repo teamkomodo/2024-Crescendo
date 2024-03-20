@@ -3,51 +3,51 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.2950971113523524,
-        "y": 5.640463129478598
+        "x": 1.313380622306902,
+        "y": 5.539225686154654
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3185187844439152,
-        "y": 5.640463129478598
+        "x": 1.3368022953984648,
+        "y": 5.539225686154654
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "speaker-middle"
     },
     {
       "anchor": {
-        "x": 2.7669197431936072,
-        "y": 4.479460183864689
+        "x": 2.5840846336481094,
+        "y": 4.42460965100104
       },
       "prevControl": {
-        "x": 2.755208906647826,
-        "y": 4.502881856956253
+        "x": 2.392107768625337,
+        "y": 5.494195041842199
       },
       "nextControl": {
-        "x": 2.7786305797393887,
-        "y": 4.4560385107731255
+        "x": 2.5887107988266944,
+        "y": 4.398835302148925
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.6516255749660724,
-        "y": 4.899980935819333
+        "x": 1.313380622306902,
+        "y": 5.539225686154654
       },
       "prevControl": {
-        "x": 1.9957259458981287,
-        "y": 4.673438845557592
+        "x": 1.8161771735570202,
+        "y": 5.292398288268232
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "speaker-middle"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": -71.87813975209869,
+      "rotationDegrees": -54.92624550665173,
       "rotateFast": false
     }
   ],
@@ -102,19 +102,19 @@
   ],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -43.49256424122504,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": -0.987760399639827,
+    "rotation": 2.2311746080311448,
     "velocity": 0
   },
   "useDefaultConstraints": true

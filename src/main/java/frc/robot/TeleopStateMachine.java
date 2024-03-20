@@ -87,7 +87,7 @@ public class TeleopStateMachine {
     private final XboxController driverController;
     private final XboxController operatorController;
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     // Store the current state
     private State currentState = State.START;
@@ -153,7 +153,11 @@ public class TeleopStateMachine {
             case START:
                 currentState = State.DRIVE_WITHOUT_PIECE; //turbotakeSubsystem.isPieceDetected()? State.DRIVE_WITH_PIECE : State.DRIVE_WITHOUT_PIECE;
                 stateSwitched = true;
-                commandScheduler.schedule(new StowPositionCommand(armSubsystem));
+                commandScheduler.schedule(
+                    new StowPositionCommand(armSubsystem),
+                    Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)),
+                    Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
+                );
                 // intentionally no break statement
             case DRIVE_WITHOUT_PIECE:
 
@@ -344,11 +348,11 @@ public class TeleopStateMachine {
                         currentPickupStateSwitched = true;
                     case PREPARE_SHOOT:
 
-                        double shooterThreshold = SHOOTER_MAX_VELOCITY - 200;
+                        double shooterThreshold = SHOOTER_SPEED - 200;
 
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
-                            turbotakeSubsystem.setShooterVelocity(SHOOTER_MAX_VELOCITY);
+                            turbotakeSubsystem.setShooterVelocity(SHOOTER_SPEED);
                             commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
                         }
 

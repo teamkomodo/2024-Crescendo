@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2788871226815193,
+      "x": 1.3070140425995143,
       "y": 5.646965382375843
     },
-    "rotation": 0.0
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "spinUp"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -24,15 +30,21 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Align Speaker Center"
+            "name": "shootSpeaker"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "stopFlywheels"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
           }
         }
       ]

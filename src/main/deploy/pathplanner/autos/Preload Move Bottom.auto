@@ -14,19 +14,31 @@
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "spinUp"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "armToStow"
+            "name": "armToSpeaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootSpeaker"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Move"
+            "pathName": "Move Bottom"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopFlywheels"
           }
         }
       ]

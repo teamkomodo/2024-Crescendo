@@ -8,9 +8,13 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -18,10 +22,14 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+
 import static frc.robot.Constants.*;
+import static edu.wpi.first.units.Units.*;
 
 public class ArmSubsystem extends SubsystemBase {
     
@@ -47,30 +55,36 @@ public class ArmSubsystem extends SubsystemBase {
     private final BooleanPublisher jointBottomSwitchPublisher = armTable.getBooleanTopic("joint/bottomswitch").publish();
     private final BooleanPublisher atJointMinPublisher = armTable.getBooleanTopic("joint/atmin").publish();
     private final BooleanPublisher atJointMaxPublisher = armTable.getBooleanTopic("joint/atmax").publish();
+    private final BooleanPublisher jointPositionControllingPublisher = armTable.getBooleanTopic("joint/positioncontrolling").publish();
     
-    private final DoublePublisher jointCommandedPositionPublisher = armTable.getDoubleTopic("joint/commandedposition").publish();
-    private final DoublePublisher elevatorCommandedPositionPublisher = armTable.getDoubleTopic("elevator/commandedposition").publish();
+    private final DoublePublisher jointGoalPositionPublisher = armTable.getDoubleTopic("joint/goalposition").publish();
+    private final DoublePublisher jointSetpointPostionPublisher = armTable.getDoubleTopic("joint/setpointposition").publish();
+
+    private final BooleanEntry jointUseSensorsEntry = armTable.getBooleanTopic("joint/usesensors").getEntry(true);
+    private final BooleanEntry jointUseCodeStopsEntry = armTable.getBooleanTopic("joint/usecodestops").getEntry(true);
+    private final BooleanEntry elevatorUseSensorsEntry = armTable.getBooleanTopic("elevator/usesensors").getEntry(true);
+    private final BooleanEntry elevatorUseCodeStopsEntry = armTable.getBooleanTopic("elevator/usecodestops").getEntry(true);
     
     // NT entries for tuning
-    private final DoubleEntry jointMinPositionEntry = armTable.getDoubleTopic("tuning/joint/minposition").getEntry(JOINT_MIN_POSITION);
-    private final DoubleEntry jointMaxPositionEntry = armTable.getDoubleTopic("tuning/joint/maxposition").getEntry(JOINT_MAX_POSITION);
-    private final DoubleEntry jointStowPositionEntry = armTable.getDoubleTopic("tuning/joint/stowposition").getEntry(JOINT_STOW_POSITION);
-    private final DoubleEntry jointAmpPositionEntry = armTable.getDoubleTopic("tuning/joint/ampposition").getEntry(JOINT_AMP_POSITION);
-    private final DoubleEntry jointSpeakerPositionEntry = armTable.getDoubleTopic("tuning/joint/speakerposition").getEntry(JOINT_SPEAKER_POSITION);
-    private final DoubleEntry jointTrapPositionEntry = armTable.getDoubleTopic("tuning/joint/trapposition").getEntry(JOINT_TRAP_POSITION);
-    private final DoubleEntry jointIntakePositionEntry = armTable.getDoubleTopic("tuning/joint/intakeposition").getEntry(JOINT_INTAKE_POSITION);
-    private final DoubleEntry jointPreIntakePositionEntry = armTable.getDoubleTopic("tuning/joint/preintakeposition").getEntry(JOINT_PRE_INTAKE_POSITION);
+    private final DoubleEntry jointMinPositionEntry = armTable.getDoubleTopic("joint/tuning/minposition").getEntry(JOINT_MIN_POSITION);
+    private final DoubleEntry jointMaxPositionEntry = armTable.getDoubleTopic("joint/tuning/maxposition").getEntry(JOINT_MAX_POSITION);
+    private final DoubleEntry jointStowPositionEntry = armTable.getDoubleTopic("joint/tuning/stowposition").getEntry(JOINT_STOW_POSITION);
+    private final DoubleEntry jointAmpPositionEntry = armTable.getDoubleTopic("joint/tuning/ampposition").getEntry(JOINT_AMP_POSITION);
+    private final DoubleEntry jointSpeakerPositionEntry = armTable.getDoubleTopic("joint/tuning/speakerposition").getEntry(JOINT_SPEAKER_POSITION);
+    private final DoubleEntry jointTrapPositionEntry = armTable.getDoubleTopic("joint/tuning/trapposition").getEntry(JOINT_TRAP_POSITION);
+    private final DoubleEntry jointIntakePositionEntry = armTable.getDoubleTopic("joint/tuning/intakeposition").getEntry(JOINT_INTAKE_POSITION);
+    private final DoubleEntry jointPreIntakePositionEntry = armTable.getDoubleTopic("joint/tuning/preintakeposition").getEntry(JOINT_PRE_INTAKE_POSITION);
     
-    private final DoubleEntry elevatorMinPositionEntry = armTable.getDoubleTopic("tuning/elevator/minposition").getEntry(ELEVATOR_MIN_POSITION);
-    private final DoubleEntry elevatorMaxPositionEntry = armTable.getDoubleTopic("tuning/elevator/maxposition").getEntry(ELEVATOR_MAX_POSITION);
-    private final DoubleEntry elevatorStowPositionEntry = armTable.getDoubleTopic("tuning/elevator/stowposition").getEntry(ELEVATOR_STOW_POSITION);
-    private final DoubleEntry elevatorAmpPositionEntry = armTable.getDoubleTopic("tuning/elevator/ampposition").getEntry(ELEVATOR_AMP_POSITION);
-    private final DoubleEntry elevatorSpeakerPositionEntry = armTable.getDoubleTopic("tuning/elevator/speakerposition").getEntry(ELEVATOR_SPEAKER_POSITION);
-    private final DoubleEntry elevatorTrapPositionEntry = armTable.getDoubleTopic("tuning/elevator/trapposition").getEntry(ELEVATOR_TRAP_POSITION);
-    private final DoubleEntry elevatorIntakePositionEntry = armTable.getDoubleTopic("tuning/elevator/intakeposition").getEntry(ELEVATOR_INTAKE_POSITION);
+    private final DoubleEntry elevatorMinPositionEntry = armTable.getDoubleTopic("elevator/tuning/minposition").getEntry(ELEVATOR_MIN_POSITION);
+    private final DoubleEntry elevatorMaxPositionEntry = armTable.getDoubleTopic("elevator/tuning/maxposition").getEntry(ELEVATOR_MAX_POSITION);
+    private final DoubleEntry elevatorStowPositionEntry = armTable.getDoubleTopic("elevator/tuning/stowposition").getEntry(ELEVATOR_STOW_POSITION);
+    private final DoubleEntry elevatorAmpPositionEntry = armTable.getDoubleTopic("elevator/tuning/ampposition").getEntry(ELEVATOR_AMP_POSITION);
+    private final DoubleEntry elevatorSpeakerPositionEntry = armTable.getDoubleTopic("elevator/tuning/speakerposition").getEntry(ELEVATOR_SPEAKER_POSITION);
+    private final DoubleEntry elevatorTrapPositionEntry = armTable.getDoubleTopic("elevator/tuning/trapposition").getEntry(ELEVATOR_TRAP_POSITION);
+    private final DoubleEntry elevatorIntakePositionEntry = armTable.getDoubleTopic("elevator/tuning/intakeposition").getEntry(ELEVATOR_INTAKE_POSITION);
     
     private final DoubleEntry elevatorPEntry, elevatorIEntry, elevatorDEntry;
-    private final DoubleEntry jointPEntry, jointIEntry, jointDEntry;
+    private final DoubleEntry jointPEntry, jointIEntry, jointDEntry, jointMaxVelocityEntry, jointMaxAccelEntry;
     
     private final CANSparkMax elevatorMotor;
     private final DigitalInput elevatorZeroLimitSwitch;
@@ -89,9 +103,6 @@ public class ArmSubsystem extends SubsystemBase {
     private int elevatorHoldingCurrentLimit = 30;
     private int elevatorRunningCurrentLimit = 60;
     
-    private double jointCommandedPosition = 0;
-    private double elevatorCommandedPosition = 0;
-    
     private boolean atElevatorLimitSwitch = false;
     private boolean atElevatorLimitSwitchAtLastCheck = false;
     private boolean elevatorZeroed = false;
@@ -99,24 +110,50 @@ public class ArmSubsystem extends SubsystemBase {
     private boolean atElevatorMaxLimit = false;
     private boolean atElevatorMinLimit = false;
     
-    //var
     private final CANSparkMax jointMotor;
     private final SparkPIDController jointPidController;
     private final RelativeEncoder jointEncoder;
+
     private final DigitalInput jointMiddleReverseSwitch;
     private final DigitalInput jointBottomReverseSwitch;
     
     private final CANSparkMax jointSecondMotor;
     
+    private ArmFeedforward jointFeedforward = new ArmFeedforward(0.22654, 0.51714, 0.002, 0.00033184);
+
+    private double jointMaxVelocity = 5000;
+    private double jointMaxAccel = 200000;
+    private TrapezoidProfile jointProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
+    private TrapezoidProfile.State jointGoalState = new TrapezoidProfile.State();
+    private TrapezoidProfile.State jointSetpoint = new TrapezoidProfile.State();
+    private boolean jointPositionControlling = false;
+
+    private boolean useJointProfiledControl = false;
+
+    private final SysIdRoutine jointRoutine = new SysIdRoutine(
+        new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(5), Seconds.of(5)),
+        new SysIdRoutine.Mechanism(
+            (voltage) -> setJointVolts(voltage.in(Volts)),
+            null,
+            this
+        )
+    );
+
+    // Normal PID control uses slot 0
     private double jointP = 0.05;
     private double jointI = 0.000000005;
     private double jointD = 3;
-    private double jointMaxIAccum = 0;
+    private double jointMaxIAccum = 6;
+
+    // Profiled control uses slot 1
+    private double jointP_1 = 0.15;
+    private double jointI_1 = 0.000000005;
+    private double jointD_1 = 2;
+    private double jointMaxIAccum_1 = 6;
     
     private boolean jointZeroed = false;
     
     private boolean atJointMiddleLimitSwitch = false;
-    private boolean atJointMiddleLimitSwitchAtLastCheck = true;
     
     private boolean atJointBottomLimitSwitch = false;
     private boolean atJointBottomLimitSwitchAtLastCheck = true;
@@ -128,8 +165,12 @@ public class ArmSubsystem extends SubsystemBase {
     private boolean useJointSensors = true;
     private boolean useElevatorCodeStops = true;
     private boolean useElevatorSensors = true;
+
+    private long jointPositionStartNano = RobotController.getFPGATime();
     
     public ArmSubsystem() {
+
+        // Initialize joint stuff
         jointMotor = new CANSparkMax(JOINT_MOTOR_ID, MotorType.kBrushless);
         jointMotor.setInverted(false);
         jointMotor.setSmartCurrentLimit(50);
@@ -139,23 +180,35 @@ public class ArmSubsystem extends SubsystemBase {
         
         jointEncoder = jointMotor.getEncoder();
         jointEncoder.setPosition(JOINT_STARTING_POSITION);
+        jointSetpoint = new TrapezoidProfile.State(JOINT_STARTING_POSITION, 0);
         
         jointPidController = jointMotor.getPIDController();
         jointPidController.setP(jointP);
         jointPidController.setI(jointI);
         jointPidController.setD(jointD);
         jointPidController.setIMaxAccum(jointMaxIAccum, 0);
-        jointPidController.setReference(0, ControlType.kPosition);
+
+        jointPidController.setP(jointP_1, 1);
+        jointPidController.setI(jointI_1, 1);
+        jointPidController.setD(jointD_1, 1);
+        jointPidController.setIMaxAccum(jointMaxIAccum_1, 1);
         
         jointSecondMotor = new CANSparkMax(JOINT_SECOND_MOTOR_ID, MotorType.kBrushless);
         jointSecondMotor.setInverted(true);
         jointSecondMotor.follow(jointMotor);
         
-        jointPEntry = armTable.getDoubleTopic("tuning/joint/kP").getEntry(jointP);
-        jointIEntry = armTable.getDoubleTopic("tuning/joint/kI").getEntry(jointI);
-        jointDEntry = armTable.getDoubleTopic("tuning/joint/kD").getEntry(jointD);
+        jointPEntry = armTable.getDoubleTopic("joint/tuning/kP").getEntry(jointP);
+        jointIEntry = armTable.getDoubleTopic("joint/tuning/kI").getEntry(jointI);
+        jointDEntry = armTable.getDoubleTopic("joint/tuning/kD").getEntry(jointD);
+
+        jointMaxVelocityEntry = armTable.getDoubleTopic("joint/tuning/maxvelocity").getEntry(jointMaxVelocity);
+        jointMaxAccelEntry = armTable.getDoubleTopic("joint/tuning/maxaccel").getEntry(jointMaxAccel);
         
-        
+        jointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) JOINT_MIN_POSITION);
+        jointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) JOINT_MAX_POSITION);
+
+        // Initialize elevator stuff
+
         elevatorZeroLimitSwitch = new DigitalInput(ELEVATOR_ZERO_SWITCH_CHANNEL);
         
         elevatorMotor = new CANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless);
@@ -175,9 +228,9 @@ public class ArmSubsystem extends SubsystemBase {
         elevatorPidController.setSmartMotionAllowedClosedLoopError(elevatorSmartMotionAllowedClosedLoopError, 0);
         elevatorPidController.setOutputRange(-1.0, 1.0);
         
-        elevatorPEntry = armTable.getDoubleTopic("tuning/elevator/kP").getEntry(elevatorP);
-        elevatorIEntry = armTable.getDoubleTopic("tuning/elevator/kI").getEntry(elevatorI);
-        elevatorDEntry = armTable.getDoubleTopic("tuning/elevator/kD").getEntry(elevatorD);
+        elevatorPEntry = armTable.getDoubleTopic("elevator/tuning/kP").getEntry(elevatorP);
+        elevatorIEntry = armTable.getDoubleTopic("elevator/tuning/kI").getEntry(elevatorI);
+        elevatorDEntry = armTable.getDoubleTopic("elevator/tuning/kD").getEntry(elevatorD);
 
         // Publish values so the entries appear in NT
 
@@ -189,6 +242,8 @@ public class ArmSubsystem extends SubsystemBase {
         jointTrapPositionEntry.set(JOINT_TRAP_POSITION);
         jointIntakePositionEntry.set(JOINT_INTAKE_POSITION);
         jointPreIntakePositionEntry.set(JOINT_PRE_INTAKE_POSITION);
+        jointMaxVelocityEntry.set(jointMaxVelocity);
+        jointMaxAccelEntry.set(jointMaxAccel);
 
         elevatorMinPositionEntry.set(ELEVATOR_MIN_POSITION);
         elevatorMaxPositionEntry.set(ELEVATOR_MAX_POSITION);
@@ -206,9 +261,15 @@ public class ArmSubsystem extends SubsystemBase {
         elevatorIEntry.set(elevatorI);
         elevatorDEntry.set(elevatorD);
 
+        jointUseCodeStopsEntry.set(useJointCodeStops);
+        jointUseSensorsEntry.set(useJointSensors);
+        elevatorUseCodeStopsEntry.set(useElevatorCodeStops);
+        elevatorUseSensorsEntry.set(useElevatorSensors);
+
     }
     
     public void teleopInit() {
+        jointPositionControlling = false;
         elevatorMotor.set(0);
         jointMotor.set(0);
     }
@@ -223,6 +284,7 @@ public class ArmSubsystem extends SubsystemBase {
         checkElevatorCodeStops();
         updateTelemetry();
         updateControlConstants();
+        runMotorControl();
     }
     
     private void updateTelemetry() {
@@ -239,8 +301,9 @@ public class ArmSubsystem extends SubsystemBase {
         atElevatorMinPublisher.set(atElevatorMinLimit);
         atElevatorMaxPublisher.set(atElevatorMaxLimit);
         
-        jointCommandedPositionPublisher.set(jointCommandedPosition);
-        elevatorCommandedPositionPublisher.set(elevatorCommandedPosition);
+        jointGoalPositionPublisher.set(jointGoalState.position);
+        jointSetpointPostionPublisher.set(jointSetpoint.position);
+        jointPositionControllingPublisher.set(jointPositionControlling);
         
         currentCommandPublisher.set(getCurrentCommand() != null? getCurrentCommand().getName() : "null");
     }
@@ -281,6 +344,18 @@ public class ArmSubsystem extends SubsystemBase {
             jointD = newJointD;
             jointPidController.setD(jointD);
         }
+
+        double newJointMaxVelocity = jointMaxVelocityEntry.get(jointMaxVelocity);
+        if(newJointMaxVelocity != jointMaxVelocity) {
+            jointMaxVelocity = newJointMaxVelocity;
+            jointProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
+        }
+
+        double newJointMaxAccel = jointMaxAccelEntry.get(jointMaxAccel);
+        if(newJointMaxAccel != jointMaxAccel) {
+            jointMaxAccel = newJointMaxAccel;
+            jointProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
+        }
         
     }
     
@@ -306,60 +381,42 @@ public class ArmSubsystem extends SubsystemBase {
     
     private void checkJointSensors() {
         
-        if(!useJointSensors)
-        return;
-        
-        double jointVelocity = jointEncoder.getVelocity();
-        
+        if(!getJointUseSensors())
+            return;
+                
         atJointBottomLimitSwitchAtLastCheck = atJointBottomLimitSwitch;
-        atJointMiddleLimitSwitchAtLastCheck = atJointMiddleLimitSwitch;
         atJointBottomLimitSwitch = isJointBottomLimitSwitchTriggered();
         atJointMiddleLimitSwitch = isJointMiddleLimitSwitchTriggered();
         
+        // At middle switch and not zeroed
         if (atJointMiddleLimitSwitch && !jointZeroed) {
-            jointEncoder.setPosition(JOINT_MIDDLE_SWITCH_TOP_POSITION);
+            jointEncoder.setPosition(JOINT_STARTING_POSITION);
             jointZeroed = true;
         }
         
-        // Falling edge of middle switch
-        if(atJointMiddleLimitSwitchAtLastCheck && !atJointMiddleLimitSwitch) {
-            // Update encoder reading with known position
-            jointEncoder.setPosition((jointVelocity > 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
-        }
-        
-        // Rising edge of middle switch
-        if(!atJointMiddleLimitSwitchAtLastCheck && atJointMiddleLimitSwitch) {
-            // Update encoder reading with known position
-            jointEncoder.setPosition((jointVelocity < 0? JOINT_MIDDLE_SWITCH_TOP_POSITION : JOINT_MIDDLE_SWITCH_BOTTOM_POSITION));
-        }
-        
+        // At bottom switch and not zeroed
         if (atJointBottomLimitSwitch && !jointZeroed) {
             jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
             jointZeroed = true;
         }
         
-        // Falling edge of bottom switch
-        if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
+        // Falling or Rising edge of bottom switch
+        if(atJointBottomLimitSwitchAtLastCheck != atJointBottomLimitSwitch) {
             // Update encoder reading with known position
             jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
         }
         
-        // Rising edge of bottom switch
-        if(!atJointBottomLimitSwitchAtLastCheck && atJointBottomLimitSwitch) {
-            // Update encoder reading with known position
-            jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
-        }
     }
     
     private void checkJointCodeStops() {
         
-        if(!useJointCodeStops)
-        return;
+        if(!getJointUseCodeStops())
+            return;
         
         // Min Pos Rising edge
         if(!atJointMinLimit && jointEncoder.getPosition() < getJointMinPosition() && jointZeroed) { //Rising edge
             atJointMinLimit = true;
-            setJointPosition(getJointMinPosition());
+            //setJointPosition(getJointMinPosition());
         } else if(jointEncoder.getPosition() > getJointMinPosition()) {
             atJointMinLimit = false;
         }
@@ -367,7 +424,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atJointMaxLimit && jointEncoder.getPosition() > getJointMaxPosition() && jointZeroed) {
             atJointMaxLimit = true;
-            setJointPosition(getJointMaxPosition());
+            //setJointPosition(getJointMaxPosition());
         } else if(jointEncoder.getPosition() < getJointMaxPosition()) {
             atJointMaxLimit = false;
         }
@@ -382,7 +439,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Min Pos Rising edge
         if(!atElevatorMinLimit && elevatorEncoder.getPosition() < getElevatorMinPosition() && elevatorZeroed) { //Rising edge
             atElevatorMinLimit = true;
-            setElevatorPosition(getElevatorMinPosition());
+            //setElevatorPosition(getElevatorMinPosition());
         } else if(elevatorEncoder.getPosition() > getElevatorMinPosition()) {
             atElevatorMinLimit = false;
         }
@@ -390,9 +447,20 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atElevatorMaxLimit && elevatorEncoder.getPosition() > getElevatorMaxPosition() && elevatorZeroed) { //Rising edge
             atElevatorMaxLimit = true;
-            setElevatorPosition(getElevatorMaxPosition());
+            //setElevatorPosition(getElevatorMaxPosition());
         } else if(elevatorEncoder.getPosition() < getElevatorMaxPosition()) {
             atElevatorMaxLimit = false;
+        }
+    }
+
+    private void runMotorControl() {
+        if(jointPositionControlling && useJointProfiledControl) {
+            jointSetpoint = jointProfile.calculate((RobotController.getFPGATime() - jointPositionStartNano) / 1e9, jointSetpoint, jointGoalState);
+            jointPidController.setReference(
+                jointSetpoint.position,
+                ControlType.kPosition,
+                1,
+                jointFeedforward.calculate(jointSetpoint.position * JOINT_REDUTION - 0.1, jointSetpoint.velocity));
         }
     }
     
@@ -407,7 +475,7 @@ public class ArmSubsystem extends SubsystemBase {
         if(percent > 0 && (atJointMaxLimit || !jointZeroed))
         return;
         
-        jointCommandedPosition = -1;
+        jointPositionControlling = false;
         jointPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
     }
     
@@ -420,7 +488,6 @@ public class ArmSubsystem extends SubsystemBase {
         if((atElevatorMaxLimit || !elevatorZeroed) && percent > 0)
         return;
         
-        elevatorCommandedPosition = -1;
         elevatorPidController.setReference(percent * 0.5, ControlType.kDutyCycle);
     }
     
@@ -430,10 +497,19 @@ public class ArmSubsystem extends SubsystemBase {
         if(!jointZeroed && position > jointEncoder.getPosition())
         return;
         
+        jointPositionControlling = true;
+        jointPositionStartNano = RobotController.getFPGATime();
+
         // Clamp the position to the min and max
         position = Math.max(getJointMinPosition(), Math.min(getJointMaxPosition(), position));
-        jointCommandedPosition = position;
-        jointPidController.setReference(position, ControlType.kPosition);
+
+        // Either use profiled control or standard PID control
+        if(useJointProfiledControl) {
+            jointSetpoint = new TrapezoidProfile.State(jointEncoder.getPosition(), jointEncoder.getVelocity());
+            jointGoalState = new TrapezoidProfile.State(position, 0);
+        }else {
+            jointPidController.setReference(position, ControlType.kPosition, 0);
+        }
     }
     
     public void setElevatorPosition(double position) {
@@ -442,10 +518,15 @@ public class ArmSubsystem extends SubsystemBase {
         if(!elevatorZeroed && position > elevatorEncoder.getPosition())
         return;
         
+        System.out.println("Elevator pos: " + position);
         // Clamp the position to the min and max
         position = Math.max(getElevatorMinPosition(), Math.min(getElevatorMaxPosition(), position));
-        elevatorCommandedPosition = position;
         elevatorPidController.setReference(position, ControlType.kPosition);
+    }
+
+    public void setJointVolts(double volts) {
+        jointPositionControlling = false;
+        jointMotor.setVoltage(volts);
     }
     
     public void holdJointPosition() {
@@ -532,17 +613,29 @@ public class ArmSubsystem extends SubsystemBase {
     }
     
     public Command elevatorZeroCommand() {
-        // use .set instead of setElevatorPercent so that the limit don't apply
         return Commands.sequence(
             jointStowPositionCommand(),
-            Commands.waitUntil(() -> (isJointAtPosition(getJointStowPosition(), 1)||atJointMiddleLimitSwitch)),
-            Commands.runEnd(() -> elevatorMotor.set(-0.3), () -> elevatorMotor.set(0), this).until(() -> (atElevatorLimitSwitch))
+            Commands.waitUntil(() -> (isJointAtPosition(getJointStowPosition(), 1)|| atJointMiddleLimitSwitch)),
+            Commands.runEnd(
+                () -> elevatorMotor.set(-0.3),
+                () -> elevatorMotor.set(0), this).until(() -> (atElevatorLimitSwitch))
         );
     }
     
     public Command jointZeroCommand() {
-        // use .set instead of setJointPercent so that the limit don't apply
-        return Commands.runEnd(() -> jointMotor.set(-0.3), () -> jointMotor.set(0), this).until(() -> (atJointMiddleLimitSwitch || atJointBottomLimitSwitch));
+        return Commands.runEnd(() -> { jointMotor.set(-0.3); jointPositionControlling = false; }, () -> setJointMotorPercent(0), this).until(() -> (atJointMiddleLimitSwitch || atJointBottomLimitSwitch));
+    }
+
+    public Command jointSysIdRoutine() {
+        return Commands.sequence(
+            jointRoutine.quasistatic(SysIdRoutine.Direction.kForward).withTimeout(5.0),
+            Commands.waitSeconds(1),
+            jointRoutine.quasistatic(SysIdRoutine.Direction.kReverse).withTimeout(3.0),
+            Commands.waitSeconds(1),
+            jointRoutine.dynamic(SysIdRoutine.Direction.kForward).withTimeout(2.0),
+            Commands.waitSeconds(1),
+            jointRoutine.dynamic(SysIdRoutine.Direction.kReverse).withTimeout(1.0)
+        );
     }
     
     // Getters
@@ -585,6 +678,10 @@ public class ArmSubsystem extends SubsystemBase {
     
     public boolean isElevatorZeroed() {
         return elevatorZeroed;
+    }
+
+    public void setUseJointProfiledControl(boolean useJointProfiledControl) {
+        this.useJointProfiledControl = useJointProfiledControl;
     }
     
     // Getters for all preset positions that will return the current value from network tables or the value from Constants if none is published
@@ -648,4 +745,21 @@ public class ArmSubsystem extends SubsystemBase {
     public double getElevatorIntakePosition() {
         return !TUNING_MODE ? ELEVATOR_INTAKE_POSITION : elevatorIntakePositionEntry.get(ELEVATOR_INTAKE_POSITION);
     }
+
+    public boolean getJointUseSensors() {
+        return jointUseSensorsEntry.get(true);
+    }
+
+    public boolean getJointUseCodeStops() {
+        return jointUseCodeStopsEntry.get(true);
+    }
+
+    public boolean getElevatorUseSensors() {
+        return elevatorUseSensorsEntry.get(true);
+    }
+
+    public boolean getElevatorUseCodeStops() {
+        return elevatorUseCodeStopsEntry.get(true);
+    }
+
 }

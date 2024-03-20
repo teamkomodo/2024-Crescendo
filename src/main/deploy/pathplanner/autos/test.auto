@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6113694395719733,
-      "y": 4.391563704668065
+      "x": 1.3216735004898588,
+      "y": 5.629231829892232
     },
-    "rotation": -60.572543596810306
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -14,31 +14,31 @@
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "armToIntake"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "armToStow"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Intake Far 5"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Score Bottom"
+            "name": "runIndexerIn"
           }
         },
         {
           "type": "wait",
           "data": {
             "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "armToSpeaker"
           }
         }
       ]
