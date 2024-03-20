@@ -186,6 +186,7 @@ public class RobotContainer {
         turbotakeSubsystem.teleopInit();
         climberSubsystem.setClimberDutyCycle(0);
         armSubsystem.setUseJointProfiledControl(false);
+        drivetrainSubsystem.setGyro(drivetrainSubsystem.getPose().getRotation());
     }
     
     public Command getAutonomousCommand() {

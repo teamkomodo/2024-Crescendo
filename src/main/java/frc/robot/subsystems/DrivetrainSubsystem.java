@@ -321,10 +321,6 @@ public class DrivetrainSubsystem implements Subsystem {
         drive(0, 0, 0, false, false);
     }
 
-    public void zeroGyro() {
-        rotationOffsetRadians = -getRotation().getRadians();
-    }
-
     public void runDriveVolts(double voltage) {
         frontLeft.runForward(voltage);
         frontRight.runForward(voltage);
@@ -402,6 +398,9 @@ public class DrivetrainSubsystem implements Subsystem {
         rotationOffsetRadians = -getRotation().getRadians() + rotation.getRadians();
     }
 
+    public void zeroGyro() {
+        rotationOffsetRadians = -getRotation().getRadians();
+    }
 
     /**
      * Converts raw joystick values to speeds for the drivetrain
