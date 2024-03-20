@@ -434,14 +434,17 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
-    private void runMotorControl() {        
+    private void runMotorControl() {
         if(jointPositionControlling) {
-            jointSetpoint = jointProfile.calculate((RobotController.getFPGATime() - jointPositionStartNano) / 1e9, jointSetpoint, jointGoalState);
+            double desiredVelocity = isJointAtPosition(jointGoalState.position, 0.3)? 0 : Math.signum(jointGoalState.position - jointEncoder.getPosition()) * JOINT_MOVING_VELOCITY;
+            if(desiredVelocity < 0) {
+                desiredVelocity *= 0;
+            }
             jointPidController.setReference(
-                jointSetpoint.position,
+                jointGoalState.position,
                 ControlType.kPosition,
                 0,
-                jointFeedforward.calculate(jointSetpoint.position * JOINT_REDUTION - 0.1, jointSetpoint.velocity));
+                jointFeedforward.calculate(jointEncoder.getPosition() * JOINT_REDUTION - 0.1, desiredVelocity));
         }
     }
     

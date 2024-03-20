@@ -144,6 +144,8 @@ public final class Constants {
      * motor rotations -> joint radians
      */
     public static final double JOINT_ANGLE_CONVERSION_FACTOR = JOINT_REDUTION * 2.0 * Math.PI;
+    
+    public static final double JOINT_MOVING_VELOCITY = 80;
 
     public static final int ELEVATOR_MOTOR_ID = 34;
     public static final int ELEVATOR_ZERO_SWITCH_CHANNEL = 2;
