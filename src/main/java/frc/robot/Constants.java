@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  */
 public final class Constants {
 
-    public static final boolean TUNING_MODE = false;
+    public static final boolean TUNING_MODE = true;
 
 // Controls
     public static final double XBOX_DEADBAND = 0.06;

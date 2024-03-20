@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.HalfTrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -122,9 +123,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     private double jointMaxVelocity = 5000;
     private double jointMaxAccel = 200000;
-    private TrapezoidProfile jointProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
-    private TrapezoidProfile.State jointGoalState = new TrapezoidProfile.State();
-    private TrapezoidProfile.State jointSetpoint = new TrapezoidProfile.State();
+    private HalfTrapezoidProfile jointProfile = new HalfTrapezoidProfile(new HalfTrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
+    private HalfTrapezoidProfile.State jointGoalState = new HalfTrapezoidProfile.State();
+    private HalfTrapezoidProfile.State jointSetpoint = new HalfTrapezoidProfile.State();
     private boolean jointPositionControlling = false;
 
     private final SysIdRoutine jointRoutine = new SysIdRoutine(
@@ -329,13 +330,13 @@ public class ArmSubsystem extends SubsystemBase {
         double newJointMaxVelocity = jointMaxVelocityEntry.get(jointMaxVelocity);
         if(newJointMaxVelocity != jointMaxVelocity) {
             jointMaxVelocity = newJointMaxVelocity;
-            jointProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
+            jointProfile = new HalfTrapezoidProfile(new HalfTrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
         }
 
         double newJointMaxAccel = jointMaxAccelEntry.get(jointMaxAccel);
         if(newJointMaxAccel != jointMaxAccel) {
             jointMaxAccel = newJointMaxAccel;
-            jointProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
+            jointProfile = new HalfTrapezoidProfile(new HalfTrapezoidProfile.Constraints(jointMaxVelocity, jointMaxAccel));
         }
         
     }
@@ -436,15 +437,12 @@ public class ArmSubsystem extends SubsystemBase {
 
     private void runMotorControl() {
         if(jointPositionControlling) {
-            double desiredVelocity = isJointAtPosition(jointGoalState.position, 0.3)? 0 : Math.signum(jointGoalState.position - jointEncoder.getPosition()) * JOINT_MOVING_VELOCITY;
-            if(desiredVelocity < 0) {
-                desiredVelocity *= 0;
-            }
+            jointSetpoint = jointProfile.calculate((RobotController.getFPGATime() - jointPositionStartNano) / 1e9, jointSetpoint, jointGoalState);
             jointPidController.setReference(
-                jointGoalState.position,
+                jointSetpoint.position,
                 ControlType.kPosition,
                 0,
-                jointFeedforward.calculate(jointEncoder.getPosition() * JOINT_REDUTION - 0.1, desiredVelocity));
+                jointFeedforward.calculate(jointEncoder.getPosition() * JOINT_REDUTION - 0.1, jointSetpoint.velocity));
         }
     }
     
@@ -486,7 +484,7 @@ public class ArmSubsystem extends SubsystemBase {
 
         // Clamp the position to the min and max
         position = Math.max(getJointMinPosition(), Math.min(getJointMaxPosition(), position));
-        jointGoalState = new TrapezoidProfile.State(position, 0);
+        jointGoalState = new HalfTrapezoidProfile.State(position, 0);
     }
     
     public void setElevatorPosition(double position) {
