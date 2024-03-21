@@ -36,7 +36,9 @@ public class IntakePositionCommand extends DynamicCommand{
             armSubsystem.jointPreIntakePositionCommand(),
             armSubsystem.elevatorIntakePositionCommand(),
             new WaitCommand(0.4),
-            armSubsystem.jointIntakePositionCommand()
+            armSubsystem.jointIntakePositionCommand(),
+            Commands.waitUntil(() -> armSubsystem.isJointAtPosition(armSubsystem.getJointIntakePosition(), 1)),
+            Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0))
         );
     }
 }

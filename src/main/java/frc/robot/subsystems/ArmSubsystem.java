@@ -400,8 +400,8 @@ public class ArmSubsystem extends SubsystemBase {
             jointZeroed = true;
         }
         
-        // Falling or Rising edge of bottom switch
-        if(atJointBottomLimitSwitchAtLastCheck != atJointBottomLimitSwitch) {
+        // Falling edge of bottom switch
+        if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
             // Update encoder reading with known position
             jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
         }
@@ -416,7 +416,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Min Pos Rising edge
         if(!atJointMinLimit && jointEncoder.getPosition() < getJointMinPosition() && jointZeroed) { //Rising edge
             atJointMinLimit = true;
-            //setJointPosition(getJointMinPosition());
+            setJointPosition(getJointMinPosition());
         } else if(jointEncoder.getPosition() > getJointMinPosition()) {
             atJointMinLimit = false;
         }
@@ -424,7 +424,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atJointMaxLimit && jointEncoder.getPosition() > getJointMaxPosition() && jointZeroed) {
             atJointMaxLimit = true;
-            //setJointPosition(getJointMaxPosition());
+            setJointPosition(getJointMaxPosition());
         } else if(jointEncoder.getPosition() < getJointMaxPosition()) {
             atJointMaxLimit = false;
         }
@@ -439,7 +439,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Min Pos Rising edge
         if(!atElevatorMinLimit && elevatorEncoder.getPosition() < getElevatorMinPosition() && elevatorZeroed) { //Rising edge
             atElevatorMinLimit = true;
-            //setElevatorPosition(getElevatorMinPosition());
+            setElevatorPosition(getElevatorMinPosition());
         } else if(elevatorEncoder.getPosition() > getElevatorMinPosition()) {
             atElevatorMinLimit = false;
         }
@@ -447,7 +447,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atElevatorMaxLimit && elevatorEncoder.getPosition() > getElevatorMaxPosition() && elevatorZeroed) { //Rising edge
             atElevatorMaxLimit = true;
-            //setElevatorPosition(getElevatorMaxPosition());
+            setElevatorPosition(getElevatorMaxPosition());
         } else if(elevatorEncoder.getPosition() < getElevatorMaxPosition()) {
             atElevatorMaxLimit = false;
         }

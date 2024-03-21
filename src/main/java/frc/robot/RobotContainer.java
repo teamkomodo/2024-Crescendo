@@ -59,7 +59,7 @@ public class RobotContainer {
         /*
          * Driver Controls
          * 
-         * RT - Slow Mode
+         * LB - Slow Mode
          * 
          */
 
@@ -68,8 +68,8 @@ public class RobotContainer {
         driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
         driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
-        Trigger driverStart = driverController.start();
-        driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
+        Trigger driverLB = driverController.leftBumper();
+        driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
         // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
