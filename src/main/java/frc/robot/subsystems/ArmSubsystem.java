@@ -699,7 +699,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
     
     public double getJointAmpPosition() {
-        return !TUNING_MODE ? JOINT_AMP_POSITION : jointAmpPositionEntry.get(JOINT_AMP_POSITION);
+        return jointAmpPositionEntry.get(JOINT_AMP_POSITION); //!TUNING_MODE ? JOINT_AMP_POSITION : jointAmpPositionEntry.get(JOINT_AMP_POSITION);
     }
     
     public double getJointSpeakerPosition() {
@@ -731,7 +731,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
     
     public double getElevatorAmpPosition() {
-        return !TUNING_MODE ? ELEVATOR_AMP_POSITION : elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION);
+        return elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION); //!TUNING_MODE ? ELEVATOR_AMP_POSITION : elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION);
     }
     
     public double getElevatorSpeakerPosition() {

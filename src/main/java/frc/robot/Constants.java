@@ -93,7 +93,7 @@ public final class Constants {
     public static final double LINEAR_VELOCITY_CONSTRAINT = MAX_ATTAINABLE_VELOCITY;
     public static final double LINEAR_ACCEL_CONSTRAINT = 12.0;
 
-    public static final double ANGULAR_VELOCITY_CONSTRAINT = (LINEAR_VELOCITY_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH) * 0.66;
+    public static final double ANGULAR_VELOCITY_CONSTRAINT = (LINEAR_VELOCITY_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
     public static final double ANGULAR_ACCEL_CONSTRAINT = (LINEAR_ACCEL_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
 
     public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
@@ -133,7 +133,7 @@ public final class Constants {
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
     public static final double JOINT_STOW_POSITION = 8;
-    public static final double JOINT_AMP_POSITION = 31;
+    public static final double JOINT_AMP_POSITION = 30;
 
     public static final double JOINT_SPEAKER_POSITION = 12;
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
@@ -156,7 +156,7 @@ public final class Constants {
     public static final double ELEVATOR_MAX_POSITION = 63; // Code stop, physical maxis 64.5
 
     public static final double ELEVATOR_STOW_POSITION = 0.5;
-    public static final double ELEVATOR_AMP_POSITION = 55;
+    public static final double ELEVATOR_AMP_POSITION = 52;
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 63;
