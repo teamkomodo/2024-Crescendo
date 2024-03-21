@@ -32,21 +32,22 @@ public class AmpPositionCommand extends DynamicCommand {
             );
         }
 
-        if (armSubsystem.getJointPosition() < JOINT_STOW_POSITION - 2) {
-            return new SequentialCommandGroup(
-                armSubsystem.jointStowPositionCommand(),
-                new WaitCommand(0.1),
-                armSubsystem.elevatorZeroPositionCommand(),
-                new WaitCommand(0.1),
-                armSubsystem.jointAmpPositionCommand(),
-                armSubsystem.elevatorAmpPositionCommand()
-            );
-        }
+        // if (armSubsystem.getJointPosition() < JOINT_STOW_POSITION - 2) {
+        //     return new SequentialCommandGroup(
+        //         armSubsystem.jointStowPositionCommand(),
+        //         new WaitCommand(0.1),
+        //         armSubsystem.elevatorZeroPositionCommand(),
+        //         new WaitCommand(0.1),
+        //         armSubsystem.jointAmpPositionCommand(),
+        //         armSubsystem.elevatorAmpPositionCommand()
+        //     );
+        // }
 
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),
             new WaitCommand(0.1),
             armSubsystem.jointAmpPositionCommand(),
+            Commands.waitSeconds(0.3),
             armSubsystem.elevatorAmpPositionCommand()
         );
     }

@@ -133,7 +133,7 @@ public final class Constants {
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
     public static final double JOINT_STOW_POSITION = 8;
-    public static final double JOINT_AMP_POSITION = 30;
+    public static final double JOINT_AMP_POSITION = 31;
 
     public static final double JOINT_SPEAKER_POSITION = 12;
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
