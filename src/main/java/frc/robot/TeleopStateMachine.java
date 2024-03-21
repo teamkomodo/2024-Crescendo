@@ -447,7 +447,8 @@ public class TeleopStateMachine {
                 if(stateSwitched) {
                     stateSwitched = false;
                     commandScheduler.schedule(
-                        new AmpPositionCommand(armSubsystem)
+                        new AmpPositionCommand(armSubsystem),
+                        Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(0.5), () -> turbotakeSubsystem.setIndexerPercent(0)).withTimeout(0.5)
                     );
                     timer.restart();
                     // new WaitCommand(2);

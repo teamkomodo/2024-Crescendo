@@ -33,9 +33,9 @@ public class IntakePositionCommand extends DynamicCommand{
         return new SequentialCommandGroup(
             armSubsystem.elevatorZeroPositionCommand(),
             new WaitCommand(0.1),
-            armSubsystem.jointPreIntakePositionCommand(),
+            armSubsystem.jointStowPositionCommand(),
             armSubsystem.elevatorIntakePositionCommand(),
-            new WaitCommand(0.4),
+            new WaitCommand(0.5),
             armSubsystem.jointIntakePositionCommand(),
             Commands.waitUntil(() -> armSubsystem.isJointAtPosition(armSubsystem.getJointIntakePosition(), 1)),
             Commands.runOnce(() -> armSubsystem.setJointMotorPercent(0))
