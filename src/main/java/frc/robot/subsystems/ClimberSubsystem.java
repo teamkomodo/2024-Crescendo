@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.NetworkButton;
 
 import static frc.robot.Constants.*;
 
@@ -81,6 +82,11 @@ public class ClimberSubsystem extends SubsystemBase {
     private final DoubleEntry extendVelocityEntry = climberTable.getDoubleTopic("tuning/extendvelocity").getEntry(CLIMBER_EXTEND_VELOCITY);
     private final DoubleEntry ascendVelocityEntry = climberTable.getDoubleTopic("tuning/ascendvelocity").getEntry(CLIMBER_ASCEND_VELOCITY);
 
+    private final NetworkButton leftClimberDownButton = new NetworkButton(climberTable.getBooleanTopic("left/downcommand"));
+    private final NetworkButton leftClimberUpButton = new NetworkButton(climberTable.getBooleanTopic("left/upcommand"));
+    private final NetworkButton rightClimberDownButton = new NetworkButton(climberTable.getBooleanTopic("right/downcommand"));
+    private final NetworkButton rightClimberUpButton = new NetworkButton(climberTable.getBooleanTopic("right/upcommand"));
+
     public ClimberSubsystem() {
         leftMotor = new CANSparkMax(CLIMBER_MOTOR_LEFT_ID, MotorType.kBrushless); // CHANGE DEVICE ID
         leftMotor.setInverted(true);
@@ -124,6 +130,43 @@ public class ClimberSubsystem extends SubsystemBase {
         extendVelocityEntry.set(CLIMBER_EXTEND_VELOCITY);
         ascendVelocityEntry.set(CLIMBER_ASCEND_VELOCITY);
 
+        buildHookAlignmentCommands();
+    }
+
+    private void buildHookAlignmentCommands() {
+        // These commands will show up in NT, they are meant to be used in the pit to align the climber hooks
+        double speed = 0.3;
+        leftClimberDownButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
+            () -> leftMotor.set(-speed),
+            () -> {
+                leftMotorEncoder.setPosition(0);
+                setLeftMotorDutyCycle(0);
+                setUseCodeStops(true);
+            }, this)));
+        
+        leftClimberUpButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
+            () -> leftMotor.set(speed),
+            () -> {
+                leftMotorEncoder.setPosition(0);
+                setLeftMotorDutyCycle(0);
+                setUseCodeStops(true);
+            }, this)));
+        
+        rightClimberDownButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
+            () -> rightMotor.set(-speed),
+            () -> {
+                rightMotorEncoder.setPosition(0);
+                setRightMotorDutyCycle(0);
+                setUseCodeStops(true);
+            }, this)));
+
+        rightClimberUpButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
+            () -> rightMotor.set(speed),
+            () -> {
+                rightMotorEncoder.setPosition(0);
+                setRightMotorDutyCycle(0);
+                setUseCodeStops(true);
+            }, this)));
     }
 
     public void teleopInit() {
@@ -428,6 +471,14 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public boolean isClimberStowed() {
         return atRightMinPosition && atLeftMinPosition;
+    }
+
+    public void setUseCodeStops(boolean useCodeStops) {
+        useCodeStopsEntry.set(useCodeStops);
+    }
+
+    public void setUseSensors(boolean useSensors) {
+        useSensorsEntry.set(useSensors);
     }
 
     // Get positions from NT, default to preset constants
