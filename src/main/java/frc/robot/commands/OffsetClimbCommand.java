@@ -33,7 +33,7 @@ public class OffsetClimbCommand extends Command{
     public void execute() {
 
         // Positive error means the left side needs to move up (+) ie. it is currently too low
-        double currentOffsetError = leftSideOffset - climberSubsystem.getLeftMotorPosition() - climberSubsystem.getRightMotorPosition();
+        double currentOffsetError = leftSideOffset - (climberSubsystem.getLeftMotorPosition() - climberSubsystem.getRightMotorPosition());
         double tolerance = 0.5;
 
         // If the hooks are in the correct positions relative to each other, we can move both sides
