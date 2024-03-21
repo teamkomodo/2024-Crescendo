@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.NetworkButton;
+import frc.robot.commands.OneSideProfiledClimbCommand;
 
 import static frc.robot.Constants.*;
 
@@ -137,38 +138,47 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private void buildHookAlignmentCommands() {
         // These commands will show up in NT, they are meant to be used in the pit to align the climber hooks
-        double speed = 0.3;
-        leftClimberDownButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
-            () -> leftMotor.set(-speed),
-            () -> {
-                leftMotorEncoder.setPosition(0);
-                setLeftMotorDutyCycle(0);
-                setUseCodeStops(true);
-            }, this)));
+        double speed = 10;
+        leftClimberDownButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, -speed, true)
+        ).finallyDo(() -> {
+            leftMotorEncoder.setPosition(0);
+            holdLeftMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("left/downcommand").publish().set(false);
         
-        leftClimberUpButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
-            () -> leftMotor.set(speed),
-            () -> {
-                leftMotorEncoder.setPosition(0);
-                setLeftMotorDutyCycle(0);
-                setUseCodeStops(true);
-            }, this)));
-        
-        rightClimberDownButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
-            () -> rightMotor.set(-speed),
-            () -> {
-                rightMotorEncoder.setPosition(0);
-                setRightMotorDutyCycle(0);
-                setUseCodeStops(true);
-            }, this)));
+        leftClimberUpButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, speed, true)
+        ).finallyDo(() -> {
+            leftMotorEncoder.setPosition(0);
+            holdLeftMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("left/upcommand").publish().set(false);
 
-        rightClimberUpButton.whileTrue(Commands.runOnce(() -> setUseCodeStops(false)).andThen(Commands.runEnd(
-            () -> rightMotor.set(speed),
-            () -> {
-                rightMotorEncoder.setPosition(0);
-                setRightMotorDutyCycle(0);
-                setUseCodeStops(true);
-            }, this)));
+        rightClimberDownButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, -speed, false)
+        ).finallyDo(() -> {
+            rightMotorEncoder.setPosition(0);
+            holdRightMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("right/downcommand").publish().set(false);
+
+        rightClimberUpButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, speed, false)
+        ).finallyDo(() -> {
+            rightMotorEncoder.setPosition(0);
+            holdRightMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("right/upcommand").publish().set(false);
+
     }
 
     public void teleopInit() {
