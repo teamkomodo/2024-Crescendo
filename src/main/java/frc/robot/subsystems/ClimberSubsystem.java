@@ -81,6 +81,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private final DoubleEntry extendVelocityEntry = climberTable.getDoubleTopic("tuning/extendvelocity").getEntry(CLIMBER_EXTEND_VELOCITY);
     private final DoubleEntry ascendVelocityEntry = climberTable.getDoubleTopic("tuning/ascendvelocity").getEntry(CLIMBER_ASCEND_VELOCITY);
+    private final DoubleEntry hooksOffsetEntry = climberTable.getDoubleTopic("tuning/hooksoffset").getEntry(CLIMBER_HOOKS_OFFSET);
 
     private final NetworkButton leftClimberDownButton = new NetworkButton(climberTable.getBooleanTopic("left/downcommand"));
     private final NetworkButton leftClimberUpButton = new NetworkButton(climberTable.getBooleanTopic("left/upcommand"));
@@ -129,6 +130,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
         extendVelocityEntry.set(CLIMBER_EXTEND_VELOCITY);
         ascendVelocityEntry.set(CLIMBER_ASCEND_VELOCITY);
+        hooksOffsetEntry.set(CLIMBER_HOOKS_OFFSET);
 
         buildHookAlignmentCommands();
     }
@@ -513,6 +515,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public double getAscendVelocity() {
         return !TUNING_MODE ? CLIMBER_ASCEND_VELOCITY : ascendVelocityEntry.get(CLIMBER_ASCEND_VELOCITY);
+    }
+
+    public double getHooksOffset() {
+        return !TUNING_MODE ? CLIMBER_HOOKS_OFFSET : hooksOffsetEntry.get(CLIMBER_HOOKS_OFFSET);
     }
   
 }
