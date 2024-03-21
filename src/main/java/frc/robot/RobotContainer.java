@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.OffsetClimbCommand;
 import frc.robot.commands.ProfiledClimbCommand;
 import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
@@ -166,7 +167,7 @@ public class RobotContainer {
         Trigger operatorStart = operatorController.start();
         operatorStart.whileTrue(
             Commands.parallel(
-                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity()),
+                new OffsetClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity(), CLIMBER_HOOKS_OFFSET),
                 teleopStateMachine.extendClimbCommand()
             )
         );
