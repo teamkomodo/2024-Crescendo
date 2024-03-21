@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.NetworkButton;
+import frc.robot.commands.OneSideProfiledClimbCommand;
 
 import static frc.robot.Constants.*;
 
@@ -80,6 +82,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private final DoubleEntry extendVelocityEntry = climberTable.getDoubleTopic("tuning/extendvelocity").getEntry(CLIMBER_EXTEND_VELOCITY);
     private final DoubleEntry ascendVelocityEntry = climberTable.getDoubleTopic("tuning/ascendvelocity").getEntry(CLIMBER_ASCEND_VELOCITY);
+    private final DoubleEntry hooksOffsetEntry = climberTable.getDoubleTopic("tuning/hooksoffset").getEntry(CLIMBER_HOOKS_OFFSET);
+
+    private final NetworkButton leftClimberDownButton = new NetworkButton(climberTable.getBooleanTopic("left/downcommand"));
+    private final NetworkButton leftClimberUpButton = new NetworkButton(climberTable.getBooleanTopic("left/upcommand"));
+    private final NetworkButton rightClimberDownButton = new NetworkButton(climberTable.getBooleanTopic("right/downcommand"));
+    private final NetworkButton rightClimberUpButton = new NetworkButton(climberTable.getBooleanTopic("right/upcommand"));
 
     public ClimberSubsystem() {
         leftMotor = new CANSparkMax(CLIMBER_MOTOR_LEFT_ID, MotorType.kBrushless); // CHANGE DEVICE ID
@@ -123,6 +131,53 @@ public class ClimberSubsystem extends SubsystemBase {
 
         extendVelocityEntry.set(CLIMBER_EXTEND_VELOCITY);
         ascendVelocityEntry.set(CLIMBER_ASCEND_VELOCITY);
+        hooksOffsetEntry.set(CLIMBER_HOOKS_OFFSET);
+
+        buildHookAlignmentCommands();
+    }
+
+    private void buildHookAlignmentCommands() {
+        // These commands will show up in NT, they are meant to be used in the pit to align the climber hooks
+        double speed = 10;
+        leftClimberDownButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, -speed, true)
+        ).finallyDo(() -> {
+            leftMotorEncoder.setPosition(0);
+            holdLeftMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("left/downcommand").publish().set(false);
+        
+        leftClimberUpButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, speed, true)
+        ).finallyDo(() -> {
+            leftMotorEncoder.setPosition(0);
+            holdLeftMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("left/upcommand").publish().set(false);
+
+        rightClimberDownButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, -speed, false)
+        ).finallyDo(() -> {
+            rightMotorEncoder.setPosition(0);
+            holdRightMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("right/downcommand").publish().set(false);
+
+        rightClimberUpButton.whileTrue(Commands.sequence(
+            Commands.runOnce(() -> setUseCodeStops(false)),
+            new OneSideProfiledClimbCommand(this, speed, false)
+        ).finallyDo(() -> {
+            rightMotorEncoder.setPosition(0);
+            holdRightMotorPosition();
+            setUseCodeStops(true);
+        }));
+        climberTable.getBooleanTopic("right/upcommand").publish().set(false);
 
     }
 
@@ -430,6 +485,14 @@ public class ClimberSubsystem extends SubsystemBase {
         return atRightMinPosition && atLeftMinPosition;
     }
 
+    public void setUseCodeStops(boolean useCodeStops) {
+        useCodeStopsEntry.set(useCodeStops);
+    }
+
+    public void setUseSensors(boolean useSensors) {
+        useSensorsEntry.set(useSensors);
+    }
+
     // Get positions from NT, default to preset constants
 
     public boolean getUseCodeStops() {
@@ -462,6 +525,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public double getAscendVelocity() {
         return !TUNING_MODE ? CLIMBER_ASCEND_VELOCITY : ascendVelocityEntry.get(CLIMBER_ASCEND_VELOCITY);
+    }
+
+    public double getHooksOffset() {
+        return !TUNING_MODE ? CLIMBER_HOOKS_OFFSET : hooksOffsetEntry.get(CLIMBER_HOOKS_OFFSET);
     }
   
 }
