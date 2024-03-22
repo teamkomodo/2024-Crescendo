@@ -14,8 +14,8 @@ public class LEDSubsystem extends SubsystemBase {
     private Spark frameLights = new Spark(A_FRAME_LED_CHANNEL);
     private Spark turbotakeLights = new Spark(TURBOTAKE_LED_CHANNEL);
 
-    private double framePattern = BlinkinPattern.COLOR_1_AND_2_PATTERN_COLOR_WAVES_COLOR_1_AND_2;
-    private double turbotakePattern = BlinkinPattern.COLOR_1_AND_2_PATTERN_COLOR_WAVES_COLOR_1_AND_2;
+    private double framePattern = 0;
+    private double turbotakePattern = 0;
 
     public void setFramePattern(double pattern){
         frameLights.set(pattern);
