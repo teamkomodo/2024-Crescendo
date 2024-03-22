@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -93,7 +94,9 @@ public class ClimberSubsystem extends SubsystemBase {
         leftMotor = new CANSparkMax(CLIMBER_MOTOR_LEFT_ID, MotorType.kBrushless); // CHANGE DEVICE ID
         leftMotor.setInverted(true);
         leftMotor.setSmartCurrentLimit(80);
-        
+        leftMotor.setSoftLimit(SoftLimitDirection.kForward, (float) CLIMBER_MAX_POSITION);
+        leftMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+
         leftMotorEncoder = leftMotor.getEncoder();
         leftMotorEncoder.setPosition(0);
 
@@ -110,6 +113,8 @@ public class ClimberSubsystem extends SubsystemBase {
         rightMotor = new CANSparkMax(CLIMBER_MOTOR_RIGHT_ID, MotorType.kBrushless);
         rightMotor.setInverted(false);
         rightMotor.setSmartCurrentLimit(80);
+        rightMotor.setSoftLimit(SoftLimitDirection.kForward, (float) CLIMBER_MAX_POSITION);
+        rightMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         
         rightMotorEncoder = rightMotor.getEncoder();
         rightMotorEncoder.setPosition(0);
@@ -283,14 +288,14 @@ public class ClimberSubsystem extends SubsystemBase {
         // Rising edge
         if(!atLeftMinPosition && leftMotorEncoder.getPosition() < getMinPosition()) {
             atLeftMinPosition = true;
-            setLeftMotorPosition(getMinPosition());
+            //setLeftMotorPosition(getMinPosition());
         } else if (leftMotorEncoder.getPosition() > getMinPosition()) {
             atLeftMinPosition = false;
         }
 
         if(!atRightMinPosition && rightMotorEncoder.getPosition() < getMinPosition()) {
             atRightMinPosition = true;
-            setRightMotorPosition(getMinPosition());
+            //setRightMotorPosition(getMinPosition());
         } else if (rightMotorEncoder.getPosition() > getMinPosition()) {
             atRightMinPosition = false;
         }
@@ -310,14 +315,14 @@ public class ClimberSubsystem extends SubsystemBase {
 
         if(!atLeftMaxPosition && leftMotorEncoder.getPosition() > getMaxPosition()) {
             atLeftMaxPosition = true;
-            setLeftMotorPosition(getMaxPosition());
+            //setLeftMotorPosition(getMaxPosition());
         } else if(leftMotorEncoder.getPosition() < getMaxPosition()) {
             atLeftMaxPosition = false;
         }
 
         if(!atRightMaxPosition && rightMotorEncoder.getPosition() > getMaxPosition()) {
             atRightMaxPosition = true;
-            setRightMotorPosition(getMaxPosition());
+            //setRightMotorPosition(getMaxPosition());
         } else if(rightMotorEncoder.getPosition() < getMaxPosition()) {
             atRightMaxPosition = false;
         }

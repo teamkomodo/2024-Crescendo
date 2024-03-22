@@ -177,7 +177,7 @@ public final class Constants {
     public static final int CLIMBER_MOTOR_LEFT_BEAM_BREAK_ID = 5;
 
     public static final double CLIMBER_MIN_POSITION = 0;
-    public static final double CLIMBER_MAX_POSITION = 66;
+    public static final double CLIMBER_MAX_POSITION = 65;
 
     public static final double CLIMBER_PRE_CLIMB_POSITION = 20;
     public static final double CLIMBER_POST_CLIMB_POSITION = -40;
