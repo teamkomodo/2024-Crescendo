@@ -44,7 +44,7 @@ public final class Constants {
     
     // Max shooter is ~4000
     public static final double CLOSE_SHOOTER_SPEED = 2500;
-    public static final double FAR_SHOOTER_SPEED = 3000;
+    public static final double FAR_SHOOTER_SPEED = 4500;
 
     //duty cycle
     public static final double AMP_SPEED = 0.75;
@@ -137,7 +137,7 @@ public final class Constants {
     public static final double JOINT_AMP_POSITION = 26;
 
     public static final double JOINT_SPEAKER_POSITION = 12;
-    public static final double JOINT_FAR_SPEAKER_POSITION = 45;
+    public static final double JOINT_FAR_SPEAKER_POSITION = 19.2;
 
     public static final double JOINT_PRE_INTAKE_POSITION = 4;
 

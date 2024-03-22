@@ -87,15 +87,15 @@ public class RobotContainer {
         /*
          * Operator Binds [ State Machine       | Manual Control ]
          * 
-         *              A | Command Far Shoot   | Stow           |
+         *              A | Command Close Shoot | Stow           |
          *              B | Command Eject       | Pickup         |
          *              X | Command Align Amp   | Amp            |
-         *              Y | EMPTY               | Close Speaker  |
+         *              Y | Command Far Shoot   | Close Speaker  |
          * 
          *   Left Stick X | EMPTY               | Elevator       |
          *  Right Stick Y | EMPTY               | Joint          |
          * 
-         *  Right Trigger | Command Close Shoot | Shoot          |
+         *  Right Trigger | Empty               | Shoot          |
          *   Left Trigger | Command Intake      | Intake         |
          * 
          *   Right Bumper | Command Spin Up     | EMPTY          |
@@ -107,7 +107,7 @@ public class RobotContainer {
 
         Trigger operatorA = operatorController.a();
         operatorA.onTrue(dualBinding(
-            teleopStateMachine.shootSpeakerFarCommand(),
+            teleopStateMachine.shootSpeakerCommand(),
             new StowPositionCommand(armSubsystem)
         ));
 
@@ -130,7 +130,8 @@ public class RobotContainer {
         ));
 
         Trigger operatorY = operatorController.y();
-        operatorY.onTrue(manualBinding(
+        operatorY.onTrue(dualBinding(
+            teleopStateMachine.shootSpeakerFarCommand(),
             new SpeakerPositionCommand(armSubsystem)
         ));
 
@@ -145,8 +146,7 @@ public class RobotContainer {
         ));
         
         Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(dualBinding(
-            teleopStateMachine.shootSpeakerCommand(),
+        operatorRT.whileTrue(manualBinding(
             Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(4500), () -> turbotakeSubsystem.setShooterPercent(0))
         ));
 
@@ -185,6 +185,7 @@ public class RobotContainer {
     }
 
     public void teleopInit() {
+        armSubsystem.setUseJointProfiledControl(false);
         armSubsystem.teleopInit();
         turbotakeSubsystem.teleopInit();
         climberSubsystem.setClimberDutyCycle(0);
@@ -192,12 +193,9 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
+        armSubsystem.setUseJointProfiledControl(true);
         if(autoChooser != null) {
-            return Commands.sequence(
-                Commands.runOnce(() -> armSubsystem.setUseJointProfiledControl(true)),
-                autoChooser.getSelected(),
-                Commands.runOnce(() -> armSubsystem.setUseJointProfiledControl(false))
-            );
+           return autoChooser.getSelected();
         }
 
         return null;
@@ -228,7 +226,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
         NamedCommands.registerCommand("shoot-C3", shootCommand(21, 4000));
         NamedCommands.registerCommand("shoot-C2", shootCommand(20, 4000));
-        NamedCommands.registerCommand("shoot-C1", shootCommand(21.8, 4500));
+        NamedCommands.registerCommand("shoot-C1", shootCommand(21.5, 4500));
         NamedCommands.registerCommand("ramp-C3", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C2", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C1", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));
@@ -244,9 +242,9 @@ public class RobotContainer {
             armSubsystem.elevatorPositionCommand(0),
             Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(shooterSpeed)),
             Commands.waitUntil(() -> armSubsystem.isJointAtPosition(jointPosition, 0.3) && turbotakeSubsystem.checkShooterSpeed(shooterSpeed, 200)),
-            Commands.waitSeconds(0.8),
+            Commands.waitSeconds(0.4),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
-            Commands.waitSeconds(1),
+            Commands.waitSeconds(0.25),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
         );
     }

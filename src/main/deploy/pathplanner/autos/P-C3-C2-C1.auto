@@ -38,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Intake-Aim-C3"
+            "pathName": "3-Intake-Aim-C3"
           }
         },
         {
@@ -80,7 +80,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Intake-Aim-C2"
+            "pathName": "3-Intake-Aim-C2"
           }
         },
         {
@@ -116,13 +116,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.4
+            "waitTime": 0.2
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Intake-Aim-C1"
+            "pathName": "3-Intake-Aim-C1"
           }
         },
         {

@@ -174,6 +174,11 @@ public class ArmSubsystem extends SubsystemBase {
         jointMotor = new CANSparkMax(JOINT_MOTOR_ID, MotorType.kBrushless);
         jointMotor.setInverted(false);
         jointMotor.setSmartCurrentLimit(50);
+
+        jointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) JOINT_MIN_POSITION);
+        jointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) JOINT_MAX_POSITION);
+        jointMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        jointMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         
         jointMiddleReverseSwitch = new DigitalInput(JOINT_MIDDLE_ZERO_SWITCH_CHANNEL);
         jointBottomReverseSwitch = new DigitalInput(JOINT_BOTTOM_ZERO_SWITCH_CHANNEL);
@@ -203,9 +208,6 @@ public class ArmSubsystem extends SubsystemBase {
 
         jointMaxVelocityEntry = armTable.getDoubleTopic("joint/tuning/maxvelocity").getEntry(jointMaxVelocity);
         jointMaxAccelEntry = armTable.getDoubleTopic("joint/tuning/maxaccel").getEntry(jointMaxAccel);
-        
-        jointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) JOINT_MIN_POSITION);
-        jointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) JOINT_MAX_POSITION);
 
         // Initialize elevator stuff
 
@@ -214,9 +216,13 @@ public class ArmSubsystem extends SubsystemBase {
         elevatorMotor = new CANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless);
         elevatorMotor.setInverted(false);
         elevatorMotor.setSmartCurrentLimit(elevatorHoldingCurrentLimit, elevatorRunningCurrentLimit);
+
+        elevatorMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) ELEVATOR_MIN_POSITION);
+        elevatorMotor.setSoftLimit(SoftLimitDirection.kForward, (float) ELEVATOR_MAX_POSITION);
+        elevatorMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        elevatorMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         
         elevatorEncoder = elevatorMotor.getEncoder();
-        elevatorEncoder.setPositionConversionFactor(ELEVATOR_INCHES_PER_REVOLUTION);
         
         elevatorPidController = elevatorMotor.getPIDController();
         elevatorPidController.setP(elevatorP);
@@ -416,7 +422,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Min Pos Rising edge
         if(!atJointMinLimit && jointEncoder.getPosition() < getJointMinPosition() && jointZeroed) { //Rising edge
             atJointMinLimit = true;
-            setJointPosition(getJointMinPosition());
+            //setJointPosition(getJointMinPosition());
         } else if(jointEncoder.getPosition() > getJointMinPosition()) {
             atJointMinLimit = false;
         }
@@ -424,7 +430,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atJointMaxLimit && jointEncoder.getPosition() > getJointMaxPosition() && jointZeroed) {
             atJointMaxLimit = true;
-            setJointPosition(getJointMaxPosition());
+            //setJointPosition(getJointMaxPosition());
         } else if(jointEncoder.getPosition() < getJointMaxPosition()) {
             atJointMaxLimit = false;
         }
@@ -439,7 +445,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Min Pos Rising edge
         if(!atElevatorMinLimit && elevatorEncoder.getPosition() < getElevatorMinPosition() && elevatorZeroed) { //Rising edge
             atElevatorMinLimit = true;
-            setElevatorPosition(getElevatorMinPosition());
+            //setElevatorPosition(getElevatorMinPosition());
         } else if(elevatorEncoder.getPosition() > getElevatorMinPosition()) {
             atElevatorMinLimit = false;
         }
@@ -447,7 +453,7 @@ public class ArmSubsystem extends SubsystemBase {
         // Max Pos Rising edge
         if(!atElevatorMaxLimit && elevatorEncoder.getPosition() > getElevatorMaxPosition() && elevatorZeroed) { //Rising edge
             atElevatorMaxLimit = true;
-            setElevatorPosition(getElevatorMaxPosition());
+            //setElevatorPosition(getElevatorMaxPosition());
         } else if(elevatorEncoder.getPosition() < getElevatorMaxPosition()) {
             atElevatorMaxLimit = false;
         }

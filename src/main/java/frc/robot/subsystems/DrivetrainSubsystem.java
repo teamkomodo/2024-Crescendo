@@ -56,7 +56,7 @@ public class DrivetrainSubsystem implements Subsystem {
      */
 
     // Limelight
-    private static boolean useVision = true;
+    private static boolean useVision = false;
 
     private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);

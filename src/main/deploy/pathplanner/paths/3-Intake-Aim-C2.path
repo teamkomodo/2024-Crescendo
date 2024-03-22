@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.3624950107043077,
-        "y": 4.353858993432273
+        "x": 2.4182009506876163,
+        "y": 4.318676294495447
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5530679632787843,
-        "y": 4.588410319677783
+        "x": 3.0192387241917347,
+        "y": 4.975420007982873
       },
       "isLocked": false,
       "linkedName": "C3-Aimed"
@@ -30,8 +30,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.15,
-      "rotationDegrees": 76.37840430019604,
+      "waypointRelativePos": 0.1,
+      "rotationDegrees": 70.0,
       "rotateFast": true
     }
   ],
@@ -52,7 +52,7 @@
       "minWaypointRelativePos": 0,
       "maxWaypointRelativePos": 0.2,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 0.75,
         "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
