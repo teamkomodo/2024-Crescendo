@@ -3,10 +3,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClimberSubsystem;
 
-public class ProfiledClimbCommand extends Command{
+public class OneSideProfiledClimbCommand extends Command{
 
     private final ClimberSubsystem climberSubsystem;
     private final double velocity;
+    private final boolean leftSide;
 
     private double desiredPosition = 0;
 
@@ -14,25 +15,31 @@ public class ProfiledClimbCommand extends Command{
      * @param climberSubsystem
      * @param velocity velocity in rev/s
      */
-    public ProfiledClimbCommand(ClimberSubsystem climberSubsystem, double velocity) {
+    public OneSideProfiledClimbCommand(ClimberSubsystem climberSubsystem, double velocity, boolean leftSide) {
         this.climberSubsystem = climberSubsystem;
         this.velocity = velocity;
+        this.leftSide = leftSide;
     }
 
     @Override
     public void initialize() {
-        desiredPosition = climberSubsystem.getLeftMotorPosition();
+        if(leftSide)
+            desiredPosition = climberSubsystem.getLeftMotorPosition();
+        else
+            desiredPosition = climberSubsystem.getRightMotorPosition();
     }
 
     @Override
     public void execute() {
         desiredPosition += velocity * 0.02;
-        climberSubsystem.setClimberPosition(desiredPosition);
+        if(leftSide)
+            climberSubsystem.setLeftMotorPosition(desiredPosition);
+        else
+            climberSubsystem.setRightMotorPosition(desiredPosition);
     }
 
     @Override
     public void end(boolean interrupted) {
-        climberSubsystem.holdClimberPosition();
+        
     }
-    
 }

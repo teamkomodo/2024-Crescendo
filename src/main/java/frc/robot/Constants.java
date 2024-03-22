@@ -43,7 +43,8 @@ public final class Constants {
     public static final double INDEXER_SPEED = 0.7;
     
     // Max shooter is ~4000
-    public static final double SHOOTER_SPEED = 2500;
+    public static final double CLOSE_SHOOTER_SPEED = 2500;
+    public static final double FAR_SHOOTER_SPEED = 4500;
 
     //duty cycle
     public static final double AMP_SPEED = 0.75;
@@ -93,7 +94,7 @@ public final class Constants {
     public static final double LINEAR_VELOCITY_CONSTRAINT = MAX_ATTAINABLE_VELOCITY;
     public static final double LINEAR_ACCEL_CONSTRAINT = 12.0;
 
-    public static final double ANGULAR_VELOCITY_CONSTRAINT = (LINEAR_VELOCITY_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
+    public static final double ANGULAR_VELOCITY_CONSTRAINT = (LINEAR_VELOCITY_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH) * 0.8;
     public static final double ANGULAR_ACCEL_CONSTRAINT = (LINEAR_ACCEL_CONSTRAINT * Math.PI) / (DRIVETRAIN_WIDTH * DRIVETRAIN_WIDTH + DRIVETRAIN_LENGTH * DRIVETRAIN_LENGTH);
 
     public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
@@ -119,9 +120,9 @@ public final class Constants {
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
 
     public static final double JOINT_MIN_POSITION = 0; // Code stop
-    public static final double JOINT_MAX_POSITION = 47; // Code stop
+    public static final double JOINT_MAX_POSITION = 35; // Code stop physical max is 47
 
-    public static final double JOINT_BOTTOM_SWITCH_POSITION = 0;
+    public static final double JOINT_BOTTOM_SWITCH_POSITION = 0.7;
     public static final double JOINT_STARTING_POSITION = 4.1;
     public static final double JOINT_LEVEL_OFFSET = -4;
 
@@ -132,15 +133,17 @@ public final class Constants {
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 10;
-    public static final double JOINT_AMP_POSITION = 30;
+    public static final double JOINT_STOW_POSITION = 6;
+    public static final double JOINT_AMP_POSITION = 26;
 
     public static final double JOINT_SPEAKER_POSITION = 12;
-    public static final double JOINT_PRE_INTAKE_POSITION = 4;
+    public static final double JOINT_FAR_SPEAKER_POSITION = 19.2;
+
+    public static final double JOINT_PRE_INTAKE_POSITION = 8;
 
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 0;
-    public static final double JOINT_CLIMB_POSITION = 1.5;
+    public static final double JOINT_CLIMB_POSITION = 12;
 
     /**
      * motor rotations -> joint radians
@@ -153,14 +156,14 @@ public final class Constants {
 
     // Position in rotations of the motor shaft before gearbox
     public static final double ELEVATOR_MIN_POSITION = 0; // Code stop
-    public static final double ELEVATOR_MAX_POSITION = 64.5; // Code stop
+    public static final double ELEVATOR_MAX_POSITION = 63; // Code stop, physical maxis 64.5
 
     public static final double ELEVATOR_STOW_POSITION = 0.5;
-    public static final double ELEVATOR_AMP_POSITION = 55;
+    public static final double ELEVATOR_AMP_POSITION = 42;
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 63;
-    public static final double ELEVATOR_CLIMB_POSITION = 63;
+    public static final double ELEVATOR_CLIMB_POSITION = 15;
 
     // FRC Field
     public static final double FIELD_WIDTH = 8.21; // m approxiamation: Field Length is 26ft. 11 1/8 in wide
@@ -179,8 +182,10 @@ public final class Constants {
     public static final double CLIMBER_PRE_CLIMB_POSITION = 20;
     public static final double CLIMBER_POST_CLIMB_POSITION = -40;
 
-    public static final double CLIMBER_EXTEND_VELOCITY = 80;
+    public static final double CLIMBER_EXTEND_VELOCITY = 20;
     public static final double CLIMBER_ASCEND_VELOCITY = -20;
+
+    public static final double CLIMBER_HOOKS_OFFSET = 0;
 
     public static final int A_FRAME_LED_CHANNEL = 0;
     public static final int TURBOTAKE_LED_CHANNEL = 1;

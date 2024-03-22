@@ -26,10 +26,10 @@ public class StowPositionCommand extends DynamicCommand {
             );
         }
         
-        if (armSubsystem.getJointPosition() < 2.5) {
+        if (armSubsystem.getJointPosition() < armSubsystem.getJointStowPosition()) {
             return new SequentialCommandGroup(
-                armSubsystem.jointPositionCommand(16),
-                new WaitCommand(0.7),
+                armSubsystem.jointPositionCommand(10),
+                new WaitCommand(0.3),
                 armSubsystem.elevatorZeroPositionCommand(),
                 new WaitCommand(0.1),
                 armSubsystem.jointStowPositionCommand(),
@@ -37,10 +37,9 @@ public class StowPositionCommand extends DynamicCommand {
             );
         }
         return new SequentialCommandGroup(
-            armSubsystem.jointPositionCommand(16),
-            new WaitCommand(0.1),
-            armSubsystem.jointStowPositionCommand(),
-            armSubsystem.elevatorStowPositionCommand()
+            armSubsystem.elevatorStowPositionCommand(),
+            Commands.waitSeconds(0.3),
+            armSubsystem.jointStowPositionCommand()
         );
     }
 }

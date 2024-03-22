@@ -174,6 +174,11 @@ public class ArmSubsystem extends SubsystemBase {
         jointMotor = new CANSparkMax(JOINT_MOTOR_ID, MotorType.kBrushless);
         jointMotor.setInverted(false);
         jointMotor.setSmartCurrentLimit(50);
+
+        jointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) JOINT_MIN_POSITION);
+        jointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) JOINT_MAX_POSITION);
+        jointMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        jointMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         
         jointMiddleReverseSwitch = new DigitalInput(JOINT_MIDDLE_ZERO_SWITCH_CHANNEL);
         jointBottomReverseSwitch = new DigitalInput(JOINT_BOTTOM_ZERO_SWITCH_CHANNEL);
@@ -203,9 +208,6 @@ public class ArmSubsystem extends SubsystemBase {
 
         jointMaxVelocityEntry = armTable.getDoubleTopic("joint/tuning/maxvelocity").getEntry(jointMaxVelocity);
         jointMaxAccelEntry = armTable.getDoubleTopic("joint/tuning/maxaccel").getEntry(jointMaxAccel);
-        
-        jointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) JOINT_MIN_POSITION);
-        jointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) JOINT_MAX_POSITION);
 
         // Initialize elevator stuff
 
@@ -214,9 +216,13 @@ public class ArmSubsystem extends SubsystemBase {
         elevatorMotor = new CANSparkMax(ELEVATOR_MOTOR_ID, MotorType.kBrushless);
         elevatorMotor.setInverted(false);
         elevatorMotor.setSmartCurrentLimit(elevatorHoldingCurrentLimit, elevatorRunningCurrentLimit);
+
+        elevatorMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) ELEVATOR_MIN_POSITION);
+        elevatorMotor.setSoftLimit(SoftLimitDirection.kForward, (float) ELEVATOR_MAX_POSITION);
+        elevatorMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        elevatorMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
         
         elevatorEncoder = elevatorMotor.getEncoder();
-        elevatorEncoder.setPositionConversionFactor(ELEVATOR_INCHES_PER_REVOLUTION);
         
         elevatorPidController = elevatorMotor.getPIDController();
         elevatorPidController.setP(elevatorP);
@@ -400,8 +406,8 @@ public class ArmSubsystem extends SubsystemBase {
             jointZeroed = true;
         }
         
-        // Falling or Rising edge of bottom switch
-        if(atJointBottomLimitSwitchAtLastCheck != atJointBottomLimitSwitch) {
+        // Falling edge of bottom switch
+        if(atJointBottomLimitSwitchAtLastCheck && !atJointBottomLimitSwitch) {
             // Update encoder reading with known position
             jointEncoder.setPosition(JOINT_BOTTOM_SWITCH_POSITION);
         }
@@ -699,7 +705,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
     
     public double getJointAmpPosition() {
-        return !TUNING_MODE ? JOINT_AMP_POSITION : jointAmpPositionEntry.get(JOINT_AMP_POSITION);
+        return jointAmpPositionEntry.get(JOINT_AMP_POSITION); //!TUNING_MODE ? JOINT_AMP_POSITION : jointAmpPositionEntry.get(JOINT_AMP_POSITION);
     }
     
     public double getJointSpeakerPosition() {
@@ -731,7 +737,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
     
     public double getElevatorAmpPosition() {
-        return !TUNING_MODE ? ELEVATOR_AMP_POSITION : elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION);
+        return elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION); //!TUNING_MODE ? ELEVATOR_AMP_POSITION : elevatorAmpPositionEntry.get(ELEVATOR_AMP_POSITION);
     }
     
     public double getElevatorSpeakerPosition() {

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.OffsetClimbCommand;
 import frc.robot.commands.ProfiledClimbCommand;
 import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
@@ -60,6 +61,7 @@ public class RobotContainer {
          * Driver Controls
          * 
          * RT - Slow Mode
+         * LB - Zero
          * 
          */
 
@@ -68,8 +70,8 @@ public class RobotContainer {
         driverRT.onTrue(drivetrainSubsystem.enableSlowModeCommand());
         driverRT.onFalse(drivetrainSubsystem.disableSlowModeCommand());
 
-        Trigger driverStart = driverController.start();
-        driverStart.onTrue(drivetrainSubsystem.zeroGyroCommand());
+        Trigger driverLB = driverController.leftBumper();
+        driverLB.onTrue(drivetrainSubsystem.zeroGyroCommand());
 
         // deadband and curves are applied in command
         drivetrainSubsystem.setDefaultCommand(
@@ -83,28 +85,29 @@ public class RobotContainer {
         driverController.a().whileTrue(drivetrainSubsystem.pointToSpeakerCommand());
 
         /*
-         * Operator Controls
+         * Operator Binds [ State Machine       | Manual Control ]
          * 
-         * A - Stow | Stow
-         * B - Command Eject | Pickup
-         * X - Command Align Amp | Amp
-         * Y - Speaker Pos
+         *              A | Command Close Shoot | Stow           |
+         *              B | Command Eject       | Pickup         |
+         *              X | Command Align Amp   | Amp            |
+         *              Y | Command Far Shoot   | Close Speaker  |
          * 
-         * Left Stick X - Elevator
-         * Right Stick Y - Joint
+         *   Left Stick X | EMPTY               | Elevator       |
+         *  Right Stick Y | EMPTY               | Joint          |
          * 
-         * Right Trigger - Command Shoot State | Shoot
-         * Left Trigger - Command Intake State | Intake
+         *  Right Trigger | Empty               | Shoot          |
+         *   Left Trigger | Command Intake      | Intake         |
          * 
-         * Right Bumper - Command Spin Up State
-         * Left Bumper - Command Score Amp | Outtake
+         *   Right Bumper | Command Spin Up     | EMPTY          |
+         *    Left Bumper | Command Score Amp   | Outtake        |
          * 
-         * Start - Climber Up
-         * Back - Climber Down
+         *          Start | Climber Up          | Climber Up     |
+         *           Back | Climber Down        | Climber Down   |
          */
 
         Trigger operatorA = operatorController.a();
-        operatorA.onTrue(manualBinding(
+        operatorA.onTrue(dualBinding(
+            teleopStateMachine.shootSpeakerCommand(),
             new StowPositionCommand(armSubsystem)
         ));
 
@@ -127,7 +130,8 @@ public class RobotContainer {
         ));
 
         Trigger operatorY = operatorController.y();
-        operatorY.onTrue(manualBinding(
+        operatorY.onTrue(dualBinding(
+            teleopStateMachine.shootSpeakerFarCommand(),
             new SpeakerPositionCommand(armSubsystem)
         ));
 
@@ -142,9 +146,8 @@ public class RobotContainer {
         ));
         
         Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(dualBinding(
-            teleopStateMachine.shootSpeakerCommand(),
-            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(turbotakeSubsystem.getShooterSpeed()), () -> turbotakeSubsystem.setShooterPercent(0))
+        operatorRT.whileTrue(manualBinding(
+            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(4500), () -> turbotakeSubsystem.setShooterPercent(0))
         ));
 
         Trigger operatorLT = operatorController.leftTrigger();
@@ -182,6 +185,7 @@ public class RobotContainer {
     }
 
     public void teleopInit() {
+        armSubsystem.setUseJointProfiledControl(false);
         armSubsystem.teleopInit();
         turbotakeSubsystem.teleopInit();
         climberSubsystem.setClimberDutyCycle(0);
@@ -190,12 +194,9 @@ public class RobotContainer {
     }
     
     public Command getAutonomousCommand() {
+        armSubsystem.setUseJointProfiledControl(true);
         if(autoChooser != null) {
-            return Commands.sequence(
-                Commands.runOnce(() -> armSubsystem.setUseJointProfiledControl(true)),
-                autoChooser.getSelected(),
-                Commands.runOnce(() -> armSubsystem.setUseJointProfiledControl(false))
-            );
+           return autoChooser.getSelected();
         }
 
         return null;
@@ -215,18 +216,18 @@ public class RobotContainer {
         ).handleInterrupt(() -> System.out.println("intake pos interrupted")));
         NamedCommands.registerCommand("armToStow", new StowPositionCommand(armSubsystem));
         NamedCommands.registerCommand("armToSpeaker", new SpeakerPositionCommand(armSubsystem));
-        NamedCommands.registerCommand("shootSpeaker", shootCommand(JOINT_SPEAKER_POSITION, SHOOTER_SPEED));
+        NamedCommands.registerCommand("shootSpeaker", shootCommand(JOINT_SPEAKER_POSITION, CLOSE_SHOOTER_SPEED));
         NamedCommands.registerCommand("runIndexerIn", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.4)));
         NamedCommands.registerCommand("stopIndexer", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0)));
         NamedCommands.registerCommand("alignPiece", alignPieceCommand());
         NamedCommands.registerCommand("spinUp", Commands.sequence(
-            Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(SHOOTER_SPEED)),
-            Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(SHOOTER_SPEED, 200))
+            Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(CLOSE_SHOOTER_SPEED)),
+            Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(CLOSE_SHOOTER_SPEED, 200))
         ));
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
-        NamedCommands.registerCommand("shoot-C3", shootCommand(19.7, 4000));
-        NamedCommands.registerCommand("shoot-C2", shootCommand(18.7, 4000));
-        NamedCommands.registerCommand("shoot-C1", shootCommand(20.2, 4500));
+        NamedCommands.registerCommand("shoot-C3", shootCommand(21, 4000));
+        NamedCommands.registerCommand("shoot-C2", shootCommand(20, 4000));
+        NamedCommands.registerCommand("shoot-C1", shootCommand(22, 4500));
         NamedCommands.registerCommand("ramp-C3", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C2", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C1", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));
@@ -242,9 +243,9 @@ public class RobotContainer {
             armSubsystem.elevatorPositionCommand(0),
             Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(shooterSpeed)),
             Commands.waitUntil(() -> armSubsystem.isJointAtPosition(jointPosition, 0.3) && turbotakeSubsystem.checkShooterSpeed(shooterSpeed, 200)),
-            Commands.waitSeconds(0.8),
+            Commands.waitSeconds(0.4),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
-            Commands.waitSeconds(1),
+            Commands.waitSeconds(0.25),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
         );
     }
