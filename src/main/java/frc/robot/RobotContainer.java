@@ -241,7 +241,7 @@ public class RobotContainer {
             armSubsystem.jointPositionCommand(jointPosition),
             armSubsystem.elevatorPositionCommand(0),
             Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(shooterSpeed)),
-            Commands.waitUntil(() -> armSubsystem.isJointAtPosition(jointPosition, 0.3) && turbotakeSubsystem.checkShooterSpeed(shooterSpeed, 200)),
+            Commands.waitUntil(() -> armSubsystem.isJointAtPosition(jointPosition, 0.3) && turbotakeSubsystem.checkShooterSpeed(shooterSpeed, 200)).withTimeout(0.4),
             Commands.waitSeconds(0.4),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
             Commands.waitSeconds(0.25),
