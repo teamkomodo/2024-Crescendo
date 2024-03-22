@@ -23,7 +23,10 @@ public class OneSideProfiledClimbCommand extends Command{
 
     @Override
     public void initialize() {
-        desiredPosition = climberSubsystem.getLeftMotorPosition();
+        if(leftSide)
+            desiredPosition = climberSubsystem.getLeftMotorPosition();
+        else
+            desiredPosition = climberSubsystem.getRightMotorPosition();
     }
 
     @Override
@@ -37,9 +40,6 @@ public class OneSideProfiledClimbCommand extends Command{
 
     @Override
     public void end(boolean interrupted) {
-        if(leftSide)
-            climberSubsystem.holdLeftMotorPosition();
-        else
-            climberSubsystem.holdRightMotorPosition();
+        
     }
 }

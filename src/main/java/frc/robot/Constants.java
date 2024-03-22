@@ -132,7 +132,7 @@ public final class Constants {
     public static final double TURBOTAKE_JOINT_RADIAN_OFFSET = 1.91986; // 110 degrees
     public static final double JOINT_AVERAGE_SHOOT_HEIGHT = 0;
     
-    public static final double JOINT_STOW_POSITION = 8;
+    public static final double JOINT_STOW_POSITION = 6;
     public static final double JOINT_AMP_POSITION = 26;
 
     public static final double JOINT_SPEAKER_POSITION = 12;
@@ -140,7 +140,7 @@ public final class Constants {
 
     public static final double JOINT_TRAP_POSITION = 45;
     public static final double JOINT_INTAKE_POSITION = 0;
-    public static final double JOINT_CLIMB_POSITION = 1.5;
+    public static final double JOINT_CLIMB_POSITION = 12;
 
     /**
      * motor rotations -> joint radians
@@ -160,7 +160,7 @@ public final class Constants {
     public static final double ELEVATOR_SPEAKER_POSITION = 0;
     public static final double ELEVATOR_TRAP_POSITION = 0;
     public static final double ELEVATOR_INTAKE_POSITION = 63;
-    public static final double ELEVATOR_CLIMB_POSITION = 63;
+    public static final double ELEVATOR_CLIMB_POSITION = 15;
 
     // FRC Field
     public static final double FIELD_WIDTH = 8.21; // m approxiamation: Field Length is 26ft. 11 1/8 in wide
@@ -179,7 +179,7 @@ public final class Constants {
     public static final double CLIMBER_PRE_CLIMB_POSITION = 20;
     public static final double CLIMBER_POST_CLIMB_POSITION = -40;
 
-    public static final double CLIMBER_EXTEND_VELOCITY = 80;
+    public static final double CLIMBER_EXTEND_VELOCITY = 20;
     public static final double CLIMBER_ASCEND_VELOCITY = -20;
 
     public static final double CLIMBER_HOOKS_OFFSET = 0;

@@ -143,8 +143,8 @@ public class ClimberSubsystem extends SubsystemBase {
             Commands.runOnce(() -> setUseCodeStops(false)),
             new OneSideProfiledClimbCommand(this, -speed, true)
         ).finallyDo(() -> {
+            leftMotor.set(0);
             leftMotorEncoder.setPosition(0);
-            holdLeftMotorPosition();
             setUseCodeStops(true);
         }));
         climberTable.getBooleanTopic("left/downcommand").publish().set(false);
@@ -153,8 +153,8 @@ public class ClimberSubsystem extends SubsystemBase {
             Commands.runOnce(() -> setUseCodeStops(false)),
             new OneSideProfiledClimbCommand(this, speed, true)
         ).finallyDo(() -> {
+            leftMotor.set(0);
             leftMotorEncoder.setPosition(0);
-            holdLeftMotorPosition();
             setUseCodeStops(true);
         }));
         climberTable.getBooleanTopic("left/upcommand").publish().set(false);
@@ -163,8 +163,8 @@ public class ClimberSubsystem extends SubsystemBase {
             Commands.runOnce(() -> setUseCodeStops(false)),
             new OneSideProfiledClimbCommand(this, -speed, false)
         ).finallyDo(() -> {
+            rightMotor.set(0);
             rightMotorEncoder.setPosition(0);
-            holdRightMotorPosition();
             setUseCodeStops(true);
         }));
         climberTable.getBooleanTopic("right/downcommand").publish().set(false);
@@ -173,8 +173,8 @@ public class ClimberSubsystem extends SubsystemBase {
             Commands.runOnce(() -> setUseCodeStops(false)),
             new OneSideProfiledClimbCommand(this, speed, false)
         ).finallyDo(() -> {
+            rightMotor.set(0);
             rightMotorEncoder.setPosition(0);
-            holdRightMotorPosition();
             setUseCodeStops(true);
         }));
         climberTable.getBooleanTopic("right/upcommand").publish().set(false);

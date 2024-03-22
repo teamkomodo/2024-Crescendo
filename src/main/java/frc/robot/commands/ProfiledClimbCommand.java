@@ -10,7 +10,6 @@ public class ProfiledClimbCommand extends Command{
 
     private double desiredPosition = 0;
 
-
     /**
      * @param climberSubsystem
      * @param velocity velocity in rev/s

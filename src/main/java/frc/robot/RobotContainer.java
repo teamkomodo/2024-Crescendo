@@ -145,7 +145,7 @@ public class RobotContainer {
         Trigger operatorRT = operatorController.rightTrigger();
         operatorRT.whileTrue(dualBinding(
             teleopStateMachine.shootSpeakerCommand(),
-            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(turbotakeSubsystem.getShooterSpeed()), () -> turbotakeSubsystem.setShooterPercent(0))
+            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(4500), () -> turbotakeSubsystem.setShooterPercent(0))
         ));
 
         Trigger operatorLT = operatorController.leftTrigger();
@@ -224,9 +224,9 @@ public class RobotContainer {
             Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(SHOOTER_SPEED, 200))
         ));
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
-        NamedCommands.registerCommand("shoot-C3", shootCommand(20.7, 4000));
-        NamedCommands.registerCommand("shoot-C2", shootCommand(19.7, 4000));
-        NamedCommands.registerCommand("shoot-C1", shootCommand(21.2, 4500));
+        NamedCommands.registerCommand("shoot-C3", shootCommand(21, 4000));
+        NamedCommands.registerCommand("shoot-C2", shootCommand(20, 4000));
+        NamedCommands.registerCommand("shoot-C1", shootCommand(21.8, 4500));
         NamedCommands.registerCommand("ramp-C3", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C2", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C1", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));

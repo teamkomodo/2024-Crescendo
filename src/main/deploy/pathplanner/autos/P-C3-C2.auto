@@ -1,0 +1,115 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3216735004898588,
+      "y": 5.467977793098444
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "armToSpeaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinUp"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-close"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ramp-C3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake-Aim-C3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-C3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ramp-C2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "armToIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "runIndexerIn"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.4
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake-Aim-C2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-C2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopFlywheels"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

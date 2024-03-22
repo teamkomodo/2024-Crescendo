@@ -399,7 +399,7 @@ public class TeleopStateMachine {
                             timer.restart();
                         }
 
-                        if(timer.hasElapsed(.3)) {
+                        if(timer.hasElapsed(0.8)) {
                             shootingStateSwitched = true;
                             currentShootingState = ShootingState.SHOOT_SPEAKER;
                         }
@@ -497,7 +497,10 @@ public class TeleopStateMachine {
                     stateSwitched = false;
                     commandScheduler.schedule(
                         ledSubsystem.setFramePatternCommand(BlinkinPattern.FIXED_PALETTE_PATTERN_BEATS_PER_MINUTE_PARTY_PALETTE),
-                        new IntakePositionCommand(armSubsystem)
+                        Commands.sequence(
+                        armSubsystem.jointPositionCommand(JOINT_CLIMB_POSITION),
+                        armSubsystem.elevatorPositionCommand(ELEVATOR_CLIMB_POSITION)
+                        )
                     );
                 }
 

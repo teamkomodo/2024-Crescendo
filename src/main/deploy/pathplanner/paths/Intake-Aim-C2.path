@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3918139264849962,
-        "y": 4.969556224826736
+        "x": 2.5530679632787843,
+        "y": 4.588410319677783
       },
       "isLocked": false,
       "linkedName": "C3-Aimed"
@@ -20,8 +20,8 @@
         "y": 5.878442614028085
       },
       "prevControl": {
-        "x": 2.626365252730506,
-        "y": 5.292064298414312
+        "x": 2.597046336949817,
+        "y": 5.336042672085345
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,11 +33,6 @@
       "waypointRelativePos": 0.15,
       "rotationDegrees": 76.37840430019604,
       "rotateFast": true
-    },
-    {
-      "waypointRelativePos": 0.7,
-      "rotationDegrees": 77.67344595807455,
-      "rotateFast": false
     }
   ],
   "constraintZones": [
@@ -55,9 +50,9 @@
     {
       "name": "rotate",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.2,
       "constraints": {
-        "maxVelocity": 3.0,
+        "maxVelocity": 1.0,
         "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0
