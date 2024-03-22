@@ -226,7 +226,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
         NamedCommands.registerCommand("shoot-C3", shootCommand(21, 4000));
         NamedCommands.registerCommand("shoot-C2", shootCommand(20, 4000));
-        NamedCommands.registerCommand("shoot-C1", shootCommand(21.5, 4500));
+        NamedCommands.registerCommand("shoot-C1", shootCommand(22, 4500));
         NamedCommands.registerCommand("ramp-C3", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C2", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C1", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));
