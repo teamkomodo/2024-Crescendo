@@ -60,7 +60,8 @@ public class RobotContainer {
         /*
          * Driver Controls
          * 
-         * LB - Slow Mode
+         * RT - Slow Mode
+         * LB - Zero
          * 
          */
 
@@ -84,28 +85,29 @@ public class RobotContainer {
         driverController.a().whileTrue(drivetrainSubsystem.pointToSpeakerCommand());
 
         /*
-         * Operator Controls
+         * Operator Binds [ State Machine       | Manual Control ]
          * 
-         * A - Stow | Stow
-         * B - Command Eject | Pickup
-         * X - Command Align Amp | Amp
-         * Y - Speaker Pos
+         *              A | Command Far Shoot   | Stow           |
+         *              B | Command Eject       | Pickup         |
+         *              X | Command Align Amp   | Amp            |
+         *              Y | EMPTY               | Close Speaker  |
          * 
-         * Left Stick X - Elevator
-         * Right Stick Y - Joint
+         *   Left Stick X | EMPTY               | Elevator       |
+         *  Right Stick Y | EMPTY               | Joint          |
          * 
-         * Right Trigger - Command Shoot State | Shoot
-         * Left Trigger - Command Intake State | Intake
+         *  Right Trigger | Command Close Shoot | Shoot          |
+         *   Left Trigger | Command Intake      | Intake         |
          * 
-         * Right Bumper - Command Spin Up State
-         * Left Bumper - Command Score Amp | Outtake
+         *   Right Bumper | Command Spin Up     | EMPTY          |
+         *    Left Bumper | Command Score Amp   | Outtake        |
          * 
-         * Start - Climber Up
-         * Back - Climber Down
+         *          Start | Climber Up          | Climber Up     |
+         *           Back | Climber Down        | Climber Down   |
          */
 
         Trigger operatorA = operatorController.a();
-        operatorA.onTrue(manualBinding(
+        operatorA.onTrue(dualBinding(
+            teleopStateMachine.shootSpeakerFarCommand(),
             new StowPositionCommand(armSubsystem)
         ));
 
@@ -215,13 +217,13 @@ public class RobotContainer {
         ).handleInterrupt(() -> System.out.println("intake pos interrupted")));
         NamedCommands.registerCommand("armToStow", new StowPositionCommand(armSubsystem));
         NamedCommands.registerCommand("armToSpeaker", new SpeakerPositionCommand(armSubsystem));
-        NamedCommands.registerCommand("shootSpeaker", shootCommand(JOINT_SPEAKER_POSITION, SHOOTER_SPEED));
+        NamedCommands.registerCommand("shootSpeaker", shootCommand(JOINT_SPEAKER_POSITION, CLOSE_SHOOTER_SPEED));
         NamedCommands.registerCommand("runIndexerIn", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0.4)));
         NamedCommands.registerCommand("stopIndexer", Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0)));
         NamedCommands.registerCommand("alignPiece", alignPieceCommand());
         NamedCommands.registerCommand("spinUp", Commands.sequence(
-            Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(SHOOTER_SPEED)),
-            Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(SHOOTER_SPEED, 200))
+            Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(CLOSE_SHOOTER_SPEED)),
+            Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(CLOSE_SHOOTER_SPEED, 200))
         ));
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
         NamedCommands.registerCommand("shoot-C3", shootCommand(21, 4000));

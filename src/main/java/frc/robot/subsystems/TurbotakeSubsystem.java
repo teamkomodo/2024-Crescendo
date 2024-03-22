@@ -56,7 +56,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
 
     private final StringPublisher currentCommandPublisher = NetworkTableInstance.getDefault().getTable("turbotake").getStringTopic("currentcommand").publish();
 
-    private final DoubleEntry shooterSpeedEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("shooterspeed").getEntry(SHOOTER_SPEED);
+    private final DoubleEntry shooterSpeedEntry = NetworkTableInstance.getDefault().getTable("turbotake").getDoubleTopic("shooterspeed").getEntry(CLOSE_SHOOTER_SPEED);
 
     private final DoubleEntry indexerPEntry, indexerIEntry, indexerDEntry, shooterPEntry, shooterIEntry, shooterDEntry, shooterFFEntry;
 
@@ -177,7 +177,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
         rightShooterPidController.setFF(shooterFF);
         rightShooterPidController.setOutputRange(shooterMinOutput, shooterMaxOutput);
         
-        shooterSpeedEntry.set(SHOOTER_SPEED);
+        shooterSpeedEntry.set(CLOSE_SHOOTER_SPEED);
     }
 
     public void teleopInit() {
@@ -354,7 +354,7 @@ public class TurbotakeSubsystem extends SubsystemBase{
     }
 
     public double getShooterSpeed(){
-        return !TUNING_MODE? SHOOTER_SPEED : shooterSpeedEntry.get(SHOOTER_SPEED);
+        return !TUNING_MODE? CLOSE_SHOOTER_SPEED : shooterSpeedEntry.get(CLOSE_SHOOTER_SPEED);
     }
     
     // Command 

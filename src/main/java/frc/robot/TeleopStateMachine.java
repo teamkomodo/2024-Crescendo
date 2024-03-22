@@ -110,6 +110,8 @@ public class TeleopStateMachine {
     private boolean commandingClimbExtend = false;
     private boolean commandingClimbAscend = false;
 
+    private boolean farShot = false;
+
     public TeleopStateMachine(DrivetrainSubsystem drivetrainSubsystem, ArmSubsystem armSubsystem, TurbotakeSubsystem turbotakeSubsystem, LEDSubsystem ledSubsystem, ClimberSubsystem climberSubsystem, XboxController driverController, XboxController operatorController) {
 
         // Set our references
@@ -348,11 +350,11 @@ public class TeleopStateMachine {
                         currentPickupStateSwitched = true;
                     case PREPARE_SHOOT:
 
-                        double shooterThreshold = SHOOTER_SPEED - 200;
+                        double shooterThreshold = CLOSE_SHOOTER_SPEED - 200;
 
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
-                            turbotakeSubsystem.setShooterVelocity(SHOOTER_SPEED);
+                            turbotakeSubsystem.setShooterVelocity(CLOSE_SHOOTER_SPEED);
                             commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
                         }
 
@@ -393,13 +395,19 @@ public class TeleopStateMachine {
                                 );
                             }else {
                                 commandScheduler.schedule(
-                                    new SpeakerPositionCommand(armSubsystem)
+                                    farShot ? Commands.sequence(
+                                        Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(FAR_SHOOTER_SPEED)),
+                                        armSubsystem.elevatorZeroCommand(),
+                                        Commands.waitSeconds(0.1),
+                                        armSubsystem.jointPositionCommand(JOINT_FAR_SPEAKER_POSITION)
+                                    ) : new SpeakerPositionCommand(armSubsystem)
                                 );
                             }
                             timer.restart();
                         }
 
-                        if(timer.hasElapsed(0.8)) {
+
+                        if(timer.hasElapsed(.8) && (!farShot || turbotakeSubsystem.getShooterVelocity() > FAR_SHOOTER_SPEED - 200)) {
                             shootingStateSwitched = true;
                             currentShootingState = ShootingState.SHOOT_SPEAKER;
                         }
@@ -580,7 +588,11 @@ public class TeleopStateMachine {
     }
 
     public Command shootSpeakerCommand() {
-        return Commands.runEnd(() -> commandingShootSpeaker = true, () -> commandingShootSpeaker = false);
+        return Commands.runEnd(() -> { commandingShootSpeaker = true; farShot = false; }, () -> commandingShootSpeaker = false);
+    }
+
+    public Command shootSpeakerFarCommand() {
+        return Commands.runEnd(() -> { commandingShootSpeaker = true; farShot = true; }, () -> commandingShootSpeaker = false);
     }
 
     public Command alignAmpCommand() {
