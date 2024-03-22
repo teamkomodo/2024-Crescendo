@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3070140425995143,
-      "y": 5.646965382375843
+      "x": 0.749954642766429,
+      "y": 4.471134656555028
     },
-    "rotation": 0
+    "rotation": -60.422161318738645
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "armToSpeaker"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -20,43 +26,49 @@
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Intake C2"
+            "name": "shoot-close"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "ramp-far-bottom"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Intake C3"
+            "pathName": "Intake-Aim-F5"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-far-bottom"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Intake C1"
+            "pathName": "Intake-Aim-F4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-far-bottom"
           }
         },
         {

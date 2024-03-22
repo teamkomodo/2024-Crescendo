@@ -3,57 +3,61 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3070140425995143,
-        "y": 5.4533183352081
+        "x": 0.749954642766429,
+        "y": 4.471134656555028
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4389491636126137,
-        "y": 4.866940019594326
+        "x": 2.5237490474980953,
+        "y": 0.38114590514895336
+      },
+      "isLocked": false,
+      "linkedName": "speaker-source"
+    },
+    {
+      "anchor": {
+        "x": 7.815813345912407,
+        "y": 0.8209296418592844
+      },
+      "prevControl": {
+        "x": 6.815813345912407,
+        "y": 0.8209296418592844
+      },
+      "nextControl": {
+        "x": 7.915813345912406,
+        "y": 0.8209296418592844
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.4182009506876163,
-        "y": 4.318676294495447
+        "x": 2.0546463950070764,
+        "y": 3.5915671831343667
       },
       "prevControl": {
-        "x": 1.523974019376611,
-        "y": 4.846416778547843
+        "x": 3.9163975470808086,
+        "y": 1.847091694183389
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C3-Aimed"
+      "linkedName": "far-bottom"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.35,
-      "rotationDegrees": -20.0,
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 0.0,
       "rotateFast": true
     }
   ],
-  "constraintZones": [
-    {
-      "name": "slow-approach",
-      "minWaypointRelativePos": 0.7,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 5.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0
-      }
-    }
-  ],
+  "constraintZones": [],
   "eventMarkers": [
     {
       "name": "detect-pickup",
-      "waypointRelativePos": 0.65,
+      "waypointRelativePos": 1.0,
       "command": {
-        "type": "parallel",
+        "type": "sequential",
         "data": {
           "commands": [
             {
@@ -68,7 +72,7 @@
     },
     {
       "name": "pre-intake",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.6,
       "command": {
         "type": "sequential",
         "data": {
@@ -91,21 +95,21 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 3.8,
     "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -28.0,
+    "rotation": -42.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Four-Piece",
+  "folder": "P-F5-F4",
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": -59.53445508054013,
     "velocity": 0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3070140425995143,
-      "y": 5.646965382375843
+      "x": 0.7352951848760846,
+      "y": 4.456475198664683
     },
-    "rotation": 0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "armToSpeaker"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -20,31 +26,43 @@
         {
           "type": "named",
           "data": {
-            "name": "shootSpeaker"
+            "name": "shoot-close"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ramp-far-bottom"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Intake C2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shootSpeaker"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopFlywheels"
+            "pathName": "Intake-Aim-F5"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-far-bottom"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopFlywheels"
           }
         }
       ]

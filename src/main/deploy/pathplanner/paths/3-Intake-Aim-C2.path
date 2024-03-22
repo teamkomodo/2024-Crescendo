@@ -95,5 +95,5 @@
     "rotation": -30.81570575172921,
     "velocity": 0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -224,12 +224,17 @@ public class RobotContainer {
             Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(CLOSE_SHOOTER_SPEED, 200))
         ));
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
+        
         NamedCommands.registerCommand("shoot-C3", shootCommand(21, 4000));
         NamedCommands.registerCommand("shoot-C2", shootCommand(20, 4000));
         NamedCommands.registerCommand("shoot-C1", shootCommand(22, 4500));
         NamedCommands.registerCommand("ramp-C3", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C2", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C1", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));
+
+        NamedCommands.registerCommand("shoot-far-bottom", shootCommand(23, 4500));
+        NamedCommands.registerCommand("ramp-far-bottom", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));
+
         NamedCommands.registerCommand("shoot-close", shootCommand(JOINT_SPEAKER_POSITION, 2500));
         NamedCommands.registerCommand("stop-drivetrain", Commands.run(() -> drivetrainSubsystem.robotRelativeDrive(new ChassisSpeeds(0,0,0))));
         NamedCommands.registerCommand("smart-align-piece", smartAlignCommand());

@@ -3,71 +3,59 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.313380622306902,
-        "y": 5.539225686154654
+        "x": 2.0546463950070764,
+        "y": 3.5915671831343667
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.45391066085628,
-        "y": 5.501751009208153
+        "x": 3.0514895315504917,
+        "y": 2.4774483834681957
       },
       "isLocked": false,
-      "linkedName": "speaker-middle"
+      "linkedName": "far-bottom"
     },
     {
       "anchor": {
-        "x": 2.781546551957247,
-        "y": 6.742958840037948
+        "x": 8.006386298486884,
+        "y": 2.3601727203454415
       },
       "prevControl": {
-        "x": 2.7577779877163318,
-        "y": 6.717361924701577
+        "x": 4.883921767843536,
+        "y": 0.9528647628723834
       },
       "nextControl": {
-        "x": 2.846655848542371,
-        "y": 6.8130765440527
+        "x": 8.097554407343804,
+        "y": 2.4012625722246166
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.313380622306902,
-        "y": 5.539225686154654
+        "x": 2.0546463950070764,
+        "y": 3.5915671831343667
       },
       "prevControl": {
-        "x": 1.337149186547817,
-        "y": 5.553852494918294
+        "x": 4.751986646830437,
+        "y": 0.4251242788199864
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "speaker-middle"
+      "linkedName": "far-bottom"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": 68.46,
+      "rotationDegrees": 21.540975918538475,
       "rotateFast": true
     }
   ],
-  "constraintZones": [
-    {
-      "name": "slow approach",
-      "minWaypointRelativePos": 0.85,
-      "maxWaypointRelativePos": 0.95,
-      "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0
-      }
-    }
-  ],
+  "constraintZones": [],
   "eventMarkers": [
     {
-      "name": "pre intake",
-      "waypointRelativePos": 0.0,
+      "name": "pre-intake",
+      "waypointRelativePos": 0.7,
       "command": {
         "type": "sequential",
         "data": {
@@ -89,8 +77,8 @@
       }
     },
     {
-      "name": "post intake",
-      "waypointRelativePos": 1.3,
+      "name": "detect-piece",
+      "waypointRelativePos": 0,
       "command": {
         "type": "sequential",
         "data": {
@@ -98,13 +86,7 @@
             {
               "type": "named",
               "data": {
-                "name": "armToSpeaker"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "alignPiece"
+                "name": "smart-align-piece"
               }
             }
           ]
@@ -120,13 +102,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
-    "rotateFast": false
+    "rotation": -42.0,
+    "rotateFast": true
   },
   "reversed": false,
-  "folder": null,
+  "folder": "P-F5-F4",
   "previewStartingState": {
-    "rotation": 13.24051991518711,
+    "rotation": -45.83031548625801,
     "velocity": 0
   },
   "useDefaultConstraints": true
