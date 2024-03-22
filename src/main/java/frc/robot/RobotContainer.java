@@ -20,6 +20,7 @@ import frc.robot.subsystems.ClimberSubsystem;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -190,7 +191,7 @@ public class RobotContainer {
         turbotakeSubsystem.teleopInit();
         climberSubsystem.setClimberDutyCycle(0);
         armSubsystem.setUseJointProfiledControl(false);
-        drivetrainSubsystem.setGyro(drivetrainSubsystem.getPose().getRotation());
+        drivetrainSubsystem.setGyro(drivetrainSubsystem.getPose().getRotation().plus(Rotation2d.fromDegrees(180)));
     }
     
     public Command getAutonomousCommand() {
