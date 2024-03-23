@@ -233,7 +233,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("ramp-C2", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C1", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));
 
-        NamedCommands.registerCommand("shoot-far-bottom", shootCommand(14, 3000));
+        NamedCommands.registerCommand("shoot-far-bottom", shootCommand(18, 3000));
         NamedCommands.registerCommand("ramp-far-bottom", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(3000)));
 
         NamedCommands.registerCommand("shoot-close", shootCommand(JOINT_SPEAKER_POSITION, 2500));
