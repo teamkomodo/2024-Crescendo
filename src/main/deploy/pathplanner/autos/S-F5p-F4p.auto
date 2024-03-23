@@ -1,0 +1,97 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.749954642766429,
+      "y": 4.471134656555028
+    },
+    "rotation": -60.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "armToSpeaker"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "spinUp"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-close"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ramp-pass"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake-Pass-F5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-pass"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "armToIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "runIndexerIn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake-Pass-F4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot-pass"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIndexer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopFlywheels"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

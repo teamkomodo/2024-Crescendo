@@ -1,0 +1,93 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.749954642766429,
+        "y": 4.471134656555028
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.8085924743278065,
+        "y": 0.29318915780688737
+      },
+      "isLocked": false,
+      "linkedName": "speaker-source"
+    },
+    {
+      "anchor": {
+        "x": 8.152980877390325,
+        "y": 0.8502485576399728
+      },
+      "prevControl": {
+        "x": 6.760332377807613,
+        "y": 1.7884538626220114
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "pre-intake",
+      "waypointRelativePos": 0.4,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "armToIntake"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "runIndexerIn"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "detect-piece",
+      "waypointRelativePos": 0.9,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "smart-align-piece"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.5,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -20.725558865560476,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "S-F5p-F4p",
+  "previewStartingState": {
+    "rotation": -60.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

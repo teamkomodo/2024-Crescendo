@@ -1,0 +1,70 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.947748466925505,
+        "y": 0.9821836786530717
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.774991835697957,
+        "y": 1.084799883885482
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.947748466925505,
+        "y": 2.5360862150295733
+      },
+      "prevControl": {
+        "x": 6.947748466925505,
+        "y": 2.5360862150295733
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "detect-pickup",
+      "waypointRelativePos": 0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "smart-align-piece"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -14.349332042947097,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "S-F5p-F4p",
+  "previewStartingState": {
+    "rotation": -29.931511840507767,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}
