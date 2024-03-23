@@ -15,6 +15,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.TurbotakeSubsystem;
+import frc.robot.util.BlinkinPattern;
 import frc.robot.subsystems.ClimberSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -166,20 +167,20 @@ public class RobotContainer {
             Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-operatorController.getRightY()), () -> armSubsystem.holdJointPosition())
         ));
 
-        Trigger operatorStart = operatorController.start();
-        operatorStart.whileTrue(
-            Commands.parallel(
-                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity()),
-                teleopStateMachine.extendClimbCommand()
-            )
-        );
+        // Trigger operatorStart = operatorController.start();
+        // operatorStart.whileTrue(
+        //     Commands.parallel(
+        //         new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity()),
+        //         teleopStateMachine.extendClimbCommand()
+        //     )
+        // );
 
-        Trigger operatorBack = operatorController.back();
-        operatorBack.whileTrue(Commands.parallel(
-                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getAscendVelocity()),
-                teleopStateMachine.ascendClimbCommand()
-            )
-        );
+        // Trigger operatorBack = operatorController.back();
+        // operatorBack.whileTrue(Commands.parallel(
+        //         new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getAscendVelocity()),
+        //         teleopStateMachine.ascendClimbCommand()
+        //     )
+        // );
 
         armSubsystem.setJointMotorPercent(0);
     }
@@ -212,7 +213,7 @@ public class RobotContainer {
             armSubsystem.elevatorIntakePositionCommand(),
             Commands.waitSeconds(0.3),
             armSubsystem.jointIntakePositionCommand()
-        ).handleInterrupt(() -> System.out.println("intake pos interrupted")));
+        ).deadlineWith(ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_VIOLET)));
         NamedCommands.registerCommand("armToStow", new StowPositionCommand(armSubsystem));
         NamedCommands.registerCommand("armToSpeaker", new SpeakerPositionCommand(armSubsystem));
         NamedCommands.registerCommand("shootSpeaker", shootCommand(JOINT_SPEAKER_POSITION, CLOSE_SHOOTER_SPEED));
@@ -222,12 +223,12 @@ public class RobotContainer {
         NamedCommands.registerCommand("spinUp", Commands.sequence(
             Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(CLOSE_SHOOTER_SPEED)),
             Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(CLOSE_SHOOTER_SPEED, 200))
-        ));
+        ).deadlineWith(ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER)));
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
         
         NamedCommands.registerCommand("shoot-C3", shootCommand(21, 4000));
         NamedCommands.registerCommand("shoot-C2", shootCommand(20, 4000));
-        NamedCommands.registerCommand("shoot-C1", shootCommand(22, 4500));
+        NamedCommands.registerCommand("shoot-C1", shootCommand(21.75, 4500));
         NamedCommands.registerCommand("ramp-C3", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C2", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4000)));
         NamedCommands.registerCommand("ramp-C1", Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(4500)));
@@ -251,7 +252,7 @@ public class RobotContainer {
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
             Commands.waitSeconds(0.25),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(0))
-        );
+        ).deadlineWith(ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
     }
 
     private Command alignPieceCommand(){

@@ -300,11 +300,19 @@ public class TeleopStateMachine {
                                 xboxRumbleCommand(operatorController, 0.5)
                             );
                             turbotakeSubsystem.setIndexerPercent(0.3);
+                            timer.restart();
                         }
 
                         if(turbotakeSubsystem.isPieceDetected()) {
                             currentPickupStateSwitched = true;
                             currentPickupState = PickupState.ALIGN_PIECE;
+                        }
+
+                        if(timer.hasElapsed(5.0)) {
+                            stateSwitched = true;
+                            currentState = State.DRIVE_WITH_PIECE;
+
+                            commandScheduler.schedule(flashRedCommand());
                         }
 
                         break;
@@ -355,7 +363,7 @@ public class TeleopStateMachine {
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
                             turbotakeSubsystem.setShooterVelocity(CLOSE_SHOOTER_SPEED);
-                            commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
+                            commandScheduler.schedule(ledSubsystem.setTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_SKY_BLUE));
                         }
 
                         if(turbotakeSubsystem.getShooterVelocity() > shooterThreshold) {
@@ -575,6 +583,19 @@ public class TeleopStateMachine {
             ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_GREEN).withTimeout(0.1),
             ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1),
             ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_GREEN).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1)
+        );
+    }
+
+    private Command flashRedCommand() {
+        return Commands.sequence(
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_RED).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_RED).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_RED).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1),
+            ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_RED).withTimeout(0.1),
             ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_BLACK).withTimeout(0.1)
         );
     }
