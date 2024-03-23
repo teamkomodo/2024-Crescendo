@@ -278,11 +278,6 @@ public class TeleopStateMachine {
                             currentState = State.DRIVE_WITHOUT_PIECE;
                         }
 
-                        if(turbotakeSubsystem.isPieceDetected()) {
-                            currentPickupStateSwitched = true;
-                            currentPickupState = PickupState.ALIGN_PIECE;
-                        }
-
                         if(timer.hasElapsed(indexerRampUpTime) && turbotakeSubsystem.getFilteredCurrent() - intakeCurrentThreshold > 0) {
                             currentPickupStateSwitched = true;
                             currentPickupState = PickupState.PARTIAL_AQUISITION;
@@ -299,20 +294,13 @@ public class TeleopStateMachine {
                                 xboxRumbleCommand(driverController, 0.5),
                                 xboxRumbleCommand(operatorController, 0.5)
                             );
-                            turbotakeSubsystem.setIndexerPercent(0.3);
+                            turbotakeSubsystem.setIndexerPercent(0.5);
                             timer.restart();
                         }
 
-                        if(turbotakeSubsystem.isPieceDetected()) {
+                        if(timer.hasElapsed(0.3)) {
                             currentPickupStateSwitched = true;
                             currentPickupState = PickupState.ALIGN_PIECE;
-                        }
-
-                        if(timer.hasElapsed(5.0)) {
-                            stateSwitched = true;
-                            currentState = State.DRIVE_WITH_PIECE;
-
-                            commandScheduler.schedule(flashRedCommand());
                         }
 
                         break;
@@ -320,10 +308,11 @@ public class TeleopStateMachine {
 
                         if(currentPickupStateSwitched) {
                             currentPickupStateSwitched = false;
-                            turbotakeSubsystem.setIndexerPercent(-0.05);
+                            turbotakeSubsystem.setIndexerPercent(-0.1);
+                            timer.reset();
                         }
 
-                        if(!turbotakeSubsystem.isPieceDetected()) {
+                        if(timer.hasElapsed(0.8)) {
                             stateSwitched = true;
                             currentState = State.DRIVE_WITH_PIECE;
                         }
