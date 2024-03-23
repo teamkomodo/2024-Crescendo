@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5237490474980953,
-        "y": 0.38114590514895336
+        "x": 0.8232519322181507,
+        "y": 0.9382053049820387
       },
       "isLocked": false,
       "linkedName": "speaker-source"
@@ -36,8 +36,8 @@
         "y": 3.5915671831343667
       },
       "prevControl": {
-        "x": 3.9163975470808086,
-        "y": 1.847091694183389
+        "x": 3.667186762944955,
+        "y": 2.0816430204288987
       },
       "nextControl": null,
       "isLocked": false,
@@ -51,7 +51,30 @@
       "rotateFast": true
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "rotate",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.35,
+      "constraints": {
+        "maxVelocity": 3.5,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    },
+    {
+      "name": "rotate",
+      "minWaypointRelativePos": 1.8,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 3.2,
+        "maxAcceleration": 5.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0
+      }
+    }
+  ],
   "eventMarkers": [
     {
       "name": "detect-pickup",
@@ -106,7 +129,7 @@
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "P-F5-F4",
+  "folder": "S-F5-F4",
   "previewStartingState": {
     "rotation": -59.53445508054013,
     "velocity": 0
