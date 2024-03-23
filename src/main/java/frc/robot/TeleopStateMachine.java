@@ -363,7 +363,7 @@ public class TeleopStateMachine {
                         if(shootingStateSwitched) {
                             shootingStateSwitched = false;
                             turbotakeSubsystem.setShooterVelocity(CLOSE_SHOOTER_SPEED);
-                            commandScheduler.schedule(ledSubsystem.setFramePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER));
+                            commandScheduler.schedule(ledSubsystem.setTurbotakePatternCommand(BlinkinPattern.SOLID_COLORS_SKY_BLUE));
                         }
 
                         if(turbotakeSubsystem.getShooterVelocity() > shooterThreshold) {
