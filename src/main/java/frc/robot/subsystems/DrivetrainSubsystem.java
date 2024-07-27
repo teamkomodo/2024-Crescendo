@@ -62,9 +62,8 @@ public class DrivetrainSubsystem implements Subsystem {
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
+   
 
-    public static final double kMaxSpeed = 4; //TODO: find the max speed of robot
-    public static final double kMaxAngularSpeed = Math.PI;
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
     
@@ -262,6 +261,7 @@ public class DrivetrainSubsystem implements Subsystem {
         if(validTargetSubscriber.get() != 1)
             return;
         
+        //Returns if the botpose doesn't give an array with 7 variables or more
         double[] botPose = botPoseBlueSubscriber.get();
         if(botPose.length < 7)
             return;
