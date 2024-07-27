@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
@@ -35,6 +36,7 @@ import frc.robot.util.NeoSwerveModule;
 import frc.robot.util.PIDGains;
 import frc.robot.util.SwerveModule;
 import frc.robot.util.Util;
+import frc.robot.LimelightHelpers;
 
 import static frc.robot.Constants.*;
 
@@ -62,8 +64,15 @@ public class DrivetrainSubsystem implements Subsystem {
     private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
     private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
+    double tx = LimelightHelpers.getTX("limelight");
+    double ty = LimelightHelpers.getTY("limelight");
    
+    double KpAim = -0.1f;
+    double KpDistance = 0.1f;
+    double min_aim_command = 0.05f;
 
+    float left_command;
+    float right_command;
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
     
@@ -271,6 +280,25 @@ public class DrivetrainSubsystem implements Subsystem {
         double measurementTime = Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
 
         poseEstimator.addVisionMeasurement(visionPose, measurementTime);
+    }
+
+    private void AimAssist(){
+
+        double heading_error = -tx;
+        double distance_error = -ty;
+        double steering_adjust = 0.0f;
+
+        if(tx > 1.0)
+        {
+            steering_adjust = KpAim * heading_error - min_aim_command;
+        } else if(tx < -1.0){
+            steering_adjust = KpAim*heading_error + min_aim_command;
+        }
+
+        double distance_adjust = KpDistance * distance_error;
+
+        left_command += steering_adjust + distance_adjust;
+        right_command -= steering_adjust + distance_adjust;
     }
 
     public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, boolean limitAcceleration) {
