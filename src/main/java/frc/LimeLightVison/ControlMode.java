@@ -45,7 +45,7 @@ public class ControlMode {
         }
     }
 
-
+/* did i need to write this? no but could this be cool later...probably not but its here
     public enum StreamType {
         kStandard(0),
         kPiPMain(1),
@@ -109,7 +109,7 @@ public class ControlMode {
             return name();
           }
     }
-
+*/
 
     public enum  Advanced_Target {
 
