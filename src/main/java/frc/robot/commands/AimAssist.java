@@ -44,11 +44,49 @@ public class AimAssist extends Command{
 
         double kp = .9; //FIXME: dont trust this num when test fix
 
-        if(m_LimeLight.getIsTargetFound()){
-            //TODO: add setpoint stuff to drivetrain that makes it do the thing
+        if(m_LimeLight.getIsTargetFound())
+        {
+            m_setPoint = get_Jog_Setpoint(m_LimeLight.getdegRotationToTarget() * kp);
+            //TODO: add the thing that uses setpoint for drivetrain
+
+            m_iterationsSinceLostTarget = 0;
 
         } else{
-            //mhm i for sure know what this code is gonna mean when i have to hack it to work with our stuff
+            m_iterationsSinceLostTarget++;
+            //Delay before return to gyro search
+            if(m_iterationsSinceLostTarget >= m_LostTarget_Iterations){
+                double m_setPoint = MathUtil.inputModulus(m_gyroAngle.getAsDouble(), -70, 290);
+                //look at the todo above same code
+            }
+        }
+    }
+
+    @Override
+    public void end(boolean interuppted){
+        m_LimeLight.setPipeline(0);
+        //turbotake stuff
+    }
+
+
+    @Override
+    public boolean isFinished(){
+        return false;
+    }
+
+
+    private double get_Jog_Setpoint(double setpoint){
+        
+        //TODO:Write a get position function to drivetrain to do the logic from the repo im basing code off of
+
+        return 0;
+    }
+
+    private double deadband(double setpoint){
+        double deadband = .1;
+        if(Math.abs(setpoint) < deadband){
+            return 0.0;
+        } else{
+            return Math.copySign(setpoint, setpoint);
         }
     }
     
