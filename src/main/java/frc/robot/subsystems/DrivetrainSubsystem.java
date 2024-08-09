@@ -57,10 +57,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
      * Forward is x+, Left is y+, counterclockwise is theta+
      */
 
-    // Limelight oh boy i love writing limelight 
+    // Limelight oh boy i love figuring out drivetrain (I am constantly suffering) 
 
     
-
+        //Dumb stupid baby dum dum code that i thought was so smart but no i am a goose (silly one)
     //private static boolean useVision = false;
 
     
@@ -78,6 +78,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     // float left_command;
     // float right_command;
+
+
+
     // Telemetry
     public static final NetworkTable drivetrainNT = NetworkTableInstance.getDefault().getTable("drivetrain");
     
