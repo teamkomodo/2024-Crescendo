@@ -90,13 +90,13 @@ public class TeleopStateMachine {
     private boolean enabled = true;
 
     // Store the current state
-    private State currentState = State.START;
+    public State currentState = State.START;
     private ShootingState currentShootingState = ShootingState.PREPARE_SHOOT;
     private PickupState currentPickupState = PickupState.INACTIVE;
     //private ClimbState currentClimbState = ClimbState.EXTEND;
 
     // This will turn to true when the current state's exit condition is met, and will signal the next state to run its entrance code
-    private boolean stateSwitched = true;
+    public boolean stateSwitched = true;
     private boolean shootingStateSwitched = true;
     private boolean currentPickupStateSwitched = true;
     //private boolean climbStateSwitched = true;

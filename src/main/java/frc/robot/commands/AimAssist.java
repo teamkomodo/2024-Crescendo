@@ -6,12 +6,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.math.MathUtil;
+import frc.robot.TeleopStateMachine;
+import frc.robot.TeleopStateMachine.State;
 import frc.robot.subsystems.DrivetrainSubsystem;
+
 import frc.LimeLightVison.LimeLight;
 
 public class AimAssist extends Command{
     //TODO: add subsystems when i can get them to follow this
     private final DrivetrainSubsystem drivetrainSubsystem;
+    private final TeleopStateMachine teleopStateMachine;
+
 
     private final LimeLight m_LimeLight;
 
@@ -24,8 +29,9 @@ public class AimAssist extends Command{
     
 
     //addRequirements() declares 
-    public AimAssist(DrivetrainSubsystem subsystem, DoubleSupplier gyroAngle, LimeLight limelight){
+    public AimAssist(DrivetrainSubsystem subsystem,TeleopStateMachine stateMachine,DoubleSupplier gyroAngle, LimeLight limelight){
         drivetrainSubsystem = subsystem;
+        teleopStateMachine = stateMachine;
         addRequirements(drivetrainSubsystem);
         m_gyroAngle = gyroAngle;
         m_LimeLight = limelight;
@@ -37,6 +43,7 @@ public class AimAssist extends Command{
     public void initialize(){
         m_LimeLight.setPipeline(5);
         m_iterationsSinceLostTarget = m_LostTarget_Iterations;
+        teleopStateMachine.shootSpeakerFarCommand();
     }
 
     @Override
@@ -64,7 +71,11 @@ public class AimAssist extends Command{
     @Override
     public void end(boolean interuppted){
         m_LimeLight.setPipeline(0);
-        //turbotake stuff
+        //statemachine stuff
+        teleopStateMachine.stateSwitched = true;
+        //have statemachine go to drive with piece
+        teleopStateMachine.currentState = State.DRIVE_WITH_PIECE;
+
     }
 
 
