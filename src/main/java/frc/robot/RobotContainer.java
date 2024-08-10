@@ -4,12 +4,14 @@
 
 package frc.robot;
 
+import frc.robot.commands.AimAssistCommand;
 import frc.robot.commands.OffsetClimbCommand;
 import frc.robot.commands.ProfiledClimbCommand;
 import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
+import frc.robot.commands.AimAssistCommand;
 
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -22,6 +24,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -45,9 +48,11 @@ public class RobotContainer {
     private final TurbotakeSubsystem turbotakeSubsystem = new TurbotakeSubsystem();
     private final LEDSubsystem ledSubsystem = new LEDSubsystem();
     private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+    
 
     private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, climberSubsystem, driverController.getHID(), operatorController.getHID());
 
+    private final AimAssistCommand aimAssist = new AimAssistCommand();
     public RobotContainer() {
         configureBindings();
         registerNamedCommands();
@@ -90,7 +95,7 @@ public class RobotContainer {
          * 
          *              A | Command Close Shoot | Stow           |
          *              B | Command Eject       | Pickup         |
-         *              X | Command Align Amp   | Amp            |
+         *              X | Command Aim Assist  | Amp            |
          *              Y | Command Far Shoot   | Close Speaker  |
          * 
          *   Left Stick X | EMPTY               | Elevator       |
@@ -112,6 +117,8 @@ public class RobotContainer {
             new StowPositionCommand(armSubsystem)
         ));
 
+        //TODO: add the binding that runs the aimassist code
+        
         Trigger operatorB = operatorController.b();
         operatorB.whileTrue(stateMachineBinding(
             teleopStateMachine.ejectCommand()
@@ -122,13 +129,19 @@ public class RobotContainer {
         ));
 
         Trigger operatorX = operatorController.x();
-        operatorX.whileTrue(stateMachineBinding(
-            teleopStateMachine.alignAmpCommand()
-        ));
+        // operatorX.whileTrue(stateMachineBinding(
+        //     teleopStateMachine.alignAmpCommand()
+        // ));
+        operatorX.whileTrue(aimAssist);
+        
 
-        operatorX.onTrue(manualBinding(
-            new AmpPositionCommand(armSubsystem)
-        ));
+        // operatorX.onTrue(manualBinding(
+        //     new AmpPositionCommand(armSubsystem)
+        // ));
+
+        
+
+        
 
         Trigger operatorY = operatorController.y();
         operatorY.onTrue(dualBinding(
@@ -183,6 +196,9 @@ public class RobotContainer {
         // );
 
         armSubsystem.setJointMotorPercent(0);
+
+        //Aim assist code
+        
     }
 
     public void teleopInit() {
@@ -283,5 +299,9 @@ public class RobotContainer {
             teleopStateMachine::isEnabled
         );
     }
+
+
+    
+
 
 }
