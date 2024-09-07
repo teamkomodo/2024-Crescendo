@@ -408,7 +408,7 @@ public class DrivetrainSubsystem implements Subsystem {
      * <p>
      * This method applies deadbands and curves to the joystick values and clamps the resultant speed to the linear velocity constraint
      * 
-     * @param xAxis value from -1 to 1 representing the x-axis of the joystick
+     * @param xAxis value fro m -1 to 1 representing the x-axis of the joystick
      * @param yAxis value from -1 to 1 representing the y-axis of the joystick
      * @param rotAxis value from -1 to 1 representing the rotation axis of the joystick
      * @return a ChassisSpeeds object representing the speeds to be passed to the drivetrain
@@ -448,6 +448,7 @@ public class DrivetrainSubsystem implements Subsystem {
 
             ChassisSpeeds speeds = joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), rotAxis.getAsDouble());
             drive(speeds, true, true);
+
 
         }, this);
     }
