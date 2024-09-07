@@ -1,5 +1,8 @@
 package frc.robot.commands;
  
+import static frc.robot.Constants.ANGULAR_VELOCITY_CONSTRAINT;
+import static frc.robot.Constants.MAX_ATTAINABLE_VELOCITY;
+
 import java.lang.reflect.Array;
 import java.util.function.DoubleSupplier;
 
@@ -9,7 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.LimeLightVison.LimeLight; //TODO: prob delete this jum,
+import frc.robot.LimelightHelpers;
+//import frc.LimeLightVison.LimeLight; //TODO: prob delete this jum,
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 
@@ -20,7 +24,7 @@ public class AimAssistCommand extends Command{
     private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
     
   
-
+//Dum dum code
     //Limelight stuff
     private boolean m_LimelightHasValidTarget = false;
     private double m_LimelightDriveCommand = 0.0;
@@ -33,15 +37,57 @@ public class AimAssistCommand extends Command{
 
     @Override
     public void execute(){
+        
+        /*Method 2 */
+        final var angular_limelight = limelight_aim_proportion();
+        
+        final var forward_limelight = limelight_range_proportion();
+
+        drivetrainSubsystem.drive(forward_limelight, 0, angular_limelight, false, true);
+
+        System.out.println("Drive command: " + forward_limelight);
+        System.out.println("Angular command: " + angular_limelight);
+
+        /*Method 2
         Update_Limelight_Tracking();
 
         
         if(m_LimelightHasValidTarget){
             
             drivetrainSubsystem.drive(drive_cmd, steer_cmd, 0, false, true);
+            System.out.println("Drive command: " + drive_cmd);
+            System.out.println("Steer command: " + steer_cmd);
         }
+        */
+    }
+
+    @Override
+    public void end(boolean interrupted){
+        drivetrainSubsystem.stopMotion();
+        System.out.println("stopped robor");
     }
     
+
+   
+    double limelight_aim_proportion(){
+
+        double aimP = 0.5; //TODO: tune this
+
+        double targetingAngularVelocity = LimelightHelpers.getTX("limelight") * aimP;
+
+        targetingAngularVelocity *= ANGULAR_VELOCITY_CONSTRAINT;
+
+        return targetingAngularVelocity;
+    }
+
+    double limelight_range_proportion(){
+        double rangeP = 0.1; //TODO: tune this
+
+        double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * rangeP;
+        targetingForwardSpeed *= MAX_ATTAINABLE_VELOCITY;
+        targetingForwardSpeed *= -1.0;
+        return targetingForwardSpeed;
+    }
 
     private void Update_Limelight_Tracking(){
         //FIXME:Tune these nums to see how fast we want robor to ber

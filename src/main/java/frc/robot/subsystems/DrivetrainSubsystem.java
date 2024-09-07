@@ -61,23 +61,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     
         //Dumb stupid baby dum dum code that i thought was so smart but no i am a goose (silly one)
-    //private static boolean useVision = false;
+    private static boolean useVision = false;
 
     
 
-    // private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
-    // private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
-    // private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
+    private final NetworkTable limelightNT = NetworkTableInstance.getDefault().getTable("limelight");
+    private final DoubleSubscriber validTargetSubscriber = limelightNT.getDoubleTopic("tv").subscribe(0);
+    private final DoubleArraySubscriber botPoseBlueSubscriber = limelightNT.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[0]);
 
-    // double tx = LimelightHelpers.getTX("limelight");
-    // double ty = LimelightHelpers.getTY("limelight");
+   // double tx = LimelightHelpers.getTX("limelight");
+   // double ty = LimelightHelpers.getTY("limelight");
    
-    // double KpAim = -0.1f;
-    // double KpDistance = 0.1f;
-    // double min_aim_command = 0.05f;
-
-    // float left_command;
-    // float right_command;
+    
 
 
 
@@ -272,42 +267,27 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     // // tracks position with vision
-    // private void visionPosePeriodic(){
+    private void visionPosePeriodic(){
 
-    //     // Return if the limelight doesn't see a target
-    //     if(validTargetSubscriber.get() != 1)
-    //         return;
+        // Return if the limelight doesn't see a target
+        if(validTargetSubscriber.get() != 1)
+            return;
         
-    //     //Returns if the botpose doesn't give an array with 7 variables or more
-    //     double[] botPose = botPoseBlueSubscriber.get();
-    //     if(botPose.length < 7)
-    //         return;
+        //Returns if the botpose doesn't give an array with 7 variables or more
+        double[] botPose = botPoseBlueSubscriber.get();
+        if(botPose.length < 7)
+            return;
         
-    //     // Convert double[] from NT to Pose2D
-    //     Pose2d visionPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
-    //     double measurementTime = Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
+        // Convert double[] from NT to Pose2D
+        Pose2d visionPose = new Pose2d(botPose[0], botPose[1], Rotation2d.fromDegrees(botPose[5]));
+        double measurementTime = Timer.getFPGATimestamp() - botPose[6] / 1000; // calculate the actual time the picture was taken
 
-    //     poseEstimator.addVisionMeasurement(visionPose, measurementTime);
-    // }
+        poseEstimator.addVisionMeasurement(visionPose, measurementTime);
+    }
 
-    // private void AimAssist(){
+  
 
-    //     double heading_error = -tx;
-    //     double distance_error = -ty;
-    //     double steering_adjust = 0.0f;
 
-    //     if(tx > 1.0)
-    //     {
-    //         steering_adjust = KpAim * heading_error - min_aim_command;
-    //     } else if(tx < -1.0){
-    //         steering_adjust = KpAim*heading_error + min_aim_command;
-    //     }
-
-    //     double distance_adjust = KpDistance * distance_error;
-
-    //     left_command += steering_adjust + distance_adjust;
-    //     right_command -= steering_adjust + distance_adjust;
-    // }
 
     public void drive(double xSpeed, double ySpeed, double angularVelocity, boolean fieldRelative, boolean limitAcceleration) {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, angularVelocity);

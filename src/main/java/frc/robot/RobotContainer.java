@@ -117,7 +117,7 @@ public class RobotContainer {
             new StowPositionCommand(armSubsystem)
         ));
 
-        //TODO: add the binding that runs the aimassist code
+        
         
         Trigger operatorB = operatorController.b();
         operatorB.whileTrue(stateMachineBinding(
@@ -132,8 +132,12 @@ public class RobotContainer {
         // operatorX.whileTrue(stateMachineBinding(
         //     teleopStateMachine.alignAmpCommand()
         // ));
-        operatorX.whileTrue(aimAssist);
         
+         /*operatorX.whileTrue(
+            Commands.runEnd(() -> aimAssist.execute(), () -> aimAssist.end(true))
+         );
+        
+        */
 
         // operatorX.onTrue(manualBinding(
         //     new AmpPositionCommand(armSubsystem)
@@ -197,7 +201,7 @@ public class RobotContainer {
 
         armSubsystem.setJointMotorPercent(0);
 
-        //Aim assist code
+        
         
     }
 
@@ -299,6 +303,9 @@ public class RobotContainer {
             teleopStateMachine::isEnabled
         );
     }
+
+
+    
 
 
     
