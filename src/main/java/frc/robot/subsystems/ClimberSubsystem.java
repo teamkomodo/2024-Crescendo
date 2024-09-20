@@ -138,53 +138,53 @@ public class ClimberSubsystem extends SubsystemBase {
         ascendVelocityEntry.set(CLIMBER_ASCEND_VELOCITY);
         hooksOffsetEntry.set(CLIMBER_HOOKS_OFFSET);
 
-        buildHookAlignmentCommands();
+        // buildHookAlignmentCommands();
     }
 
-    private void buildHookAlignmentCommands() {
-        // These commands will show up in NT, they are meant to be used in the pit to align the climber hooks
-        double speed = 10;
-        leftClimberDownButton.whileTrue(Commands.sequence(
-            Commands.runOnce(() -> setUseCodeStops(false)),
-            new OneSideProfiledClimbCommand(this, -speed, true)
-        ).finallyDo(() -> {
-            leftMotor.set(0);
-            leftMotorEncoder.setPosition(0);
-            setUseCodeStops(true);
-        }));
-        climberTable.getBooleanTopic("left/downcommand").publish().set(false);
+    // private void buildHookAlignmentCommands() {
+    //     // These commands will show up in NT, they are meant to be used in the pit to align the climber hooks
+    //     double speed = 10;
+    //     leftClimberDownButton.whileTrue(Commands.sequence(
+    //         Commands.runOnce(() -> setUseCodeStops(false)),
+    //         new OneSideProfiledClimbCommand(this, -speed, true)
+    //     ).finallyDo(() -> {
+    //         leftMotor.set(0);
+    //         leftMotorEncoder.setPosition(0);
+    //         setUseCodeStops(true);
+    //     }));
+    //     climberTable.getBooleanTopic("left/downcommand").publish().set(false);
         
-        leftClimberUpButton.whileTrue(Commands.sequence(
-            Commands.runOnce(() -> setUseCodeStops(false)),
-            new OneSideProfiledClimbCommand(this, speed, true)
-        ).finallyDo(() -> {
-            leftMotor.set(0);
-            leftMotorEncoder.setPosition(0);
-            setUseCodeStops(true);
-        }));
-        climberTable.getBooleanTopic("left/upcommand").publish().set(false);
+    //     leftClimberUpButton.whileTrue(Commands.sequence(
+    //         Commands.runOnce(() -> setUseCodeStops(false)),
+    //         new OneSideProfiledClimbCommand(this, speed, true)
+    //     ).finallyDo(() -> {
+    //         leftMotor.set(0);
+    //         leftMotorEncoder.setPosition(0);
+    //         setUseCodeStops(true);
+    //     }));
+    //     climberTable.getBooleanTopic("left/upcommand").publish().set(false);
 
-        rightClimberDownButton.whileTrue(Commands.sequence(
-            Commands.runOnce(() -> setUseCodeStops(false)),
-            new OneSideProfiledClimbCommand(this, -speed, false)
-        ).finallyDo(() -> {
-            rightMotor.set(0);
-            rightMotorEncoder.setPosition(0);
-            setUseCodeStops(true);
-        }));
-        climberTable.getBooleanTopic("right/downcommand").publish().set(false);
+    //     rightClimberDownButton.whileTrue(Commands.sequence(
+    //         Commands.runOnce(() -> setUseCodeStops(false)),
+    //         new OneSideProfiledClimbCommand(this, -speed, false)
+    //     ).finallyDo(() -> {
+    //         rightMotor.set(0);
+    //         rightMotorEncoder.setPosition(0);
+    //         setUseCodeStops(true);
+    //     }));
+    //     climberTable.getBooleanTopic("right/downcommand").publish().set(false);
 
-        rightClimberUpButton.whileTrue(Commands.sequence(
-            Commands.runOnce(() -> setUseCodeStops(false)),
-            new OneSideProfiledClimbCommand(this, speed, false)
-        ).finallyDo(() -> {
-            rightMotor.set(0);
-            rightMotorEncoder.setPosition(0);
-            setUseCodeStops(true);
-        }));
-        climberTable.getBooleanTopic("right/upcommand").publish().set(false);
+    //     rightClimberUpButton.whileTrue(Commands.sequence(
+    //         Commands.runOnce(() -> setUseCodeStops(false)),
+    //         new OneSideProfiledClimbCommand(this, speed, false)
+    //     ).finallyDo(() -> {
+    //         rightMotor.set(0);
+    //         rightMotorEncoder.setPosition(0);
+    //         setUseCodeStops(true);
+    //     }));
+    //     climberTable.getBooleanTopic("right/upcommand").publish().set(false);
 
-    }
+    // }
 
     public void teleopInit() {
         leftMotorEncoder.setPosition(0);
@@ -195,9 +195,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        checkSensors();
-        checkMinPosition();
-        checkMaxPosition();
+        // checkSensors();
+        // checkMinPosition();
+        // checkMaxPosition();
         updateTelemetry();
     }
 
@@ -215,118 +215,118 @@ public class ClimberSubsystem extends SubsystemBase {
         rightMotorPositionPublisher.set(rightMotorEncoder.getPosition());
     } 
 
-    public void checkSensors() {
+    // public void checkSensors() {
 
-        if(!getUseSensors()) {
-            leftMotorZeroed = true;
-            rightMotorZeroed = true;
-            climberZeroed = true;
-            return;
-        }
+    //     if(!getUseSensors()) {
+    //         leftMotorZeroed = true;
+    //         rightMotorZeroed = true;
+    //         climberZeroed = true;
+    //         return;
+    //     }
 
-        // left sensor rising edge
-        if(!atLeftSensor && isLeftSensorTriggered()) {
+    //     // left sensor rising edge
+    //     if(!atLeftSensor && isLeftSensorTriggered()) {
             
-            // if the motor is moving down, zero the encoder
-            // always stop to motor, regardless of direction
-            if(leftMotorEncoder.getVelocity() < 0) {
-                leftMotorEncoder.setPosition(0);
-                leftMotorZeroed = true;
-                setLeftMotorPosition(0);
-            }
-        }
+    //         // if the motor is moving down, zero the encoder
+    //         // always stop to motor, regardless of direction
+    //         if(leftMotorEncoder.getVelocity() < 0) {
+    //             leftMotorEncoder.setPosition(0);
+    //             leftMotorZeroed = true;
+    //             setLeftMotorPosition(0);
+    //         }
+    //     }
 
-        // left sensor falling edge
-        if(atLeftSensor && !isLeftSensorTriggered()) {
+    //     // left sensor falling edge
+    //     if(atLeftSensor && !isLeftSensorTriggered()) {
 
-            // if the motor is moving up set the encoder position
-            if(leftMotorEncoder.getVelocity() > 0)
-                leftMotorEncoder.setPosition(0);
-                leftMotorZeroed = true;
-        }
+    //         // if the motor is moving up set the encoder position
+    //         if(leftMotorEncoder.getVelocity() > 0)
+    //             leftMotorEncoder.setPosition(0);
+    //             leftMotorZeroed = true;
+    //     }
 
-        // right sensor rising edge
-        if(!atRightSensor && isRightSensorTriggered()) {
+    //     // right sensor rising edge
+    //     if(!atRightSensor && isRightSensorTriggered()) {
             
-            // if the motor is moving down, zero the encoder
-            // always stop to motor, regardless of direction
-            if(rightMotorEncoder.getVelocity() < 0) {
-                rightMotorEncoder.setPosition(0);
-                rightMotorZeroed = true;
-                setRightMotorPosition(0);
-            }
-        }
+    //         // if the motor is moving down, zero the encoder
+    //         // always stop to motor, regardless of direction
+    //         if(rightMotorEncoder.getVelocity() < 0) {
+    //             rightMotorEncoder.setPosition(0);
+    //             rightMotorZeroed = true;
+    //             setRightMotorPosition(0);
+    //         }
+    //     }
 
-        // right sensor falling edge
-        if(atRightSensor && !isRightSensorTriggered()) {
+    //     // right sensor falling edge
+    //     if(atRightSensor && !isRightSensorTriggered()) {
 
-            // if the motor is moving up set the encoder position
-            if(rightMotorEncoder.getVelocity() > 0)
-                rightMotorEncoder.setPosition(0);
-                rightMotorZeroed = true;
-        }
+    //         // if the motor is moving up set the encoder position
+    //         if(rightMotorEncoder.getVelocity() > 0)
+    //             rightMotorEncoder.setPosition(0);
+    //             rightMotorZeroed = true;
+    //     }
 
-        if (rightMotorZeroed && leftMotorZeroed && !climberZeroed) {
-            climberZeroed = true;
-        }
+    //     if (rightMotorZeroed && leftMotorZeroed && !climberZeroed) {
+    //         climberZeroed = true;
+    //     }
       
-        atLeftSensor = isLeftSensorTriggered();
-        atRightSensor = isRightSensorTriggered();
-    }
+    //     atLeftSensor = isLeftSensorTriggered();
+    //     atRightSensor = isRightSensorTriggered();
+    // }
 
-    public void checkMinPosition() {
+    // public void checkMinPosition() {
 
-        if(!getUseCodeStops()) {
-            atLeftMinPosition = false;
-            return;
-        }
+    //     if(!getUseCodeStops()) {
+    //         atLeftMinPosition = false;
+    //         return;
+    //     }
 
-        if(!climberZeroed) {
-            return;
-        }
+    //     if(!climberZeroed) {
+    //         return;
+    //     }
         
-        // Rising edge
-        if(!atLeftMinPosition && leftMotorEncoder.getPosition() < getMinPosition()) {
-            atLeftMinPosition = true;
-            //setLeftMotorPosition(getMinPosition());
-        } else if (leftMotorEncoder.getPosition() > getMinPosition()) {
-            atLeftMinPosition = false;
-        }
+    //     // Rising edge
+    //     if(!atLeftMinPosition && leftMotorEncoder.getPosition() < getMinPosition()) {
+    //         atLeftMinPosition = true;
+    //         //setLeftMotorPosition(getMinPosition());
+    //     } else if (leftMotorEncoder.getPosition() > getMinPosition()) {
+    //         atLeftMinPosition = false;
+    //     }
 
-        if(!atRightMinPosition && rightMotorEncoder.getPosition() < getMinPosition()) {
-            atRightMinPosition = true;
-            //setRightMotorPosition(getMinPosition());
-        } else if (rightMotorEncoder.getPosition() > getMinPosition()) {
-            atRightMinPosition = false;
-        }
-    }
+    //     if(!atRightMinPosition && rightMotorEncoder.getPosition() < getMinPosition()) {
+    //         atRightMinPosition = true;
+    //         //setRightMotorPosition(getMinPosition());
+    //     } else if (rightMotorEncoder.getPosition() > getMinPosition()) {
+    //         atRightMinPosition = false;
+    //     }
+    // }
 
-    public void checkMaxPosition() {
+    // public void checkMaxPosition() {
 
-        if(!getUseCodeStops()) {
-            atLeftMaxPosition = false;
-            atRightMaxPosition = false;
-            return;
-        }
+    //     if(!getUseCodeStops()) {
+    //         atLeftMaxPosition = false;
+    //         atRightMaxPosition = false;
+    //         return;
+    //     }
 
-        if(!climberZeroed) {
-            return;
-        }
+    //     if(!climberZeroed) {
+    //         return;
+    //     }
 
-        if(!atLeftMaxPosition && leftMotorEncoder.getPosition() > getMaxPosition()) {
-            atLeftMaxPosition = true;
-            //setLeftMotorPosition(getMaxPosition());
-        } else if(leftMotorEncoder.getPosition() < getMaxPosition()) {
-            atLeftMaxPosition = false;
-        }
+    //     if(!atLeftMaxPosition && leftMotorEncoder.getPosition() > getMaxPosition()) {
+    //         atLeftMaxPosition = true;
+    //         //setLeftMotorPosition(getMaxPosition());
+    //     } else if(leftMotorEncoder.getPosition() < getMaxPosition()) {
+    //         atLeftMaxPosition = false;
+    //     }
 
-        if(!atRightMaxPosition && rightMotorEncoder.getPosition() > getMaxPosition()) {
-            atRightMaxPosition = true;
-            //setRightMotorPosition(getMaxPosition());
-        } else if(rightMotorEncoder.getPosition() < getMaxPosition()) {
-            atRightMaxPosition = false;
-        }
-    }
+    //     if(!atRightMaxPosition && rightMotorEncoder.getPosition() > getMaxPosition()) {
+    //         atRightMaxPosition = true;
+    //         //setRightMotorPosition(getMaxPosition());
+    //     } else if(rightMotorEncoder.getPosition() < getMaxPosition()) {
+    //         atRightMaxPosition = false;
+    //     }
+    // }
 
     // Commands
 
@@ -350,31 +350,31 @@ public class ClimberSubsystem extends SubsystemBase {
         }, this::holdClimberPosition);
     }
 
-    public Command climberLeftZeroCommand() {
-        return Commands.sequence(
-            Commands.runOnce(() -> setLeftMotorDutyCycle(-0.2)),
-            Commands.waitUntil(() -> (leftMotorZeroed)),
-            Commands.runOnce(() -> setLeftMotorDutyCycle(0))
-        );
-    }
+    // public Command climberLeftZeroCommand() {
+    //     return Commands.sequence(
+    //         Commands.runOnce(() -> setLeftMotorDutyCycle(-0.2)),
+    //         Commands.waitUntil(() -> (leftMotorZeroed)),
+    //         Commands.runOnce(() -> setLeftMotorDutyCycle(0))
+    //     );
+    // }
 
-    public Command climberRightZeroCommand() {
-        return Commands.sequence(
-            Commands.runOnce(() -> setRightMotorDutyCycle(-0.2)),
-            Commands.waitUntil(() -> (rightMotorZeroed)),
-            Commands.runOnce(() -> setRightMotorDutyCycle(0))
-        );
-    }
+    // public Command climberRightZeroCommand() {
+    //     return Commands.sequence(
+    //         Commands.runOnce(() -> setRightMotorDutyCycle(-0.2)),
+    //         Commands.waitUntil(() -> (rightMotorZeroed)),
+    //         Commands.runOnce(() -> setRightMotorDutyCycle(0))
+    //     );
+    // }
 
-    public Command climberZeroCommand() {
-        Command command = Commands.parallel(
-            climberRightZeroCommand(),
-            climberLeftZeroCommand()
-        );
+    // public Command climberZeroCommand() {
+    //     Command command = Commands.parallel(
+    //         climberRightZeroCommand(),
+    //         climberLeftZeroCommand()
+    //     );
 
-        command.addRequirements(this);
-        return command;
-    }
+    //     command.addRequirements(this);
+    //     return command;
+    // }
 
     // Control methods
 
