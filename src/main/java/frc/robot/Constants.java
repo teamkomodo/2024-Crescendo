@@ -65,7 +65,7 @@ public final class Constants {
     public static final int BACK_LEFT_DRIVE_MOTOR_ID = 12;
     public static final int BACK_LEFT_STEER_MOTOR_ID = 13;
     public static final int BACK_LEFT_STEER_ENCODER_ID = 21;
-    public static final double BACK_LEFT_STEER_OFFSET = -Math.toRadians(113.2);
+    public static final double BACK_LEFT_STEER_OFFSET = /* * / -Math.toRadians(110.2) /* */ -Math.toRadians(107.490) /* */;
 
     public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 14;
     public static final int FRONT_RIGHT_STEER_MOTOR_ID = 15;
