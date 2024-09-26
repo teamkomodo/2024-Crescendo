@@ -53,6 +53,7 @@ public class RobotContainer {
     private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, climberSubsystem, driverController.getHID(), operatorController.getHID());
 
     private final AimAssistCommand aimAssist = new AimAssistCommand();
+
     public RobotContainer() {
         configureBindings();
         registerNamedCommands();
@@ -133,11 +134,11 @@ public class RobotContainer {
         //     teleopStateMachine.alignAmpCommand()
         // ));
         
-         /*operatorX.whileTrue(
+         operatorX.whileTrue(
             Commands.runEnd(() -> aimAssist.execute(), () -> aimAssist.end(true))
          );
         
-        */
+        
 
         // operatorX.onTrue(manualBinding(
         //     new AmpPositionCommand(armSubsystem)

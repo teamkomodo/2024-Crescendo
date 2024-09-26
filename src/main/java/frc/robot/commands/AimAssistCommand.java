@@ -43,7 +43,7 @@ public class AimAssistCommand extends Command{
         
         final var forward_limelight = limelight_range_proportion();
 
-        drivetrainSubsystem.drive(forward_limelight, 0, angular_limelight, false, true);
+        drivetrainSubsystem.drive(forward_limelight, 0, angular_limelight, true, true);
 
         System.out.println("Drive command: " + forward_limelight);
         System.out.println("Angular command: " + angular_limelight);
@@ -95,15 +95,14 @@ public class AimAssistCommand extends Command{
         final double DRIVE_K = 0;                    // how hard to drive fwd toward the target
         final double DESIRED_TARGET_AREA = 0;        // Area of the target when the robot reaches the wall
         final double MAX_DRIVE = 0.0; 
-
         
-        double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0);//checks if detects a target
-        double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);//x coordinate of center of target in degrees
-        double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);//y coordinate of center of target in degrees
-        double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);//size of target as percentage
+        boolean tv = LimelightHelpers.getTV("limelight"); //true if a target is detected
+        double tx = LimelightHelpers.getTX("limelight");
+        double ty = LimelightHelpers.getTY("limelight");
+        double ta = LimelightHelpers.getTA("limelight"); //size of target as percentage
                                 
 
-        if(tv < 1.0){
+        if(tv == true){
             m_LimelightHasValidTarget = false;
             m_LimelightDriveCommand = 0.0;
             m_LimelightSteerCommand = 0.0;
