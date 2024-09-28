@@ -79,6 +79,7 @@ public class NeoSwerveModule implements SwerveModule{
 
         steerRelativeEncoder = steerMotor.getEncoder();
         steerController = steerMotor.getPIDController();
+        // steerRelativeEncoder.setPosition(0);
 
         configureMotors(steerPIDGains);
      

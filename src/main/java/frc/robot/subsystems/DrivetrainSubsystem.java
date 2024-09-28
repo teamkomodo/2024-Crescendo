@@ -568,12 +568,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public Command  driveToTarget(){
-        return Commands.run(() ->{
+        return Commands.run(() -> {
             final var angular_limelight = limelight_aim_proportion();
         
             final var forward_limelight = limelight_range_proportion();
     
-            drive(forward_limelight, 0, angular_limelight, true, true);
+            drive(0, Math.toRadians(angular_limelight), 0, true, true);
     
             System.out.println("Drive command: " + forward_limelight);
             System.out.println("Angular command: " + angular_limelight);
