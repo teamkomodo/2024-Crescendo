@@ -64,6 +64,7 @@ public class NeoSwerveModule implements SwerveModule{
     public NeoSwerveModule(int driveMotorId, int steerMotorId, int steerAbsoluteEncoderId, double steerOffset, PIDGains steerPIDGains, PIDGains drivePIDGains, FFGains driveFFGains, NetworkTable moduleNT) {
         this.driveMotor = new CANSparkMax(driveMotorId, MotorType.kBrushless);
         this.steerMotor = new CANSparkMax(steerMotorId, MotorType.kBrushless);
+        this.steerMotor.restoreFactoryDefaults();
         this.steerAbsoluteEncoder = new CANcoder(steerAbsoluteEncoderId);
         this.desiredState = new SwerveModuleState(0.0, Rotation2d.fromRadians(0));
 
