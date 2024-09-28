@@ -124,7 +124,7 @@ public class ClimberSubsystem extends SubsystemBase {
         rightMotorPidController.setReference(0, ControlType.kDutyCycle);
 
         useCodeStopsEntry.set(useCodeStops);
-        useSensorsEntry.set(useSensors)
+        useSensorsEntry.set(useSensors);
         minPositionEntry.set(CLIMBER_MIN_POSITION);
         maxPositionEntry.set(CLIMBER_MAX_POSITION);
         preClimbPositionEntry.set(CLIMBER_PRE_CLIMB_POSITION);
