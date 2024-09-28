@@ -48,17 +48,8 @@ public class AimAssistCommand extends Command{
         System.out.println("Drive command: " + forward_limelight);
         System.out.println("Angular command: " + angular_limelight);
 
-        /*Method 2
-        Update_Limelight_Tracking();
-
         
-        if(m_LimelightHasValidTarget){
-            
-            drivetrainSubsystem.drive(drive_cmd, steer_cmd, 0, false, true);
-            System.out.println("Drive command: " + drive_cmd);
-            System.out.println("Steer command: " + steer_cmd);
-        }
-        */
+        
     }
 
     @Override
@@ -102,7 +93,7 @@ public class AimAssistCommand extends Command{
         double ta = LimelightHelpers.getTA("limelight"); //size of target as percentage
                                 
 
-        if(tv == true){
+        if(tv == false){
             m_LimelightHasValidTarget = false;
             m_LimelightDriveCommand = 0.0;
             m_LimelightSteerCommand = 0.0;

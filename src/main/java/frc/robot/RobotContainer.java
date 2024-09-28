@@ -97,7 +97,7 @@ public class RobotContainer {
          *              A | Command Close Shoot | Stow           |
          *              B | Command Eject       | Pickup         |
          *              X | Command Aim Assist  | Amp            |
-         *              Y | Command Far Shoot   | Close Speaker  |
+         *              Y | Command Far Shoot   | move to speaker |
          * 
          *   Left Stick X | EMPTY               | Elevator       |
          *  Right Stick Y | EMPTY               | Joint          |
@@ -130,10 +130,6 @@ public class RobotContainer {
         ));
 
         Trigger operatorX = operatorController.x();
-        // operatorX.whileTrue(stateMachineBinding(
-        //     teleopStateMachine.alignAmpCommand()
-        // ));
-        
          operatorX.whileTrue(
             Commands.runEnd(() -> aimAssist.execute(), () -> aimAssist.end(true))
          );
