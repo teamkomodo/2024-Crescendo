@@ -4,14 +4,12 @@
 
 package frc.robot;
 
-import frc.robot.commands.AimAssistCommand;
 import frc.robot.commands.OffsetClimbCommand;
 import frc.robot.commands.ProfiledClimbCommand;
 import frc.robot.commands.positions.AmpPositionCommand;
 import frc.robot.commands.positions.IntakePositionCommand;
 import frc.robot.commands.positions.SpeakerPositionCommand;
 import frc.robot.commands.positions.StowPositionCommand;
-import frc.robot.commands.AimAssistCommand;
 
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -52,7 +50,7 @@ public class RobotContainer {
 
     private final TeleopStateMachine teleopStateMachine = new TeleopStateMachine(drivetrainSubsystem, armSubsystem, turbotakeSubsystem, ledSubsystem, climberSubsystem, driverController.getHID(), operatorController.getHID());
 
-    private final AimAssistCommand aimAssist = new AimAssistCommand();
+   
 
     public RobotContainer() {
         configureBindings();
@@ -129,10 +127,8 @@ public class RobotContainer {
             new IntakePositionCommand(armSubsystem)
         ));
 
-        Trigger operatorX = operatorController.x();
-         operatorX.whileTrue(
-            Commands.runEnd(() -> aimAssist.execute(), () -> aimAssist.end(true))
-         );
+        Trigger driverX = driverController.x();
+        driverX.whileTrue(drivetrainSubsystem.driveToTarget());
         
         
 
