@@ -67,7 +67,7 @@ public class NeoSwerveModule implements SwerveModule{
         this.steerAbsoluteEncoder = new CANcoder(steerAbsoluteEncoderId);
         this.desiredState = new SwerveModuleState(0.0, Rotation2d.fromRadians(0));
 
-        driveController = new PIDController(drivePIDGains.kP, drivePIDGains.kI, drivePIDGains.kD);
+        driveController = new PIDController(drivePIDGains.p, drivePIDGains.i, drivePIDGains.d);
         driveFeedforward = new SimpleMotorFeedforward(driveFFGains.kS, driveFFGains.kV, driveFFGains.kA);
 
         driveRelativeEncoder = driveMotor.getEncoder();
@@ -87,27 +87,27 @@ public class NeoSwerveModule implements SwerveModule{
         dutyCyclePublisher = moduleNT.getDoubleTopic("dutycycle").publish();
         velocityPublisher = moduleNT.getDoubleTopic("velocity").publish();
         
-        drivekPEntry = moduleNT.getDoubleTopic("tuning/drivekP").getEntry(drivePIDGains.kP);
-        drivekIEntry = moduleNT.getDoubleTopic("tuning/drivekI").getEntry(drivePIDGains.kI);
-        drivekDEntry = moduleNT.getDoubleTopic("tuning/drivekD").getEntry(drivePIDGains.kD);
+        drivekPEntry = moduleNT.getDoubleTopic("tuning/drivekP").getEntry(drivePIDGains.p);
+        drivekIEntry = moduleNT.getDoubleTopic("tuning/drivekI").getEntry(drivePIDGains.i);
+        drivekDEntry = moduleNT.getDoubleTopic("tuning/drivekD").getEntry(drivePIDGains.d);
         drivekSEntry = moduleNT.getDoubleTopic("tuning/drivekS").getEntry(driveFFGains.kS);
         drivekVEntry = moduleNT.getDoubleTopic("tuning/drivekV").getEntry(driveFFGains.kV);
         drivekAEntry = moduleNT.getDoubleTopic("tuning/drivekA").getEntry(driveFFGains.kA);
 
-        steerkPEntry = moduleNT.getDoubleTopic("tuning/steerkP").getEntry(steerPIDGains.kP);
-        steerkIEntry = moduleNT.getDoubleTopic("tuning/steerkI").getEntry(steerPIDGains.kI);
-        steerkDEntry = moduleNT.getDoubleTopic("tuning/steerkD").getEntry(steerPIDGains.kD);
+        steerkPEntry = moduleNT.getDoubleTopic("tuning/steerkP").getEntry(steerPIDGains.p);
+        steerkIEntry = moduleNT.getDoubleTopic("tuning/steerkI").getEntry(steerPIDGains.i);
+        steerkDEntry = moduleNT.getDoubleTopic("tuning/steerkD").getEntry(steerPIDGains.d);
 
-        drivekPEntry.set(drivePIDGains.kP);
-        drivekIEntry.set(drivePIDGains.kI);
-        drivekDEntry.set(drivePIDGains.kD);
+        drivekPEntry.set(drivePIDGains.p);
+        drivekIEntry.set(drivePIDGains.i);
+        drivekDEntry.set(drivePIDGains.d);
         drivekSEntry.set(driveFFGains.kS);
         drivekVEntry.set(driveFFGains.kV);
         drivekAEntry.set(driveFFGains.kA);
 
-        steerkPEntry.set(steerPIDGains.kP);
-        steerkIEntry.set(steerPIDGains.kI);
-        steerkDEntry.set(steerPIDGains.kD);
+        steerkPEntry.set(steerPIDGains.p);
+        steerkIEntry.set(steerPIDGains.i);
+        steerkDEntry.set(steerPIDGains.d);
     }
 
     private void configureMotors(PIDGains steerGains) {
@@ -125,9 +125,9 @@ public class NeoSwerveModule implements SwerveModule{
         steerRelativeEncoder.setVelocityConversionFactor(2 * Math.PI * STEER_REDUCTION / 60); // motor RPM -> module rad/s
         steerRelativeEncoder.setPosition(getAbsoluteModuleRotation().getRadians());
 
-        steerController.setP(steerGains.kP);
-        steerController.setI(steerGains.kI);
-        steerController.setD(steerGains.kD);
+        steerController.setP(steerGains.p);
+        steerController.setI(steerGains.i);
+        steerController.setD(steerGains.d);
 
         steerController.setPositionPIDWrappingEnabled(true);
         steerController.setPositionPIDWrappingMaxInput(Math.PI);

@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.NetworkButton;
 import frc.robot.commands.OneSideProfiledClimbCommand;
+import frc.robot.util.PIDGains;
+import frc.robot.util.Util;
 
 import static frc.robot.Constants.*;
 
@@ -39,10 +41,11 @@ public class ClimberSubsystem extends SubsystemBase {
     private final SparkPIDController rightMotorPidController;
     private final RelativeEncoder rightMotorEncoder;
   
-    private double p = 0.1;
-    private double i = 5.0e-9;
-    private double d = 0.002;
-    private double maxIAccum = 0;
+    // private final double p = 0.1;
+    // private final double i = 5.0e-9;
+    // private final double d = 0.002;
+    // private final double maxIAccum = 0;
+    private PIDGains climberPID = new PIDGains(0.1, 5.0e-9, 0.002, 0);
 
     private boolean atLeftMinPosition = false;
     private boolean atLeftMaxPosition = false;
@@ -101,10 +104,7 @@ public class ClimberSubsystem extends SubsystemBase {
         leftMotorEncoder.setPosition(0);
 
         leftMotorPidController = leftMotor.getPIDController();
-        leftMotorPidController.setP(p);
-        leftMotorPidController.setI(i);
-        leftMotorPidController.setD(d);
-        leftMotorPidController.setIMaxAccum(maxIAccum, 0);
+        Util.setPidController(leftMotorPidController, climberPID);
         leftMotorPidController.setReference(0, ControlType.kDutyCycle);
 
         leftSensor = new DigitalInput(CLIMBER_MOTOR_RIGHT_BEAM_BREAK_ID);
@@ -120,15 +120,11 @@ public class ClimberSubsystem extends SubsystemBase {
         rightMotorEncoder.setPosition(0);
 
         rightMotorPidController = rightMotor.getPIDController();
-        rightMotorPidController.setP(p);
-        rightMotorPidController.setI(i);
-        rightMotorPidController.setD(d);
-        rightMotorPidController.setIMaxAccum(maxIAccum, 0);
+        Util.setPidController(rightMotorPidController, climberPID);
         rightMotorPidController.setReference(0, ControlType.kDutyCycle);
 
         useCodeStopsEntry.set(useCodeStops);
-        useSensorsEntry.set(useSensors);
-
+        useSensorsEntry.set(useSensors)
         minPositionEntry.set(CLIMBER_MIN_POSITION);
         maxPositionEntry.set(CLIMBER_MAX_POSITION);
         preClimbPositionEntry.set(CLIMBER_PRE_CLIMB_POSITION);

@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import com.revrobotics.SparkPIDController;
+
 public class Util {
 
     public static double translationCurve(double input) {
@@ -14,6 +16,22 @@ public class Util {
 
     public static double steerCurve(double input) {
         return Math.pow(input, 3);
+    }
+
+    public static void setPidController(SparkPIDController pidController, PIDGains pid) {
+        switch (pid.numArgs) {
+            case 8:
+                pidController.setOutputRange(pid.minOutput, pid.maxOutput);
+                pidController.setFF(pid.FF);
+                pidController.setIZone(pid.iZone);
+            case 4:
+                pidController.setIMaxAccum(pid.maxIAccum, 0);
+            case 3:
+                pidController.setP(pid.p);
+                pidController.setI(pid.i);
+                pidController.setD(pid.d);
+            break;
+        }
     }
 
 }

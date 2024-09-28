@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -113,6 +114,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final CANSparkMax jointMotor;
     private final SparkPIDController jointPidController;
     private final RelativeEncoder jointEncoder;
+    private final CANcoder jointAbsoluteEncoder;
 
     private final DigitalInput jointMiddleReverseSwitch;
     private final DigitalInput jointBottomReverseSwitch;
@@ -141,13 +143,13 @@ public class ArmSubsystem extends SubsystemBase {
 
     // Normal PID control uses slot 0
     private double jointP = 0.05;
-    private double jointI = 0.000000005;
+    private double jointI = 5.0e-9;
     private double jointD = 3;
     private double jointMaxIAccum = 6;
 
     // Profiled control uses slot 1
     private double jointP_1 = 0.15;
-    private double jointI_1 = 0.000000005;
+    private double jointI_1 = 5.0e-9;
     private double jointD_1 = 2;
     private double jointMaxIAccum_1 = 6;
     
@@ -186,6 +188,8 @@ public class ArmSubsystem extends SubsystemBase {
         jointEncoder = jointMotor.getEncoder();
         jointEncoder.setPosition(JOINT_STARTING_POSITION);
         jointSetpoint = new TrapezoidProfile.State(JOINT_STARTING_POSITION, 0);
+
+        jointAbsoluteEncoder = new CANcoder(ABSOLUTE_JOINT_ENCODER_CHANNEL);
         
         jointPidController = jointMotor.getPIDController();
         jointPidController.setP(jointP);
