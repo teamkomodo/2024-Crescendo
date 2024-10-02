@@ -69,7 +69,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         double targetingAngularVelocity = LimelightHelpers.getTX("limelight") * aimP;
 
-        targetingAngularVelocity *= ANGULAR_VELOCITY_CONSTRAINT;
+        targetingAngularVelocity *= MAX_ATTAINABLE_VELOCITY;
 
         return targetingAngularVelocity;
      }
@@ -258,6 +258,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         frontRight.periodic();
         backLeft.periodic();
         backRight.periodic();
+    
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
