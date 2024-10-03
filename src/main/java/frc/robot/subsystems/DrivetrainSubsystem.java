@@ -258,7 +258,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         frontRight.periodic();
         backLeft.periodic();
         backRight.periodic();
-    
+        //System.out.println("Back Right Motor Rotation: "+ backRight.getModuleRotation());
+        //System.out.println("Back Right Motor Rotation: "+ backRight.getModuleRotation());
     }
 
     public void robotRelativeDrive(ChassisSpeeds chassisSpeeds) {
