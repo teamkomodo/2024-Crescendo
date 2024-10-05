@@ -575,7 +575,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         
             final var forward_limelight = limelight_range_proportion();
     
-            drive(0, 0, forward_limelight, true, true);
+            drive(0, 0, angular_limelight, true, true);
     
             System.out.println("Drive command: " + forward_limelight);
             System.out.println("Angular command: " + angular_limelight);
