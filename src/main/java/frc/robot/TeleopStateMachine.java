@@ -87,7 +87,7 @@ public class TeleopStateMachine {
     private final XboxController driverController;
     private final XboxController operatorController;
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     // Store the current state
     private State currentState = State.START;

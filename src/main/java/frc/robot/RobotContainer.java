@@ -167,20 +167,20 @@ public class RobotContainer {
             Commands.runEnd(() -> armSubsystem.setJointMotorPercent(-operatorController.getRightY()), () -> armSubsystem.holdJointPosition())
         ));
 
-        // Trigger operatorStart = operatorController.start();
-        // operatorStart.whileTrue(
-        //     Commands.parallel(
-        //         new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity()),
-        //         teleopStateMachine.extendClimbCommand()
-        //     )
-        // );
+        Trigger operatorStart = operatorController.start();
+        operatorStart.whileTrue(
+            Commands.parallel(
+                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getExtendVelocity()),
+                teleopStateMachine.extendClimbCommand()
+            )
+        );
 
-        // Trigger operatorBack = operatorController.back();
-        // operatorBack.whileTrue(Commands.parallel(
-        //         new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getAscendVelocity()),
-        //         teleopStateMachine.ascendClimbCommand()
-        //     )
-        // );
+        Trigger operatorBack = operatorController.back();
+        operatorBack.whileTrue(Commands.parallel(
+                new ProfiledClimbCommand(climberSubsystem, climberSubsystem.getAscendVelocity()),
+                teleopStateMachine.ascendClimbCommand()
+            )
+        );
 
         armSubsystem.setJointMotorPercent(0);
     }

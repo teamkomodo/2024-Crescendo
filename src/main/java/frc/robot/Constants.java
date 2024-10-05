@@ -60,7 +60,7 @@ public final class Constants {
     public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 16;
     public static final int BACK_RIGHT_STEER_MOTOR_ID = 17;
     public static final int BACK_RIGHT_STEER_ENCODER_ID = 23;
-    public static final double BACK_RIGHT_STEER_OFFSET = -Math.toRadians(204.697);
+    public static final double BACK_RIGHT_STEER_OFFSET = 103.1416;
 
     public static final int BACK_LEFT_DRIVE_MOTOR_ID = 12;
     public static final int BACK_LEFT_STEER_MOTOR_ID = 13;
@@ -70,7 +70,7 @@ public final class Constants {
     public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 14;
     public static final int FRONT_RIGHT_STEER_MOTOR_ID = 15;
     public static final int FRONT_RIGHT_STEER_ENCODER_ID = 22;
-    public static final double FRONT_RIGHT_STEER_OFFSET = -Math.toRadians(324.841);
+    public static final double FRONT_RIGHT_STEER_OFFSET = 315;
 
     public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 10;
     public static final int FRONT_LEFT_STEER_MOTOR_ID = 11;
@@ -118,7 +118,7 @@ public final class Constants {
     public static final int JOINT_SECOND_MOTOR_ID = 33;
     public static final int JOINT_MIDDLE_ZERO_SWITCH_CHANNEL = 1;
     public static final int JOINT_BOTTOM_ZERO_SWITCH_CHANNEL = 0;
-    public static final int ABSOLUTE_JOINT_ENCODER_CHANNEL = 0; // FIXME: Needs to be fixed the correct channel
+    public static final int ABSOLUTE_JOINT_ENCODER_CHANNEL = 5; // FIXME: Needs to be fixed the correct channel
 
     public static final double JOINT_MIN_POSITION = 0; // Code stop
     public static final double JOINT_MAX_POSITION = 35; // Code stop physical max is 47
