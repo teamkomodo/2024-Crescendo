@@ -546,7 +546,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public Command driveAndPointToSpeakerCommand(DoubleSupplier xAxis, DoubleSupplier yAxis) {
-        return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), 0)));
+        return pointToSpeakerWithSpeedsCommand(() -> (joystickAxesToChassisSpeeds(xAxis.getAsDouble(), yAxis.getAsDouble(), limelight_aim_proportion())));
     }
 
     public Command pointToSpeakerCommand() {

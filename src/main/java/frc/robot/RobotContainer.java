@@ -87,7 +87,7 @@ public class RobotContainer {
             )
         );
 
-        driverController.a().whileTrue(drivetrainSubsystem.pointToSpeakerCommand());
+        driverController.a().whileTrue(drivetrainSubsystem.driveAndPointToSpeakerCommand(-driverController.getLeftX(), -driverController.getLeftY()));
 
         /*
          * Operator Binds [ State Machine       | Manual Control ]
