@@ -60,22 +60,22 @@ public final class Constants {
     public static final int BACK_RIGHT_DRIVE_MOTOR_ID = 16;
     public static final int BACK_RIGHT_STEER_MOTOR_ID = 17;
     public static final int BACK_RIGHT_STEER_ENCODER_ID = 23;
-    public static final double BACK_RIGHT_STEER_OFFSET = 2.722;
+    public static final double BACK_RIGHT_STEER_OFFSET = 5.9;
 
-    public static final int BACK_LEFT_DRIVE_MOTOR_ID = 12;
+    public static final int BACK_LEFT_DRIVE_MOTOR_ID = 14;
     public static final int BACK_LEFT_STEER_MOTOR_ID = 13;
     public static final int BACK_LEFT_STEER_ENCODER_ID = 21;
-    public static final double BACK_LEFT_STEER_OFFSET = -1.845;
+    public static final double BACK_LEFT_STEER_OFFSET = 1.28;
 
-    public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 14;
+    public static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 12;
     public static final int FRONT_RIGHT_STEER_MOTOR_ID = 15;
     public static final int FRONT_RIGHT_STEER_ENCODER_ID = 22;
-    public static final double FRONT_RIGHT_STEER_OFFSET = 0.616;
+    public static final double FRONT_RIGHT_STEER_OFFSET = 3.75;
 
     public static final int FRONT_LEFT_DRIVE_MOTOR_ID = 10;
     public static final int FRONT_LEFT_STEER_MOTOR_ID = 11;
     public static final int FONT_LEFT_STEER_ENCODER_ID = 20;
-    public static final double FRONT_LEFT_STEER_OFFSET = 1.591;
+    public static final double FRONT_LEFT_STEER_OFFSET = 4.71;
 
     public static final double WHEEL_DIAMETER = 0.1016;
 
