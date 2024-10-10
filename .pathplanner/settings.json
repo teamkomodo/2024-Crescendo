@@ -7,7 +7,9 @@
     "Four-Piece",
     "S-F5-F4"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "New Folder"
+  ],
   "defaultMaxVel": 3.8,
   "defaultMaxAccel": 5.0,
   "defaultMaxAngVel": 540.0,
