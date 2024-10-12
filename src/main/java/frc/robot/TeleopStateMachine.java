@@ -308,7 +308,7 @@ public class TeleopStateMachine {
                             currentPickupState = PickupState.ALIGN_PIECE;
                         }
 
-                        if(timer.hasElapsed(5.0)) {
+                        if(timer.hasElapsed(5.0)) {//The timer could be the reason why intake doesn't work as well.
                             stateSwitched = true;
                             currentState = State.DRIVE_WITH_PIECE;
 
@@ -326,6 +326,7 @@ public class TeleopStateMachine {
                         if(!turbotakeSubsystem.isPieceDetected()) {
                             stateSwitched = true;
                             currentState = State.DRIVE_WITH_PIECE;
+                            
                         }
 
                         break;

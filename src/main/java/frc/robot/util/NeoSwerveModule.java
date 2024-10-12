@@ -111,7 +111,7 @@ public class NeoSwerveModule implements SwerveModule{
     }
 
     private void configureMotors(PIDGains steerGains) {
-        driveMotor.setInverted(true);
+        driveMotor.setInverted(false);
         driveMotor.setIdleMode(IdleMode.kBrake);
 
         double wheelPositionConversionFactor = Math.PI * WHEEL_DIAMETER * DRIVE_REDUCTION; // motor rotations -> wheel travel in meters

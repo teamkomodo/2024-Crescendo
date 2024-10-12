@@ -82,14 +82,14 @@ public final class Constants {
     /**
      * motor rotations -> wheel rotations
      */
-    public static final double DRIVE_REDUCTION = (14.0 / 50.0) * (25.0 / 19.0) * (15.0 / 45.0);
+    public static final double DRIVE_REDUCTION = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
 
     /**
      * motor rotations -> module rotations
      */
     public static final double STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
 
-    public static final double MAX_ATTAINABLE_VELOCITY = 3.8;
+    public static final double MAX_ATTAINABLE_VELOCITY = 4.5;
 
     public static final double LINEAR_VELOCITY_CONSTRAINT = MAX_ATTAINABLE_VELOCITY;
     public static final double LINEAR_ACCEL_CONSTRAINT = 12.0;
