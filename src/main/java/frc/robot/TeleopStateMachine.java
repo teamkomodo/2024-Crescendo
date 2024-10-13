@@ -299,7 +299,7 @@ public class TeleopStateMachine {
                                 xboxRumbleCommand(driverController, 0.5),
                                 xboxRumbleCommand(operatorController, 0.5)
                             );
-                            turbotakeSubsystem.setIndexerPercent(0.3);
+                            turbotakeSubsystem.setIndexerPercent(0.2);
                             timer.restart();
                         }
 
