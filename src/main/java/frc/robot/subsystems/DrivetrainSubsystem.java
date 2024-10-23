@@ -21,6 +21,7 @@ import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.Units;
@@ -86,6 +87,9 @@ public class DrivetrainSubsystem implements Subsystem {
         "rotation",
         Rotation2d.struct
     ).publish();
+
+    private final StringPublisher alliancePublisher = drivetrainNT.getStringTopic(
+        "alliance").publish();
 
     // SysID
     private final SysIdRoutine driveSysIdRoutine = new SysIdRoutine(

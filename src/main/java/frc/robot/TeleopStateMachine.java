@@ -90,7 +90,7 @@ public class TeleopStateMachine {
     private boolean enabled = true;
 
     // Store the current state
-    private State currentState = State.START;
+    public State currentState = State.START;
     private ShootingState currentShootingState = ShootingState.PREPARE_SHOOT;
     private PickupState currentPickupState = PickupState.INACTIVE;
     //private ClimbState currentClimbState = ClimbState.EXTEND;
@@ -635,6 +635,11 @@ public class TeleopStateMachine {
 
     public Command ascendClimbCommand() {
         return Commands.runEnd(() -> commandingClimbAscend = true, () -> commandingClimbAscend = false);
+    }
+
+
+    public Command forceHasPieceCommand(){
+        return Commands.runOnce(() -> currentState = State.DRIVE_WITH_PIECE);
     }
 
 }

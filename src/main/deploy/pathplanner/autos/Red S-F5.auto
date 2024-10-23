@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3216735004898588,
-      "y": 5.467977793098444
+      "x": 15.842910975498267,
+      "y": 4.4442702869835005
     },
-    "rotation": -0.09000000000003183
+    "rotation": -117.4744316262639
   },
   "command": {
     "type": "sequential",
@@ -32,13 +32,13 @@
         {
           "type": "named",
           "data": {
-            "name": "ramp-C3"
+            "name": "ramp-far-bottom"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3-Intake-Aim-C3"
+            "pathName": "Red Intake F5"
           }
         },
         {
@@ -50,37 +50,13 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot-C3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ramp-C2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "armToIntake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "runIndexerIn"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
+            "name": "armToSpeaker"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "3-Intake-Aim-C2"
+            "pathName": "Red F5 to Speaker"
           }
         },
         {
@@ -92,7 +68,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot-C2"
+            "name": "spinUp"
           }
         },
         {
@@ -104,7 +80,7 @@
         {
           "type": "named",
           "data": {
-            "name": "stopIndexer"
+            "name": "shootSpeaker"
           }
         }
       ]

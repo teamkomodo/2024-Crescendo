@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.TeleopStateMachine.State;
 import frc.robot.commands.OffsetClimbCommand;
 import frc.robot.commands.ProfiledClimbCommand;
 import frc.robot.commands.positions.AmpPositionCommand;
@@ -91,10 +92,10 @@ public class RobotContainer {
          *              A | Command Close Shoot | Stow           |
          *              B | Command Eject       | Pickup         |
          *              X | Command Align Amp   | Amp            |
-         *              Y | Command Far Shoot   | Close Speaker  |
+         *              Y | Force haspiece  | Close Speaker  |
          * 
          *   Left Stick X | EMPTY               | Elevator       |
-         *  Right Stick Y | EMPTY               | Joint          |
+         *  Right Stick Y |                     | Joint          |
          * 
          *  Right Trigger | Empty               | Shoot          |
          *   Left Trigger | Command Intake      | Intake         |
@@ -102,7 +103,7 @@ public class RobotContainer {
          *   Right Bumper | Command Spin Up     | EMPTY          |
          *    Left Bumper | Command Score Amp   | Outtake        |
          * 
-         *          Start | Climber Up          | Climber Up     |
+         *          Start |                     | Climber Up     |
          *           Back | Climber Down        | Climber Down   |
          */
 
@@ -131,10 +132,13 @@ public class RobotContainer {
         ));
 
         Trigger operatorY = operatorController.y();
-        operatorY.onTrue(dualBinding(
-            teleopStateMachine.shootSpeakerFarCommand(),
-            new SpeakerPositionCommand(armSubsystem)
-        ));
+        // operatorY.onTrue(dualBinding(
+        //     teleopStateMachine.shootSpeakerFarCommand(),
+        //     new SpeakerPositionCommand(armSubsystem)
+        // ));
+        operatorY.onTrue(
+            teleopStateMachine.forceHasPieceCommand()
+        );
 
         Trigger operatorRB = operatorController.rightBumper();
         operatorRB.whileTrue(teleopStateMachine.spinUpCommand());
@@ -147,15 +151,24 @@ public class RobotContainer {
         ));
         
         Trigger operatorRT = operatorController.rightTrigger();
-        operatorRT.whileTrue(manualBinding(
-            Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(4500), () -> turbotakeSubsystem.setShooterPercent(0))
-        ));
+        // operatorRT.whileTrue(manualBinding(
+        //     Commands.runEnd(() -> turbotakeSubsystem.setShooterVelocity(4500), () -> turbotakeSubsystem.setShooterPercent(0))
+        // ));
+
+        operatorRT.whileTrue(
+            Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(-0.1), () -> turbotakeSubsystem.setIndexerPercent(0)));
+        ;
 
         Trigger operatorLT = operatorController.leftTrigger();
         operatorLT.whileTrue(dualBinding(
             teleopStateMachine.pickupGroundCommand(),
             Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(1.0), () -> turbotakeSubsystem.setIndexerPercent(0))
         ));
+
+        // Trigger operatorMid = operatorController.start();
+        // operatorMid.whileTrue(
+        //     Commands.runEnd(() -> turbotakeSubsystem.setIndexerPercent(0.2), () -> turbotakeSubsystem.setIndexerPercent(0))
+        // );
         
         Trigger operatorLY = new Trigger(() -> Math.abs(operatorController.getLeftY()) > XBOX_DEADBAND);
         operatorLY.whileTrue(manualBinding(
@@ -222,6 +235,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("alignPiece", alignPieceCommand());
         NamedCommands.registerCommand("spinUp", Commands.sequence(
             Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(CLOSE_SHOOTER_SPEED)),
+            Commands.print("spinning up"),
             Commands.waitUntil(() -> turbotakeSubsystem.checkShooterSpeed(CLOSE_SHOOTER_SPEED, 200))
         ).deadlineWith(ledSubsystem.setTempTurbotakePatternCommand(BlinkinPattern.COLOR_1_PATTERN_LARSON_SCANNER)));
         NamedCommands.registerCommand("stopFlywheels", Commands.runOnce(() -> turbotakeSubsystem.setShooterPercent(0)));
@@ -247,6 +261,7 @@ public class RobotContainer {
             armSubsystem.jointPositionCommand(jointPosition),
             armSubsystem.elevatorPositionCommand(0),
             Commands.runOnce(() -> turbotakeSubsystem.setShooterVelocity(shooterSpeed)),
+            Commands.print("ran shooter"),
             Commands.waitUntil(() -> armSubsystem.isJointAtPosition(jointPosition, 0.3) && turbotakeSubsystem.checkShooterSpeed(shooterSpeed, 200)),
             Commands.waitSeconds(0.4),
             Commands.runOnce(() -> turbotakeSubsystem.setIndexerPercent(1)),
