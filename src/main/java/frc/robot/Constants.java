@@ -82,7 +82,9 @@ public final class Constants {
     /**
      * motor rotations -> wheel rotations
      */
-    public static final double DRIVE_REDUCTION = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
+    public static final double DRIVE_REDUCTION = /*(14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)*/ 1/6.75
+;
+    
 
     /**
      * motor rotations -> module rotations
